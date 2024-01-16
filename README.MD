@@ -9,14 +9,14 @@ It does not provide any copyrighted assets, so while the basic program will *tec
 Simply extract the compiled project ZIP over an existing SimTunes installation. Current builds assume you have attempted to run SimTunes and have at least successfully generated a valid config file at `%LOCALAPPDATA%/VirtualStore/Windows/SimTunes.ini`.
 
 ## Controls
-F1: set interpolation on/off
-F2: restart game
-F4: fullscreen toggle
-ALT-F4/ESC: close program
-TAB: change submenu
-SPACE: toggle pause/resume of Bugz
-ARROWS/WSAD: move view
-+/-: zoom in/out
+- F1: set interpolation on/off
+- F2: restart game
+- F4: fullscreen toggle
+- ALT-F4/ESC: close program
+- TAB: change submenu
+- SPACE: toggle pause/resume of Bugz
+- ARROWS/WSAD: move view
+- +/-: zoom in/out
 
 # Current Status
 GMTunes has been in the works on and off for some years but still remains in a very early state. A list of supported and unsupported features lies below. Most excrutiating at this time is a timing bug that prevents accurate playback of the Gallery example 'Reverb'.
@@ -27,7 +27,7 @@ GMTunes has been in the works on and off for some years but still remains in a v
 - Bugz loading (.BUG files), currently does not need Bugz loaded for the initial playfield
 - Level loading (.GAL "Gallery" files as well as .TUN save files)
 - Placement of notes and control notes via UI, flag placement via number keys 1-4
-- 60 FPS
+- 60 FPS (game originally ran at 30)
 
 The file explorer is accessible using the button in left corner of the navigation bar. You can create a new file by clicking the **New file** button in the file explorer. You can also create folders by clicking the **New folder** button.
 

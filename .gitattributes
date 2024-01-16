@@ -1,0 +1,9 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+*.gml text eol=crlf
+*.yy text eol=native
+*.yyp text eol=native
+
+# Ignore .yy files for language statistics 
+*.yy linguist-generated=true

@@ -1,0 +1,1 @@
+event_perform_object(obj_button,ev_draw,ev_draw_normal);

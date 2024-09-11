@@ -13,7 +13,6 @@ var cy = y - (cam_h/4);
 camera_set_view_size(cam,cam_w/2,cam_h/2);
 camera_set_view_pos(cam,cx,cy);
 global.zoom += 1;
-with obj_bug update_sprite();
 }
 zoom_out = function(){
 if global.zoom < 1 exit;
@@ -25,5 +24,4 @@ var cy = y - (cam_h);
 camera_set_view_size(cam,cam_w*2,cam_h*2);
 camera_set_view_pos(cam,cx,cy);
 global.zoom -= 1;
-with obj_bug update_sprite();
 }

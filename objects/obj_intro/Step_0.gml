@@ -8,7 +8,7 @@ switch mode
 			{
 			if alpha < 1 then alpha += 0.05;
 			}
-		if keyboard_check_pressed(vk_anykey) && timer < 120 then timer = 120;
+		if keyboard_check_pressed_sane(vk_anykey) && timer < 120 then timer = 120;
 		if timer > 120
 			{
 			alpha -= 0.05;
@@ -35,8 +35,8 @@ switch mode
 		}
 	case 3:
 		{
-		if timer >= (audio_sound_length(s)*60) 
-		or (keyboard_check_pressed(vk_anykey) && !keyboard_check(vk_f4))
+		if timer >= (audio_sound_length(s)*60)
+		or (keyboard_check_pressed_sane(vk_anykey) && !keyboard_check(vk_f4))
 			{
 			audio_stop_sound(s);
 			mode++;

@@ -1,4 +1,6 @@
-function tun_save(file){
+function tun_save(file)
+// Feather disable GM1041
+{
 // make sure we have a filename
 if file == "" then return -2;
 
@@ -50,7 +52,7 @@ buffer_write(bu,buffer_u8,0);
 // garbage data #2
 repeat 28 buffer_write(bu,buffer_u8,0);
 
-// background filename
+// background filename (taken from obj_ctrl_playfield background vars)
 var back_str = mybackname;//"03GP4BT.BAC";
 var bss = string_length(back_str);
 buffer_write(bu,buffer_text,back_str);
@@ -158,4 +160,107 @@ buffer_save(bu,file);
 // clean up data
 buffer_delete(bu);
 return 0;
+}
+
+function bug_struct() constructor {
+filename = "";
+dir = 0; //0-3, 0: up, 1: right, etc
+gear = 4;
+pos = [0,0]; //[x,y]
+paused = false; //true/false
+volume = 128; //0-128 in increments of 16
+}
+
+function tun_save_gmtun(tun_filename=global.main_dir+"/save.gmtun"){
+// Prepare metadata
+
+// Camera
+var myzoom = 4;
+switch global.zoom
+	{
+	case 0: break;
+	case 1: myzoom = 8; break;
+	case 2: myzoom = 16; break;
+	}
+
+// Flag data
+var myflags;
+for (var i=0;i<4;i++)
+	{
+	if flag[i] != noone
+		{
+		var flag_dir = flag[i].direction;
+		/*switch flag[i].direction
+			{
+			case 90:	flag_dir = 0; break;
+			case 0:		flag_dir = 1; break;
+			case 270:	flag_dir = 2; break;
+			case 180:	flag_dir = 3; break;
+			}*/
+		myflags[i] = [round(flag[i].x/16), round(flag[i].y/16), flag_dir];
+		}
+	else myflags[i] = [-1, -1, -1];
+	}
+	
+// Bugz structs
+var mybugz = [bug_yellow,bug_green,bug_blue,bug_red];
+var str;
+for (var i=0;i<4;i++)
+	{
+	str[i] = new bug_struct();
+	if mybugz[i] != noone
+		{
+		str[i].filename =	mybugz[i].bugzname;
+		str[i].dir =		mybugz[i].direction;
+		str[i].gear =		mybugz[i].gear;
+		str[i].pos =		[mybugz[i].x,mybugz[i].y];
+		str[i].paused =		mybugz[i].paused;
+		str[i].volume =		mybugz[i].volume;
+		}
+	}
+
+// Generate the JSON file
+var mystruct = {
+	version: 1,
+	name: "",
+	author: "",
+	preview_image: "",
+	background: mybackname,//"",
+	
+	camera_pos: [round(x),round(y)],
+	pixelsize: global.zoom, // SimTunes uses pixelsize 4,8,16, simplify here to 0-2
+	warp_list: global.warp_list, //[xfrom,yfrom,xto,yto]
+	flag_list: myflags, //[x,y,dir]
+	note_list: ds_grid_write(global.pixel_grid), //[note,x,y]
+	ctrl_list: ds_grid_write(global.ctrl_grid),
+	bugz: {
+		yellow: str[0],
+		green: str[1],
+		blue: str[2],
+		red: str[3]
+		}
+	}
+	
+var json = json_stringify(mystruct,true);
+var f = file_text_open_write(tun_filename);
+file_text_write_string(f,json);
+file_text_close(f);
+
+trace(tun_filename+" saved!");
+}
+
+function tun_load_gmtun(tun_filename="") {
+if tun_filename == "" exit;
+var f = buffer_load(tun_filename);
+var mystruct = json_parse(buffer_read(f,buffer_text));
+trace(mystruct);
+buffer_delete(f);
+
+x = mystruct.camera_pos[0];
+y = mystruct.camera_pos[1];
+global.zoom = mystruct.pixelsize;
+ds_grid_read(global.pixel_grid,mystruct.note_list);
+ds_grid_read(global.ctrl_grid,mystruct.ctrl_list);
+
+trace(tun_filename+" loaded!");
 }

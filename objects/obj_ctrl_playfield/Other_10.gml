@@ -49,7 +49,6 @@ if f != ""
 	mybug.gear = 3;
 	mybug.timer = game_get_speed(gamespeed_fps) / 3;
 	mybug.paused = paused;
-	mybug.update_sprite();
 	return mybug;
 	}
 return -2;
@@ -125,7 +124,6 @@ for (var i=0;i<4;i++)
 		bugz[i].y = flag[i].y;
 		bugz[i].direction_p = flag[i].direction;
 		bugz[i].direction = flag[i].direction;
-		bugz[i].update_sprite();
 		bugz[i].timer = 0;
 		bugz[i].calculate_timer();
 		}
@@ -133,18 +131,20 @@ for (var i=0;i<4;i++)
 }
 
 load_tun = function(){
-var f = get_open_filename_ext("Save/Gallery File|*.TUN;*.GAL","",global.main_dir+"/GALLERY","Load Savefile");
+var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/GALLERY","Load Savefile");
 if f != ""
 	{
-	tun_load(f);
+	if string_lower(filename_ext(f)) == ".tun" tun_load(f);
+	if string_lower(filename_ext(f)) == ".gmtun" tun_load_gmtun(f);
 	field.update_surf();
 	field.update_ctrl_surf();
 	}
 }
 save_tun = function(){
-var f = get_save_filename_ext("Save File|*.TUN","",global.main_dir+"/TUNES","Save Savefile");
+var f = get_save_filename_ext("SimTunes .tun File (.tun)|*.TUN|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Save Savefile");
 if f != ""
 	{
-	tun_save(f);
+	if string_lower(filename_ext(f)) == ".tun" tun_save(f);
+	if string_lower(filename_ext(f)) == ".gmtun" tun_save_gmtun(f);
 	}
 }

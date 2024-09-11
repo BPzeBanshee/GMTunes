@@ -82,12 +82,13 @@ if keyboard_check_pressed(vk_tab)
 	}
 if keyboard_check_pressed(vk_enter)
 	{
-	var g = clamp(get_integer("gear num",-1),-1,8);
+	dialog = get_integer_async("Bugz Gear Speed",-1);
+	/*var g = clamp(get_integer("gear num",-1),-1,8);
 	with obj_bug
 		{
 		gear = g;
 		calculate_timer();
-		}
+		}*/
 	}
 	
 

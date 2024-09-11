@@ -1,5 +1,4 @@
 draw_set_alpha(alpha);
-draw_set_valign(fa_middle);
 
 if mode == 0 then draw_sprite(spr_logo1,0,0,0);
 if mode == 1 then draw_sprite(spr_logo2,0,0,0);

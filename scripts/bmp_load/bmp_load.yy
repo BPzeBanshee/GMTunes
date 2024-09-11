@@ -1,11 +1,13 @@
 {
-  "resourceType": "GMScript",
-  "resourceVersion": "1.0",
-  "name": "bmp_load",
-  "isCompatibility": false,
-  "isDnD": false,
-  "parent": {
-    "name": "Resource Functions",
-    "path": "folders/Scripts/Resource Functions.yy",
+  "$GMScript":"v1",
+  "%Name":"bmp_load",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"bmp_load",
+  "parent":{
+    "name":"Resource Functions",
+    "path":"folders/Scripts/Resource Functions.yy",
   },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
 }

@@ -1,3 +1,4 @@
+///@desc Decrypts a SimTunes 'chunk', used in .tun files for preview image data and compression of note positions
 function scr_decrypt_chunk(buffer,size){
 
 var buf = buffer_create(1,buffer_grow,1);

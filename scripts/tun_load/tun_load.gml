@@ -488,7 +488,6 @@ for (var i=0;i<4;i++)
 	trace("bug "+string(i)+" set to direction "+string(bugz_posdir[i][2])+" ("+string(bug.direction)+")");
 	
 	bug.calculate_timer();
-	bug.update_sprite();
 	switch i
 		{
 		case 0: bug_yellow = bug; break;

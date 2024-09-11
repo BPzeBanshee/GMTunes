@@ -1,11 +1,13 @@
 {
-  "resourceType": "GMScript",
-  "resourceVersion": "1.0",
-  "name": "scr_main_init",
-  "isCompatibility": false,
-  "isDnD": false,
-  "parent": {
-    "name": "CORE",
-    "path": "folders/Scripts/CORE.yy",
+  "$GMScript":"v1",
+  "%Name":"scr_main_init",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_main_init",
+  "parent":{
+    "name":"CORE",
+    "path":"folders/Scripts/CORE.yy",
   },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
 }

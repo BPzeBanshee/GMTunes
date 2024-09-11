@@ -1,3 +1,4 @@
+// Feather disable GM2016
 draw_set_alpha(1);
 if global.zoom > 0
 	{
@@ -6,7 +7,6 @@ if global.zoom > 0
 	}
 draw_set_color(c_white);
 draw_set_font(global.fnt_bold);
-//draw_set_valign(fa_top);
 draw_set_halign(fa_left);
 var mx = device_mouse_x_to_gui(0);
 var my = device_mouse_y_to_gui(0);
@@ -17,6 +17,7 @@ switch menu
 	// paint
 	case 0:
 		{
+		// top row
 		var mmy = (my >= by && my <= by+15) ? true : false;
 		for (var i=0;i<25;i++)
 			{
@@ -32,6 +33,8 @@ switch menu
 				m.note = i+1;
 				}
 			}
+			
+		// bottom row
 		mmy = (my >= by+16 && my <= by+32) ? true : false;
 		for (var i=0;i<14;i++)
 			{
@@ -48,7 +51,6 @@ switch menu
 				m.note = i+1;
 				}
 			}
-		
 		break;
 		}
 		
@@ -62,10 +64,10 @@ switch menu
 	case 3: 
 		{
 		draw_set_halign(fa_center);
-		var mmy = (my >= by && my <= by+32) ? true : false;
-		var bug = [bug_yellow,bug_green,bug_blue,bug_red];
 		var bbx = bx;
 		var mmx = (mx >= bbx && mx <= bbx+64) ? true : false;
+		var mmy = (my >= by && my <= by+32) ? true : false;
+		var bug = [bug_yellow,bug_green,bug_blue,bug_red];
 		for (var i=0;i<4;i++)
 			{
 			var c = c_white;
@@ -78,7 +80,7 @@ switch menu
 				}
 			draw_rectangle_color(bbx,by,bbx+63,by+32,c,c,c,c,true);
 			if instance_exists(bug[i])
-			then draw_sprite_ext(bug[i].spr_up[2],bug[i].image_index,bbx+32,by+16,1,1,bug[i].direction-90,c_white,1)
+			then draw_sprite_ext(bug[i].spr_up[2,round(bug[i].spr_subimg)],0,bbx+32,by+16,1,1,bug[i].direction-90,c_white,1)
 			else draw_text(bbx+32,by+16,"N/A");
 			
 			mmx = (mx >= bbx && mx <= bbx+64) ? true : false;

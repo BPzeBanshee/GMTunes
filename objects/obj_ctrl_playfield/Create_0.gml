@@ -15,6 +15,9 @@ for (var i=0;i<4;i++) flag[i] = noone;
 myback = -1;
 paused = false;
 
+// Dialog result
+dialog = -1;
+
 // Notes
 mynote = spr_note;
 myctrlnote = spr_note_ctrl;
@@ -60,8 +63,7 @@ bug_red = bug_create(room_width*0.5,room_height*0.75,global.main_dir+"BUGZ/RED01
 //bug_green.direction = 90;
 /*bug_green.direction = 270;
 bug_green.gear = 3;
-bug_green.speed = bug_green.calculate_speed();
-bug_green.update_sprite();*/
+bug_green.speed = bug_green.calculate_speed();*/
 
 // Call method functions
 event_user(0);

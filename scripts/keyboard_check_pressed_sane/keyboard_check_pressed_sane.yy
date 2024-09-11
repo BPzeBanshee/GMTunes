@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"xy_to_gui",
+  "%Name":"keyboard_check_pressed_sane",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"xy_to_gui",
+  "name":"keyboard_check_pressed_sane",
   "parent":{
     "name":"Others",
     "path":"folders/Scripts/CORE/Others.yy",

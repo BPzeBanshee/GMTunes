@@ -8,9 +8,11 @@ calculate_timer = function(){
 var second = game_get_speed(gamespeed_fps);
 switch gear
 	{
+	// Bad Apple BPM test:
 	// 138 BPM: 60 / (138/60[2.3])==26.086etc too slow, 
 	// 276 BPM: 60 / (276/60[4.6])==13.043etc correct
 	// formula?: FPS / (BPM*2/FPS)
+	// alt: 30 (OG speed) / (BPM / FPS)
 	case -1: timer += 13.043478260869565217391304347826; break;
 	case 0: timer += second * 2; break;
 	case 1: timer += second; break;
@@ -62,10 +64,10 @@ switch mm
 	case 5: direction = 270;	ctrl_x = (xx*16);			ctrl_y = (yy*16) + 128;		warp = true; break;
 	case 6: direction = 180;	ctrl_x = (xx*16) - 128;		ctrl_y = (yy*16);			warp = true; break;
 	case 7: direction = 90;		ctrl_x = (xx*16);			ctrl_y = (yy*16) - 128;		warp = true; break;
-	//case 4: direction = 0;		ctrl_x = (x) + 128;		ctrl_y = (y);			break;
+	//case 4: direction = 0;	ctrl_x = (x) + 128;		ctrl_y = (y);			break;
 	//case 5: direction = 270;	ctrl_x = (x);			ctrl_y = (y) + 128;		break;
 	//case 6: direction = 180;	ctrl_x = (x) - 128;		ctrl_y = (y);			break;
-	//case 7: direction = 90;		ctrl_x = (x);			ctrl_y = (y) - 128;		break;
+	//case 7: direction = 90;	ctrl_x = (x);			ctrl_y = (y) - 128;		break;
 	case 8: // tele from
 		{
 		for (var i=0;i<array_length(global.warp_list);i++)
@@ -90,14 +92,12 @@ switch mm
 	
 if !place_snapped(16,16) then move_snap(16,16);
 direction_p = direction;
-update_sprite();
 }
 
-update_sprite = function(){
-// Sprite handling
-sprite_index = spr_up[global.zoom];
-image_angle = direction - 90;
-if !paused then image_speed = 0.5;
+draw_bug = function(xx,yy){
+var spr = spr_up[global.zoom,round(spr_subimg)];
+if sprite_exists(spr) 
+draw_sprite_ext(spr,0,xx,yy,image_xscale,image_yscale,direction-90,image_blend,image_alpha);
 }
 
 draw_anim = function(xx,yy){

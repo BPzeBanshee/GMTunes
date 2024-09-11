@@ -24,7 +24,7 @@ anim_index = 0;
 anim_playing = false;
 
 // sprite bank (cardinal directions + 3 zoom levels)
-spr_up = [];
+spr_up = [[],[]];
 //spr_down = [];
 //spr_left = [];
 //spr_right = [];
@@ -32,6 +32,7 @@ spr_notehit_tl = -1;
 spr_notehit_tr = -1;
 spr_notehit_bl = -1;
 spr_notehit_br = -1;
+spr_subimg = 0;
 
 ltxy_data = [];
 ltxy_mode = 0; 

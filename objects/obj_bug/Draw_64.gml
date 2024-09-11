@@ -24,5 +24,5 @@ if global.zoom < 2
 		}
 	var xy = xy_to_gui(xx,yy);
 	draw_anim(xy.gx,xy.gy);
-	draw_sprite_ext(sprite_index,image_index,xy.gx,xy.gy,image_xscale,image_yscale,image_angle,image_blend,image_alpha);
+	draw_bug(xy.gx,xy.gy);
 	}

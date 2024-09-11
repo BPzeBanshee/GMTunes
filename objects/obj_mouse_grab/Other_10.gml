@@ -23,12 +23,10 @@ else
 	if keyboard_check_pressed(ord("Z")) 
 		{
 		grabbed_bug.direction += 90; 
-		grabbed_bug.update_sprite();
 		}
 	if keyboard_check_pressed(ord("X")) 
 		{
 		grabbed_bug.direction -= 90; 
-		grabbed_bug.update_sprite();
 		}
 	if keyboard_check_pressed(ord("C"))
 		{

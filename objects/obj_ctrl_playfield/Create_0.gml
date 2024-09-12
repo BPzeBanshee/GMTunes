@@ -1,5 +1,10 @@
 audio_master_gain(0.25);
 
+playfield_name = "New playfield";
+playfield_author = "New author";
+playfield_desc = "This is a new playfield.";
+window_set_caption("GMTunes: "+string("{1} - {0}",playfield_author,playfield_name));
+
 menu = 0;
 
 global.pixel_grid = ds_grid_create(160,104);

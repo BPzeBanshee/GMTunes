@@ -108,6 +108,7 @@
     {"id":{"name":"scr_gmlzari","path":"scripts/scr_gmlzari/scr_gmlzari.yy",},},
     {"id":{"name":"scr_main_init","path":"scripts/scr_main_init/scr_main_init.yy",},},
     {"id":{"name":"scr_note_blend","path":"scripts/scr_note_blend/scr_note_blend.yy",},},
+    {"id":{"name":"scr_structs","path":"scripts/scr_structs/scr_structs.yy",},},
     {"id":{"name":"string_wordwrap_width","path":"scripts/string_wordwrap_width/string_wordwrap_width.yy",},},
     {"id":{"name":"tun_load","path":"scripts/tun_load/tun_load.yy",},},
     {"id":{"name":"tun_save","path":"scripts/tun_save/tun_save.yy",},},

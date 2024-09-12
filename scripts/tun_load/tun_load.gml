@@ -1,7 +1,7 @@
 function tun_load(file){
-// Load file into buffer, do some error checking
+// File error checking
 if !file_exists(file) then return -2;
-trace("Loading map "+string(file));
+trace("Loading playfield from "+string(file)+"...");
 
 // Clear playfield first
 with obj_bug instance_destroy();
@@ -9,6 +9,30 @@ with obj_flag instance_destroy();
 ds_grid_clear(global.pixel_grid,0);
 ds_grid_clear(global.ctrl_grid,0);
 
+// Load contents from given file
+var mystruct;
+var fileext = string_lower(filename_ext(file));
+var raw_grid_writes = false;
+
+if fileext == ".tun" or fileext == ".gal" 
+mystruct = tun_load_tun(file);
+
+if fileext == ".gmtun" 
+	{
+	mystruct = tun_load_gmtun(file);
+	raw_grid_writes = true;
+	}
+
+if is_struct(mystruct) 
+	{
+	tun_apply_data(mystruct,raw_grid_writes);
+	return 0;
+	}
+return 1;
+}
+
+function tun_load_tun(file){
+// Load file into buffer, do some error checking
 var bu = buffer_create(8,buffer_grow,1);
 buffer_load_ext(bu,file,0);
 if buffer_word(bu,0) != "VER5"
@@ -18,22 +42,25 @@ if buffer_word(bu,0) != "VER5"
     return -3;
     }
 var eob = buffer_get_size(bu);
+
+var mystruct = new playfield_struct(); 
     
 // Start offsetting, get project name + single space padding indicating end of string
 buffer_seek(bu,buffer_seek_start,4);
 
 var s = buffer_read(bu,buffer_u32); // u32 size of project name string
-buffer_seek(bu,buffer_seek_relative,s);
-/*trace("Size of string: "+string(s));
+//buffer_seek(bu,buffer_seek_relative,s);
+trace("Size of string: "+string(s));
 
-str_name = "";
+var str_name = "";
 for (var i=0; i<s; i++)
     {
     var a = buffer_read(bu,buffer_u8);
     str_name = str_name + chr(a);
     }
 //buffer_read(bu,buffer_u8); // skip space at end of string
-trace("Project Name: '"+str_name+"'");*/
+trace("Project Name: '"+str_name+"'");
+mystruct.name = str_name;
 
 // At this point, existing included projects have 4 sets of FF padding,
 // but user made projects get some weird garbage instead.
@@ -152,24 +179,28 @@ if f2 != ""
 	
 // Author name string size
 var author_size = buffer_read(bu,buffer_u32);
-buffer_seek(bu,buffer_seek_relative,author_size);
-/*trace("Size of author str: "+string(author_size));
+//buffer_seek(bu,buffer_seek_relative,author_size);
+trace("Size of author str: "+string(author_size));
 
 // Author name
+var str_author = "";
 for (var i=0;i<author_size;i++)
     {
     str_author += chr(buffer_read(bu,buffer_u8));
     }
-trace("Author string: "+string(str_author));*/
+trace("Author string: "+string(str_author));
+mystruct.author = str_author;
 
 // Description (big endian but doesn't matter as it's just an offset bit)
 var desc_size = buffer_read(bu,buffer_u32);
-buffer_seek(bu,buffer_seek_relative,desc_size);
-/*for (var i=0;i<desc_size;i++)
+//buffer_seek(bu,buffer_seek_relative,desc_size);
+var str_desc = "";
+for (var i=0;i<desc_size;i++)
     {
     str_desc += chr(buffer_read(bu,buffer_u8));
     }
-trace("Desc string: "+string(str_desc));*/
+trace("Desc string: "+string(str_desc));
+mystruct.desc = str_desc;
 
 // TODO: Mystery data here, seems to be 8 bytes of 00 following a value,
 // then another value after 8 bytes, then FF FF FF FF
@@ -182,17 +213,7 @@ var str_size = buffer_read(bu,buffer_u32);
 var bkg_file = "";
 for (var i=0;i<str_size;i++) bkg_file += chr(buffer_read(bu,buffer_u8));
 trace("background filename: "+string(bkg_file));
-
-if sprite_exists(myback) then sprite_delete(myback);
-myback = bac_load(global.main_dir+"/BACKDROP/"+bkg_file);
-if sprite_exists(myback)
-	{
-	var bid = layer_background_get_id("lay_bkg");
-	layer_background_blend(bid,c_white);
-	layer_background_sprite(bid,myback);
-	layer_background_xscale(bid,4);
-	layer_background_yscale(bid,4);
-	}
+mystruct.background = bkg_file;
 	
 // Camera/Zoom positions
 var cam_x = buffer_read(bu,buffer_u32);
@@ -200,19 +221,14 @@ var cam_y = buffer_read(bu,buffer_u32);
 var pixelsize = buffer_read(bu,buffer_u32);
 trace(string("cam: [{0},{1}]",cam_x,cam_y));
 trace(string("pixelsize: {0}",pixelsize));
-
-var ww = 640*4;
-var hh = 480*4;
+mystruct.camera_pos = [cam_x,cam_y];
 switch pixelsize
 	{
-	//case 4
-	case 8: global.zoom = 1; ww /= 2; hh /= 2; break;
-	case 16: global.zoom = 2; ww /= 4; hh /= 4; break;
-	default: global.zoom = 0; break;
+	case 8: mystruct.pixelsize = 1; break;
+	case 16: mystruct.pixelsize = 2; break;
+	case 4:
+	default: mystruct.pixelsize = 0; break;
 	}
-var cam = view_get_camera(0);
-camera_set_view_size(cam,ww,hh);
-camera_set_view_pos(cam,clamp(cam_x,0,1920),clamp(cam_y,0,1856));
 
 // Random BS #3
 var unkc = [];
@@ -247,7 +263,7 @@ for (var i=0;i<num_warps;i++)
 	
 	}
 //array_resize(warp_list,count);
-global.warp_list = warp_list;
+mystruct.warp_list = warp_list;
 trace("Warp list: "+string(warp_list));
 
 var flag_list = [];
@@ -261,21 +277,17 @@ for (var i=0;i<4;i++)
 	// Create flags
 	if flag_list[i][0] > -1
 		{
-		flag[i] = instance_create_depth(flag_list[i][0]*16,flag_list[i][1]*16,99,obj_flag);
-		flag[i].flagtype = i;
-		flag[i].image_index = i;
-		//flag.direction = 90 - (90*flag_list[i][2]);
 		switch flag_list[i][2]
 			{
-			case 0: flag[i].direction = 90; break;
-			case 1: flag[i].direction = 0; break;
-			case 2: flag[i].direction = 270; break;
-			case 3: flag[i].direction = 180; break;
+			case 0: flag_list[i][2] = 90; break;
+			case 1: flag_list[i][2] = 0; break;
+			case 2: flag_list[i][2] = 270; break;
+			case 3: flag_list[i][2] = 180; break;
 			}
-		flag[i].image_angle = flag[i].direction;
 		}
 	}
 trace("Flag list: "+string(flag_list));	
+mystruct.flag_list = flag_list;
 
 // finally, the actual note position data
 s = buffer_read(bu,buffer_u32);
@@ -336,35 +348,33 @@ trace("Mystery Number: "+string(meta_number));
 buffer_read(bu,buffer_u32);
 
 // Bugz metadata
-var bugname_str = [];
+
 var bugz_posdir = [];
 var bugz_speed = [];
 var bugz_paused = [];
 var bugz_volume = [];
+var bugz = [mystruct.bugz.yellow,mystruct.bugz.green,mystruct.bugz.blue,mystruct.bugz.red];
 
 // should be 60*4 bytes after the bugz names, the strings make it inconsistent tho
-for (var i=0;i<4;i++)
+for (var i=0; i<4; i++)
 	{
 	//var chunk_size = buffer_read(bu,buffer_u32);
 	//buffer_read(bu,buffer_u32);
 	trace("file bytes remaining: "+string(eob - buffer_tell(bu)));
 	var bugname_size = buffer_read(bu,buffer_u32);
-	bugname_str[i] = "";
-	repeat bugname_size bugname_str[i] += chr(buffer_read(bu,buffer_u8));
-	trace(bugname_str[i]);
+	var bugname_str = "";
+	repeat bugname_size bugname_str += chr(buffer_read(bu,buffer_u8));
+	trace(bugname_str);
+	bugz[i].filename = bugname_str;
+	
 	if (eob - buffer_tell(bu)) == 87
 		{
 		trace("warning: metadata corruption, deferring read");
-		bugz_posdir[i][0] = bugz_posdir[i-1][0];
-		bugz_posdir[i][1] = bugz_posdir[i-1][1];
-		bugz_posdir[i][2] = bugz_posdir[i-1][2];
-		bugz_speed[i] = bugz_speed[i-1];
-		bugz_paused[i] = bugz_paused[i-1];
-		bugz_volume[i] = bugz_volume[i-1];
+		bugz[i] = bugz[i-1];	//copy all stats from previous bug
+		bugz[i].filename = bugname_str; //re-apply unique filename
 		}
 	else
 		{
-	
 		// First two always 0,2, other two fractional takes possibly?
 		/*unk = [];
 		repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
@@ -372,11 +382,17 @@ for (var i=0;i<4;i++)
 		buffer_seek(bu,buffer_seek_relative,16);
 	
 		// Current positions (X, Y, DIR)
-		bugz_posdir[i][0] = buffer_read(bu,buffer_u32); // X
-		bugz_posdir[i][1] = buffer_read(bu,buffer_u32); // Y
-		bugz_posdir[i][2] = buffer_read(bu,buffer_u32); // Dir
-		trace("Direction: "+string(bugz_posdir[i][2])+", Position: "+string(bugz_posdir[i][0])+", "+string(bugz_posdir[i][1]));
-		
+		bugz[i].pos[0] = buffer_read(bu,buffer_u32) * 16; // X
+		bugz[i].pos[1] = buffer_read(bu,buffer_u32) * 16; // Y
+		bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
+		switch bugz[i].dir
+			{
+			case 0: bugz[i].dir = 90; break;
+			case 1: bugz[i].dir = 0; break;
+			case 2: bugz[i].dir = 270; break;
+			case 3: bugz[i].dir = 180; break;
+			}
+		trace("Direction: "+string(bugz[i].dir)+", Position: "+string("{0},{1}",bugz[i].pos));
 		// More unknowns
 		/*unk = [];
 		repeat 2 array_push(unk,buffer_read(bu,buffer_u32));
@@ -458,35 +474,104 @@ for (var i=0;i<4;i++)
 		trace("Unk Bugz Metadata #3: "+string(unk));*/
 		buffer_seek(bu,buffer_seek_relative,4);
 	
-		bugz_speed[i] = buffer_read(bu,buffer_u32); //0-8
-		bugz_paused[i] = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
-		bugz_volume[i] = buffer_read(bu,buffer_u32); //0-128 in increments of 16
+		bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
+		bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
+		bugz[i].volume = buffer_read(bu,buffer_u32); //0-128 in increments of 16
 		
-		trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz_speed[i],bugz_paused[i],bugz_volume[i]));
-		if filename_ext(file)==".GAL" then bugz_paused[i] = false;
-		bugz_volume[i] = clamp(bugz_volume[i],0,128);
+		trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz[i].gear,bugz[i].paused,bugz[i].volume));
+		if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = false;
+		bugz[i].volume = clamp(bugz[i].volume,0,128);
 		}
 	}
 
 // clear buffer
 buffer_delete(bu);
+return mystruct;
+}
 
-// finally, actually create the bugz
+function tun_load_gmtun(tun_filename="") {
+if tun_filename == "" exit;
+var f = buffer_load(tun_filename);
+var mystruct = json_parse(buffer_read(f,buffer_text));
+buffer_delete(f);
+trace(tun_filename+" loaded!");
+trace(mystruct);
+return mystruct;
+}
+
+function tun_apply_data(tun_struct,raw_grids=true) {
+// Metadata
+playfield_name = tun_struct.name;
+playfield_author = tun_struct.author;
+playfield_desc = tun_struct.desc;
+if playfield_name != ""
+	{
+	window_set_caption(string("GMTunes: {0} - {1}",playfield_author,playfield_name));
+	}
+
+// Background
+if sprite_exists(myback) then sprite_delete(myback);
+var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
+myback = bac_load(dir);
+trace(dir+" resulted in code "+string(myback));
+if sprite_exists(myback)
+	{
+	var bid = layer_background_get_id("lay_bkg");
+	layer_background_blend(bid,c_white);
+	layer_background_sprite(bid,myback);
+	layer_background_xscale(bid,4);
+	layer_background_yscale(bid,4);
+	mybackname = tun_struct.background;
+	}
+	
+// Camera settings
+x = clamp(tun_struct.camera_pos[0],0,1920);
+y = clamp(tun_struct.camera_pos[1],0,1856);
+global.zoom = tun_struct.pixelsize;
+var ww = 640*4;
+var hh = 480*4;
+switch global.zoom
+	{
+	case 1: ww /= 2; hh /= 2; break;
+	case 2: ww /= 4; hh /= 4; break;
+	default: break;
+	}
+var cam = view_get_camera(0);
+camera_set_view_size(cam,ww,hh);
+camera_set_view_pos(cam,x,y);
+
+// Flags
+var flag_list = tun_struct.flag_list;
 for (var i=0;i<4;i++)
 	{
-	var bug = bug_create(bugz_posdir[i][0]*16,bugz_posdir[i][1]*16,global.main_dir+"/BUGZ/"+bugname_str[i]);
-	bug.gear = bugz_speed[i];
-	bug.paused = bugz_paused[i];
-	bug.volume = bugz_volume[i];
-	switch bugz_posdir[i][2]
+	// Create flags
+	if flag_list[i][0] > -1
 		{
-		case 0: bug.direction = 90; break;
-		case 1: bug.direction = 0; break;
-		case 2: bug.direction = 270; break;
-		case 3: bug.direction = 180; break;
+		flag[i] = instance_create_depth(flag_list[i][0]*16,flag_list[i][1]*16,99,obj_flag);
+		flag[i].flagtype = i;
+		flag[i].image_index = i;
+		flag[i].direction = flag_list[i][2];
+		flag[i].image_angle = flag_list[i][2];
 		}
-	trace("bug "+string(i)+" set to direction "+string(bugz_posdir[i][2])+" ("+string(bug.direction)+")");
-	
+	}
+
+// Pixel/Control grids
+if raw_grids // if loaded as raw ds_grid_writes
+	{
+	ds_grid_read(global.pixel_grid,tun_struct.note_list);
+	ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
+	}
+global.warp_list = tun_struct.warp_list;
+
+// finally, actually create the bugz
+var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
+for (var i=0;i<4;i++)
+	{
+	var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
+	bug.gear = bugz[i].gear;
+	bug.paused = bugz[i].paused;
+	bug.volume = bugz[i].volume;
+	bug.direction = bugz[i].dir;
 	bug.calculate_timer();
 	switch i
 		{

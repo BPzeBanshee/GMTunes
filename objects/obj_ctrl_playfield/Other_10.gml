@@ -134,8 +134,7 @@ load_tun = function(){
 var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/GALLERY","Load Savefile");
 if f != ""
 	{
-	if string_lower(filename_ext(f)) == ".tun" tun_load(f);
-	if string_lower(filename_ext(f)) == ".gmtun" tun_load_gmtun(f);
+	tun_load(f);
 	field.update_surf();
 	field.update_ctrl_surf();
 	}
@@ -144,7 +143,11 @@ save_tun = function(){
 var f = get_save_filename_ext("SimTunes .tun File (.tun)|*.TUN|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Save Savefile");
 if f != ""
 	{
-	if string_lower(filename_ext(f)) == ".tun" tun_save(f);
-	if string_lower(filename_ext(f)) == ".gmtun" tun_save_gmtun(f);
+	// Feather disable GM1017
+	playfield_name = get_string("Playfield name: ",playfield_name);
+	playfield_author = get_string("Playfield author: ",playfield_author);
+	playfield_desc = get_string("Playfield description: ",playfield_desc);
+	window_set_caption("GMTunes: "+string("{1} - {0}",playfield_author,playfield_name));
+	tun_save(f);
 	}
 }

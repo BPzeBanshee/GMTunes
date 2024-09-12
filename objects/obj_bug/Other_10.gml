@@ -60,14 +60,14 @@ switch mm
 	case 1: direction += 90; break;
 	case 2: direction -= 90; break;
 	case 3: direction += 180; break;
-	case 4: direction = 0;		ctrl_x = (xx*16) + 128;		ctrl_y = (yy*16);			warp = true; break;
-	case 5: direction = 270;	ctrl_x = (xx*16);			ctrl_y = (yy*16) + 128;		warp = true; break;
-	case 6: direction = 180;	ctrl_x = (xx*16) - 128;		ctrl_y = (yy*16);			warp = true; break;
-	case 7: direction = 90;		ctrl_x = (xx*16);			ctrl_y = (yy*16) - 128;		warp = true; break;
-	//case 4: direction = 0;	ctrl_x = (x) + 128;		ctrl_y = (y);			break;
-	//case 5: direction = 270;	ctrl_x = (x);			ctrl_y = (y) + 128;		break;
-	//case 6: direction = 180;	ctrl_x = (x) - 128;		ctrl_y = (y);			break;
-	//case 7: direction = 90;	ctrl_x = (x);			ctrl_y = (y) - 128;		break;
+	//case 4: direction = 0;		ctrl_x = (xx*16) + 128;		ctrl_y = (yy*16);			warp = true; break;
+	//case 5: direction = 270;	ctrl_x = (xx*16);			ctrl_y = (yy*16) + 128;		warp = true; break;
+	//case 6: direction = 180;	ctrl_x = (xx*16) - 128;		ctrl_y = (yy*16);			warp = true; break;
+	//case 7: direction = 90;		ctrl_x = (xx*16);			ctrl_y = (yy*16) - 128;		warp = true; break;
+	case 4: direction = 0;	ctrl_x = (xx + 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
+	case 5: direction = 270;	ctrl_x = (xx) * 16;			ctrl_y = (yy + 8) * 16;		warp = true; break;
+	case 6: direction = 180;	ctrl_x = (xx - 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
+	case 7: direction = 90;	ctrl_x = (xx) * 16;				ctrl_y = (yy - 8) * 16;		warp = true; break;
 	case 8: // tele from
 		{
 		for (var i=0;i<array_length(global.warp_list);i++)

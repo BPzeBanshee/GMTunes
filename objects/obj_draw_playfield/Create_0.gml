@@ -48,9 +48,7 @@ surface_reset_target();
 update_surf = function(){
 var ww = 160;//ds_grid_width(global.pixel_grid);
 var hh = 104;//ds_grid_height(global.pixel_grid);
-
-// Great for when we actually have sprites for said pixels
-if !surface_exists(pixel_surf) then pixel_surf = surface_create(ww*16,hh*16);
+if !surface_exists(pixel_surf) then pixel_surf = surface_create(ww*16,hh*16); //ww,hh
 surface_set_target(pixel_surf);
 draw_clear_alpha(c_black,0);
 for (var xx = 0; xx < ww; xx++)
@@ -59,26 +57,26 @@ for (var xx = 0; xx < ww; xx++)
 		{
 		var data = ds_grid_get(global.pixel_grid,xx,yy);
 		if data > 0 then draw_sprite(mynote,data-1,xx*16,yy*16);
+		//if data > 0 then draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
 		}
 	}
 
 surface_reset_target();
 }
 update_surf_partial = function(xx,yy){
-//var ww = 160;
-//var hh = 104;
 var data = ds_grid_get(global.pixel_grid,xx,yy);
 if !surface_exists(pixel_surf) then update_surf();
 surface_set_target(pixel_surf);
 
-//draw_sprite(spr_note,data-1,xx*16,yy*16);
 if data > 0 
-then draw_sprite(mynote,data-1,xx*16,yy*16)
+draw_sprite(mynote,data-1,xx*16,yy*16)
+//draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy)
 else
 	{
 	gpu_set_blendmode(bm_subtract);
 	draw_set_alpha(1);
 	draw_rectangle(xx*16,yy*16,(xx*16)+16,(yy*16)+16,false);
+	//draw_point(xx,yy);
 	gpu_set_blendmode(bm_normal);
 	}
 surface_reset_target();

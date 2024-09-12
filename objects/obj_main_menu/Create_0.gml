@@ -1,4 +1,6 @@
 ///@desc Create buttons/array list
+window_set_caption("GMTunes");
+
 loading = false;
 
 start_game = function(){

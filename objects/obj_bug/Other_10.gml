@@ -18,56 +18,30 @@ switch gear
 	case 1: timer += second; break;
 	case 2: timer += second / 2; break;
 	case 3: timer += second / 3; break;
-	case 4: timer += second / 4; break;
-	case 5: timer += second / 6; break;
+	case 4: timer += second / 4; break; // confirmed in Direction Test
+	case 5: timer += second / 6; break; // confirmed in Direction Test
 	case 6: timer += second / 8; break;
 	case 7: timer += second / 12; break;
-	case 8: timer += second / 14; break;
+	case 8: timer += second / 16; break; // confirmed in Speed Test
 	}
 timer_max = timer;
 }
 
-/*calculate_speed = function(){
-var block = 16;
-var rmspeed = game_get_speed(gamespeed_fps);
-var spd;
-switch gear
-	{
-	case 0: spd = (block/2) / rmspeed; break;
-	case 1: spd = (block) / rmspeed; break;
-	case 2: spd = (block*2) / rmspeed; break;
-	case 3: spd = (block*3) / rmspeed; break;
-	case 4: spd = (block*4) / rmspeed; break;
-	case 5: spd = (block*6) / rmspeed; break;
-	case 6: spd = (block*8) / rmspeed; break;
-	case 7: spd = (block*12) / rmspeed; break;
-	case 8: spd = (block*14) / rmspeed; break;
-	}
-trace(string("spd in bpm: {0}",time_seconds_to_bpm(spd*rmspeed)));
-return spd;
-}*/
-
 controlnote_hit = function(hit_id){
 // Feather disable GM2016
-var mm = hit_id;//.mode;
+var mm = hit_id;
 if mm == 10 then mm = choose(4,5,6,7,11,12,13,14);
 var xx = floor((x+8)/16);
 var yy = floor((y+8)/16);
-//var xx = floor((x+8+lengthdir_x(7,direction+180))/16);
-//var yy = floor((y+8+lengthdir_y(7,direction+180))/16);
 switch mm
 	{
 	case 1: direction += 90; break;
 	case 2: direction -= 90; break;
 	case 3: direction += 180; break;
-	//case 4: direction = 0;		ctrl_x = (xx*16) + 128;		ctrl_y = (yy*16);			warp = true; break;
-	//case 5: direction = 270;	ctrl_x = (xx*16);			ctrl_y = (yy*16) + 128;		warp = true; break;
-	//case 6: direction = 180;	ctrl_x = (xx*16) - 128;		ctrl_y = (yy*16);			warp = true; break;
-	//case 7: direction = 90;		ctrl_x = (xx*16);			ctrl_y = (yy*16) - 128;		warp = true; break;
-	case 4: direction = 0;	ctrl_x = (xx + 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
+	case 4: direction = 0;		ctrl_x = (xx + 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
 	case 5: direction = 270;	ctrl_x = (xx) * 16;			ctrl_y = (yy + 8) * 16;		warp = true; break;
 	case 6: direction = 180;	ctrl_x = (xx - 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
-	case 7: direction = 90;	ctrl_x = (xx) * 16;				ctrl_y = (yy - 8) * 16;		warp = true; break;
+	case 7: direction = 90;		ctrl_x = (xx) * 16;			ctrl_y = (yy - 8) * 16;		warp = true; break;
 	case 8: // tele from
 		{
 		for (var i=0;i<array_length(global.warp_list);i++)
@@ -84,10 +58,10 @@ switch mm
 		}
 	case 9: break;
 	case 10: break; // random direction
-	case 11: ctrl_x = (xx*16) - 128; ctrl_y = (yy*16) - 128; warp = true; break;
-	case 12: ctrl_x = (xx*16) + 128; ctrl_y = (yy*16) - 128; warp = true; break;
-	case 13: ctrl_x = (xx*16) + 128; ctrl_y = (yy*16) + 128; warp = true; break;
-	case 14: ctrl_x = (xx*16) - 128; ctrl_y = (yy*16) + 128; warp = true; break;
+	case 11: ctrl_x = (xx - 8) * 16; ctrl_y = (yy - 8) * 16; warp = true; break;
+	case 12: ctrl_x = (xx + 8) * 16; ctrl_y = (yy - 8) * 16; warp = true; break;
+	case 13: ctrl_x = (xx + 8) * 16; ctrl_y = (yy + 8) * 16; warp = true; break;
+	case 14: ctrl_x = (xx - 8) * 16; ctrl_y = (yy + 8) * 16; warp = true; break;
 	}
 	
 if !place_snapped(16,16) then move_snap(16,16);
@@ -111,17 +85,17 @@ if anim_playing
 		// fallback: standard drawing of quartiles, their offsets should be handled in sprite creation
 		case 0:
 			{
-			draw_sprite_ext(spr_notehit_tl,anim_index,xx,yy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_tr,anim_index,xx,yy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_br,anim_index,xx,yy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_bl,anim_index,xx,yy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tl[anim_index],0,xx,yy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tr[anim_index],0,xx,yy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_br[anim_index],0,xx,yy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_bl[anim_index],0,xx,yy,1,1,0,b,1);
 			break;
 			}
 			
 		// only used by speech bugz, single speech bubble frame + y offset
 		case 1:
 			{
-			draw_sprite_ext(spr_notehit_tl,ltxy_frame,xx+40+ltxy_x,yy+40-ltxy_y,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tl[ltxy_frame],0,xx+40+ltxy_x,yy+40-ltxy_y,1,1,0,b,1);
 			break;
 			}
 			
@@ -139,10 +113,10 @@ if anim_playing
 				draw_text(o[i].xx,o[i].yy,string(i));
 				}*/
 			
-			draw_sprite_ext(spr_notehit_tl,ltxy_frame,o[0].ox,o[0].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_tr,ltxy_frame,o[1].ox,o[1].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_br,ltxy_frame,o[2].ox,o[2].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_bl,ltxy_frame,o[3].ox,o[3].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tl[ltxy_frame],0,o[0].ox,o[0].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tr[ltxy_frame],0,o[1].ox,o[1].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_br[ltxy_frame],0,o[2].ox,o[2].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_bl[ltxy_frame],0,o[3].ox,o[3].oy,1,1,0,b,1);
 			break;
 			}
 			
@@ -154,10 +128,10 @@ if anim_playing
 			o[1] = {ox: xx - ltxy_y, oy: yy + ltxy_x};
 			o[2] = {ox: xx - ltxy_x, oy: yy - ltxy_y};
 			o[3] = {ox: xx + ltxy_y, oy: yy - ltxy_x};
-			draw_sprite_ext(spr_notehit_tl,ltxy_frame,o[0].ox,o[0].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_tr,ltxy_frame,o[1].ox,o[1].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_br,ltxy_frame,o[2].ox,o[2].oy,1,1,0,b,1);
-			draw_sprite_ext(spr_notehit_bl,ltxy_frame,o[3].ox,o[3].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tl[ltxy_frame],0,o[0].ox,o[0].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_tr[ltxy_frame],0,o[1].ox,o[1].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_br[ltxy_frame],0,o[2].ox,o[2].oy,1,1,0,b,1);
+			draw_sprite_ext(spr_notehit_bl[ltxy_frame],0,o[3].ox,o[3].oy,1,1,0,b,1);
 			break;
 			}
 		}

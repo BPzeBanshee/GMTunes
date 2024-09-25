@@ -106,3 +106,28 @@ then trace("WARNING: end of buffer not matching expected size!\nExpected: "+stri
 // Now that we're done, free buffer
 buffer_delete(bu);
 }
+
+update_surf = function(ww,hh){
+// update surface
+if surface_exists(surf) surface_free(surf);
+surf = surface_create(ww,hh);
+surface_set_target(surf);
+draw_clear_alpha(c_black,0);
+
+// Draw 'stamp'
+//var t = get_timer();
+for (var yy = 0; yy < hh; yy++)
+    {
+    for (var xx = 0; xx < ww; xx++)
+        {
+		var data = ds_grid_get(grid,xx,yy);
+		if data > 0
+			{
+			draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
+			}
+        }
+    }
+surface_reset_target();
+
+
+}

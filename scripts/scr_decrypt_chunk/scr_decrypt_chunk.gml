@@ -32,3 +32,47 @@ while buffer_tell(buffer) < offset+size
 //trace("buffer written, size: "+string(buffer_get_size(minibuf)));
 return {buf,size_final};
 }
+
+// TODO: reinvestigate this and make it actually work
+function scr_encrypt_chunk(buffer){
+var size = buffer_get_size(buffer);
+var t = buffer_tell(buffer);
+buffer_seek(buffer,buffer_seek_start,0);
+
+var buf = buffer_create(1,buffer_grow,1);
+var data_last = -1;
+var count = 0;
+while buffer_tell(buffer) < size
+	{
+	var data = buffer_read(buffer,buffer_u8);
+	if data == data_last
+		{
+		count++;
+		}
+	else
+		{
+		if count > 0x7F//128
+			{
+			buffer_write(buf,buffer_u8,count & 0x7F);
+			buffer_write(buf,buffer_u8,data);
+			count -= 0x7F;
+			}
+		else if count > 0
+			{
+			buffer_write(buf,buffer_u8,count);
+			buffer_write(buf,buffer_u8,data);
+			count = 0;
+			}
+		else
+			{
+			buffer_write(buf,buffer_u8,data_last);
+			buffer_write(buf,buffer_u8,data);
+			}
+		
+		}
+	data_last = data;
+	}
+	
+buffer_seek(buffer,buffer_seek_start,t);
+return buf;
+}

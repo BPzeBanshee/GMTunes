@@ -15,7 +15,10 @@ for (var i=0;i<3;i++)
 	}
 
 // bug hit anims
-sprite_delete(spr_notehit_tl);
-sprite_delete(spr_notehit_tr);
-sprite_delete(spr_notehit_bl);
-sprite_delete(spr_notehit_br);
+for (var i=0;i<array_length(spr_notehit_tl);i++)
+	{
+	sprite_delete(spr_notehit_tl[i]);
+	sprite_delete(spr_notehit_tr[i]);
+	sprite_delete(spr_notehit_bl[i]);
+	sprite_delete(spr_notehit_br[i]);
+	}

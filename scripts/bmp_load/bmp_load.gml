@@ -1,3 +1,5 @@
+/// @desc Loads a .bmp onto a surface and returns the surface ID.
+/// @param {string} file Name of .bmp file
 function bmp_load(file){
 /*
 bmp_load(), by BPze

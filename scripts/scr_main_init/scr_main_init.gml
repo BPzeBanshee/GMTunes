@@ -57,24 +57,52 @@ if file_exists(global.main_dir+"TUNERES.DAT")
 	then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
 	}
 else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(game_save_id+"/TUNERES.DAT_ext"));
+
 // TODO: load string table from SimTunes.dat
+
+// Load note sprites
+// NOTE: sprite_add_from_surface not used due to performance bug
+global.use_int_spr = false;
 globalvar spr_note2,spr_note_ctrl2;
-spr_note2 = -1;
-spr_note_ctrl2 = -1;
+spr_note2[0] = -1;
+spr_note_ctrl2[0] = -1;
 
 var temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/TILES16.BMP");
-spr_note2 = sprite_create_from_surface(temp,0,16,16,16,false,false,0,0);
-for (var ii=2;ii<=25;ii++)
+if !surface_exists(temp) 
 	{
-	sprite_add_from_surface(spr_note2,temp,0,16*ii,16,16,false,false);
+	global.use_int_spr = true;
 	}
+else
+	{
+	var i = 0;
+	spr_note2[i] = sprite_create_from_surface(temp,0,16,16,16,false,false,0,0);
+	for (var ii=2;ii<=25;ii++)
+		{
+		i++;
+		spr_note2[i] = sprite_create_from_surface(temp,0,16*ii,16,16,false,false,0,0);
+		}
 	
-spr_note_ctrl2 = sprite_create_from_surface(temp,16,0,16,16,true,false,0,0);
-for (var ii=2;ii<15;ii++)
-	{
-	sprite_add_from_surface(spr_note_ctrl2,temp,16*ii,0,16,16,true,false);
+	i = 0;
+	spr_note_ctrl2[i] = sprite_create_from_surface(temp,16,0,16,16,true,false,0,0);
+	for (var ii=2;ii<15;ii++)
+		{
+		i++;
+		spr_note_ctrl2[i] = sprite_create_from_surface(temp,16*ii,0,16,16,true,false,0,0);
+		}
+	surface_free(temp);
 	}
-surface_free(temp);
+
+global.pixel_grid = -1;
+global.ctrl_grid = -1;
+
+/*temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/SELECTOR.BMP");
+var c = sprite_create_from_surface(temp,0,0,32,32,true,false,0,0);
+if sprite_exists(c) 
+	{
+	cursor_sprite = c;
+	window_set_cursor(cr_none);
+	surface_free(temp);
+	}*/
 
 instance_create_depth(x,y,0,obj_intro);
 }

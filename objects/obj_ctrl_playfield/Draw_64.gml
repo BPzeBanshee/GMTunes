@@ -22,7 +22,9 @@ switch menu
 		for (var i=0;i<25;i++)
 			{
 			var xx = bx+(16*i);
-			draw_sprite(mynote,i,xx,by);
+			if global.use_int_spr
+			draw_sprite(spr_note,i,xx,by)
+			else draw_sprite(spr_note2[i],0,xx,by);
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_colour)
@@ -40,7 +42,9 @@ switch menu
 			{
 			if i == 8 then i = 9;
 			var xx = bx+(16*i);
-			draw_sprite(myctrlnote,i,xx,by+16);
+			if global.use_int_spr
+			draw_sprite(spr_note_ctrl,i,xx,by+16)
+			else draw_sprite(spr_note_ctrl2[i],0,xx,by+16); //myctrlnote,i
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_ctrl)
@@ -58,7 +62,7 @@ switch menu
 	case 1: draw_text(bx,by+16,"STAMPS TBA"); break;
 	
 	// field/explore
-	case 2: draw_text(bx,by+16,"FIELD TBA"); break;
+	case 2: draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
 		
 	// bugz
 	case 3: 
@@ -115,5 +119,5 @@ switch menu
 		}
 		
 	// config/file
-	case 4: draw_text(bx,by+16,"CONFIG TBA"); break;
+	case 4: draw_text(bx,by+16,"CONFIG/FILE TBA"); break;
 	}

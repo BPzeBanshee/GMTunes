@@ -17,14 +17,19 @@ var bugztype = buffer_peek(bu,20,buffer_u16);
 // tbh we could probably skip this for the proto
 
 // load bug and anim sprites
+trace("bug_create: loading ANIM...");
 var anim = bug_load_anim(bu);
+trace("bug_create: loading LITE...");
 var lite = bug_load_lite(bu);
 
 // x/y/blend animation data for note hit
+trace("bug_create: loading LTXY...");
 var ltxy = bug_load_ltxy(bu);
+trace("bug_create: loading LTCC...");
 var ltcc = bug_load_ltcc(bu);
 
 // load sounds
+trace("bug_create: loading RIFF...");
 var snd_struct = bug_load_riff(bu);
 buffer_delete(bu);
 
@@ -312,7 +317,8 @@ surface_reset_target();
 var surf2;
 for (var i=0;i<4;i++) surf2[i] = surface_create(width,height);
 
-var spr_notehit_tl,spr_notehit_tr,spr_notehit_bl,spr_notehit_br;
+var spr_notehit_tl,spr_notehit_tr,spr_notehit_bl,spr_notehit_br,a;
+a = 0;
 for (var yy=0; yy<=height; yy+=height)
 for (var xx=0; xx<ww; xx+=width)
 	{
@@ -326,7 +332,12 @@ for (var xx=0; xx<ww; xx+=width)
 	
 	// now the frame's assembled, add to sprite
 	var removeback = false;
-	if xx == 0 && yy == 0
+	spr_notehit_tl[a] = sprite_create_from_surface(surf2[0],0,0,width,height,removeback,false,width,height);
+	spr_notehit_tr[a] = sprite_create_from_surface(surf2[1],0,0,width,height,removeback,false,0,height);
+	spr_notehit_br[a] = sprite_create_from_surface(surf2[2],0,0,width,height,removeback,false,0,0);
+	spr_notehit_bl[a] = sprite_create_from_surface(surf2[3],0,0,width,height,removeback,false,width,0);
+	a++;
+	/*if xx == 0 && yy == 0
 		{
 		spr_notehit_tl = sprite_create_from_surface(surf2[0],0,0,width,height,removeback,false,width,height);
 		spr_notehit_tr = sprite_create_from_surface(surf2[1],0,0,width,height,removeback,false,0,height);
@@ -339,7 +350,7 @@ for (var xx=0; xx<ww; xx+=width)
 		sprite_add_from_surface(spr_notehit_tr,surf2[1],0,0,width,height,removeback,false);
 		sprite_add_from_surface(spr_notehit_br,surf2[2],0,0,width,height,removeback,false);
 		sprite_add_from_surface(spr_notehit_bl,surf2[3],0,0,width,height,removeback,false);
-		}
+		}*/
 	}
 	
 // Free surfaces

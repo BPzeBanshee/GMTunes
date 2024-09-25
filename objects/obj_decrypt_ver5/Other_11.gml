@@ -49,11 +49,17 @@ trace("Unknown BS #1: "+string(unk));
 // Get binary size of next blob minus size bit (assuming preview picture)
 s = buffer_read(bu,buffer_u32);
 trace("Size of preview picture in bytes: "+string(s));
+buffer_save_ext(bu,"C:/FILES/gallery_image_og.chk",buffer_tell(bu),s);
 var newbuf = scr_decrypt_chunk(bu,s);
 var minibuf = newbuf.buf;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
+
+
+buffer_save(minibuf,"C:/FILES/gallery_image_decrypted.chk");
+var aeuhh = scr_encrypt_chunk(minibuf);
+buffer_save(aeuhh,"C:/FILES/gallery_image_reencrypted.chk");
 
 surf = surface_create(160,104);
 surface_set_target(surf);
@@ -125,7 +131,7 @@ for (var yy = 0; yy < surface_get_height(surf); yy++)
     {
     for (var xx = 0; xx < surface_get_width(surf); xx++)
         {
-		if buffer_tell(minibuf) == minibuf_size then exit;
+		if buffer_tell(minibuf) >= minibuf_size then exit;
 		var data = buffer_read(minibuf,buffer_u8);
 		var color = array_get_index(colortable,data);
 		if data > 0

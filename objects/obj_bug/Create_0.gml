@@ -47,6 +47,7 @@ ctrl_x = -1;
 ctrl_y = -1;
 ctrl_spd = -1;
 warp = false;
+warp_1fc = false;
 
 // sounds
 snd_struct = {buf:[],snd:[]};

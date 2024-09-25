@@ -335,17 +335,21 @@ trace("Starting positions in control bit buffer: "+string(startpos));
 buffer_delete(minibuf);
 
 // Random Bullshit #4
+/*
+Third value seems to be some kind of timer that changes
+from save to save, but is usually a low number.
+*/
 var unkd = [];
-repeat 2 array_push(unkd,buffer_read(bu,buffer_u32));
+repeat 4 array_push(unkd,buffer_read(bu,buffer_u32));
 //repeat 16 array_push(unkd,buffer_read(bu,buffer_u8));
 trace("Random Bullshit #4: "+string(unkd));
 
 // Mystery number, metadata version related?
 // REVERB.GAL: 0x0D/13, BIRDINTH.GAL: 0x13/19, ALIENEXP.GAL: 0x1F/31
 // CITYTALK.GAL: 0x00/0
-var meta_number = buffer_read(bu,buffer_u32);
+/*var meta_number = buffer_read(bu,buffer_u32);
 trace("Mystery Number: "+string(meta_number));
-buffer_read(bu,buffer_u32);
+buffer_read(bu,buffer_u32);*/
 
 // Bugz metadata
 
@@ -358,9 +362,7 @@ var bugz = [mystruct.bugz.yellow,mystruct.bugz.green,mystruct.bugz.blue,mystruct
 // should be 60*4 bytes after the bugz names, the strings make it inconsistent tho
 for (var i=0; i<4; i++)
 	{
-	//var chunk_size = buffer_read(bu,buffer_u32);
-	//buffer_read(bu,buffer_u32);
-	trace("file bytes remaining: "+string(eob - buffer_tell(bu)));
+	trace("BUG "+string(i)+" METADATA - file bytes remaining: "+string(eob - buffer_tell(bu)));
 	var bugname_size = buffer_read(bu,buffer_u32);
 	var bugname_str = "";
 	repeat bugname_size bugname_str += chr(buffer_read(bu,buffer_u8));
@@ -369,17 +371,27 @@ for (var i=0; i<4; i++)
 	
 	if (eob - buffer_tell(bu)) == 87
 		{
-		trace("warning: metadata corruption, deferring read");
+		trace("WARNING: metadata corruption, deferring read");
 		bugz[i] = bugz[i-1];	//copy all stats from previous bug
 		bugz[i].filename = bugname_str; //re-apply unique filename
 		}
 	else
 		{
-		// First two always 0,2, other two fractional takes possibly?
-		/*unk = [];
+		/*
+		First four uint32s here appear to be absolute x/y positions of the Bugz.
+		First two values determine mode:
+		Mode 2 appears to be absolute position - 8.
+		This wraps around if you place the bug at the top/left most parts to uint32 cap - 8.
+		(tested with user .tuns)
+		
+		Mode 0 appears to be position in screen space - 16. It isn't clear how program
+		decides this is to be saved to file nor is it clear why it'd ever need this.
+		(test case: Reverb)
+		*/
+		unk = [];
 		repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
-		trace("Unk Bugz Metadata #1: "+string(unk));*/
-		buffer_seek(bu,buffer_seek_relative,16);
+		trace("Unknown Bugz Metadata #1: "+string(unk));
+		//buffer_seek(bu,buffer_seek_relative,16);
 	
 		// Current positions (X, Y, DIR)
 		bugz[i].pos[0] = buffer_read(bu,buffer_u32) * 16; // X
@@ -392,24 +404,30 @@ for (var i=0; i<4; i++)
 			case 2: bugz[i].dir = 270; break;
 			case 3: bugz[i].dir = 180; break;
 			}
-		trace("Direction: "+string(bugz[i].dir)+", Position: "+string("{0},{1}",bugz[i].pos));
-		// More unknowns
-		/*unk = [];
+		trace("Direction: "+string(bugz[i].dir)+", Position: "+string("{0}",bugz[i].pos));
+		
+		/*
+		The following two uint32s seem to be almost always 0,
+		unless there's going to be error codes in the following
+		two uint32s in which case some projects have the first
+		value of 1.
+		*/
+		unk = [];
 		repeat 2 array_push(unk,buffer_read(bu,buffer_u32));
-		trace("Unk Bugz Metadata #2: "+string(unk));*/
-		buffer_seek(bu,buffer_seek_relative,8);
+		trace("Unknown Bugz Metadata #2: "+string(unk));
+		//buffer_seek(bu,buffer_seek_relative,8);
 		
 		// error code presence of some kind
 		var error = buffer_read(bu,buffer_u32);
 		if error > 0 
 			{
-			trace("error presence code: "+string(error));
+			trace("WARNING: error presence code: "+string(error));
 			buffer_seek(bu,buffer_seek_relative,4);
 			
 			var error2 = buffer_read(bu,buffer_u32);
 			if error2 > 0 
 				{
-				trace("error2 presence code: "+string(error2));
+				trace("WARNING: error2 presence code: "+string(error2));
 				var done_offset = false;
 				if error2 == 0xF0 or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
 					{
@@ -443,8 +461,9 @@ for (var i=0; i<4; i++)
 				or ((error2 >> 16) == 0x404B && (error >> 16) != 0x4018 && (error >> 16) != 0x4054)
 				or (error2 >> 16) == 0x404E 
 				
+				// whack shit resaving Reverb
 				// FUNKBOW.TUN
-				or ((error2 >> 16) == 0x4050 && (error >> 16) != 0x4055)
+				or ((error2 >> 16) == 0x4050 && ((error >> 16) != 0x4055 && (error >> 16) != 0x404C))
 				or (error2 >> 16) == 0x4052) && !done_offset
 					{
 					trace("offset command "+string(error2)+" found, skipping 49 bytes");
@@ -465,14 +484,18 @@ for (var i=0; i<4; i++)
 			{
 			buffer_seek(bu,buffer_seek_relative,4);
 			}
-		
 	
-		// More unknowns
-		// 0, 0, "tweezer values" usually 16, 64
-		/*unk = [];
+		/*
+		There's a set of 4 uint8s here which are suspected to be some kind
+		of remainder coordinates set by the tweezer objects upon picking up
+		Bugz. On a fresh project these default to 0, when picked up by a
+		Tweezer tool the second pair is usually defaulted to 16,64.
+		I've never seen the first pair as anything but 0.
+		*/
+		unk = [];
 		repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
-		trace("Unk Bugz Metadata #3: "+string(unk));*/
-		buffer_seek(bu,buffer_seek_relative,4);
+		trace("Suspected 'Tweezer' values: "+string(unk));
+		//buffer_seek(bu,buffer_seek_relative,4);
 	
 		bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
 		bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
@@ -513,7 +536,7 @@ if playfield_name != ""
 if sprite_exists(myback) then sprite_delete(myback);
 var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
 myback = bac_load(dir);
-trace(dir+" resulted in code "+string(myback));
+//trace(dir+" resulted in code "+string(myback));
 if sprite_exists(myback)
 	{
 	var bid = layer_background_get_id("lay_bkg");

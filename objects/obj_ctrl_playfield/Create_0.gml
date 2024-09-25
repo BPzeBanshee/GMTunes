@@ -23,16 +23,6 @@ paused = false;
 // Dialog result
 dialog = -1;
 
-// Notes
-mynote = spr_note;
-myctrlnote = spr_note_ctrl;
-if sprite_exists(spr_note2)
-&& sprite_exists(spr_note_ctrl2)
-	{
-	mynote = spr_note2;
-	myctrlnote = spr_note_ctrl2;
-	}
-
 // Load Background
 mybackname = "";
 var bkg = global.main_dir+"BACKDROP/03GP4BT.BAC";

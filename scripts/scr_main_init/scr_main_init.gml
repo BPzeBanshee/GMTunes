@@ -63,9 +63,8 @@ else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only
 // Load note sprites
 // NOTE: sprite_add_from_surface not used due to performance bug
 global.use_int_spr = false;
-globalvar spr_note2,spr_note_ctrl2;
-spr_note2[0] = -1;
-spr_note_ctrl2[0] = -1;
+globalvar spr_note2;
+spr_note2[0][0] = -1;
 
 var temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/TILES16.BMP");
 if !surface_exists(temp) 
@@ -74,20 +73,13 @@ if !surface_exists(temp)
 	}
 else
 	{
-	var i = 0;
-	spr_note2[i] = sprite_create_from_surface(temp,0,16,16,16,false,false,0,0);
-	for (var ii=2;ii<=25;ii++)
+	// load notes, first x line is non-color control notes
+	for (var yy = 0; yy <= 25; yy++)
 		{
-		i++;
-		spr_note2[i] = sprite_create_from_surface(temp,0,16*ii,16,16,false,false,0,0);
-		}
-	
-	i = 0;
-	spr_note_ctrl2[i] = sprite_create_from_surface(temp,16,0,16,16,true,false,0,0);
-	for (var ii=2;ii<15;ii++)
-		{
-		i++;
-		spr_note_ctrl2[i] = sprite_create_from_surface(temp,16*ii,0,16,16,true,false,0,0);
+		for (var xx = 0; xx < 15; xx++)
+			{
+			spr_note2[xx][yy] = sprite_create_from_surface(temp,16*xx,16*yy,16,16,false,false,0,0);
+			}
 		}
 	surface_free(temp);
 	}

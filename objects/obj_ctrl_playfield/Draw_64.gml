@@ -19,12 +19,12 @@ switch menu
 		{
 		// top row
 		var mmy = (my >= by && my <= by+15) ? true : false;
-		for (var i=0;i<25;i++)
+		for (var i=1;i<25;i++)
 			{
 			var xx = bx+(16*i);
 			if global.use_int_spr
 			draw_sprite(spr_note,i,xx,by)
-			else draw_sprite(spr_note2[i],0,xx,by);
+			else draw_sprite(spr_note2[0][i],0,xx,by);
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_colour)
@@ -32,19 +32,19 @@ switch menu
 					instance_destroy(m);
 					mouse_create(obj_mouse_colour); 
 					}
-				m.note = i+1;
+				m.note = i;
 				}
 			}
 			
 		// bottom row
 		mmy = (my >= by+16 && my <= by+32) ? true : false;
-		for (var i=0;i<14;i++)
+		for (var i=1;i<14;i++)
 			{
-			if i == 8 then i = 9;
+			if i == 9 then i++;
 			var xx = bx+(16*i);
 			if global.use_int_spr
 			draw_sprite(spr_note_ctrl,i,xx,by+16)
-			else draw_sprite(spr_note_ctrl2[i],0,xx,by+16); //myctrlnote,i
+			else draw_sprite(spr_note2[i][0],0,xx,by+16); //myctrlnote,i
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_ctrl)
@@ -52,7 +52,7 @@ switch menu
 					instance_destroy(m);
 					mouse_create(obj_mouse_ctrl); 
 					}
-				m.note = i+1;
+				m.note = i;
 				}
 			}
 		break;

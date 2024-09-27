@@ -1,7 +1,7 @@
 pixel_surf = -1;
 ctrl_surf = -1;
 
-update_ctrl_surf = function(){
+/*update_ctrl_surf = function(){
 var ww = 160*16;
 var hh = 104*16;
 if !surface_exists(ctrl_surf) then ctrl_surf = surface_create(ww,hh);
@@ -44,7 +44,7 @@ if data > 0
 	else draw_sprite(spr_note_ctrl2[data-1],0,rx,ry);
 	}
 surface_reset_target();		
-}
+}*/
 update_surf = function(){
 var ww = 160;//ds_grid_width(global.pixel_grid);
 var hh = 104;//ds_grid_height(global.pixel_grid);
@@ -56,11 +56,15 @@ for (var xx = 0; xx < ww; xx++)
 	for (var yy = 0; yy < hh; yy++)
 		{
 		var data = ds_grid_get(global.pixel_grid,xx,yy);
-		if data > 0
+		var data_ctrl = ds_grid_get(global.ctrl_grid,xx,yy);
+		if data > 0 or data_ctrl > 0
 			{
 			if global.use_int_spr
-			draw_sprite(spr_note,data-1,xx*16,yy*16)
-			else draw_sprite(spr_note2[data-1],0,xx*16,yy*16);
+				{
+				draw_sprite(spr_note,data,xx*16,yy*16);
+				draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
+				}
+			else draw_sprite(spr_note2[data_ctrl][data],0,xx*16,yy*16);
 			}
 		}
 	}
@@ -69,14 +73,18 @@ surface_reset_target();
 }
 update_surf_partial = function(xx,yy){
 var data = ds_grid_get(global.pixel_grid,xx,yy);
+var data_ctrl = ds_grid_get(global.ctrl_grid,xx,yy);
 if !surface_exists(pixel_surf) then update_surf();
 surface_set_target(pixel_surf);
 
-if data > 0 
+if data > 0 or data_ctrl > 0
 	{
 	if global.use_int_spr
-	draw_sprite(spr_note,data-1,xx*16,yy*16)
-	else draw_sprite(spr_note2[data-1],0,xx*16,yy*16);
+		{
+		draw_sprite(spr_note,data,xx*16,yy*16);
+		draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
+		}
+	else draw_sprite(spr_note2[data_ctrl][data],0,xx*16,yy*16);
 	}
 else
 	{

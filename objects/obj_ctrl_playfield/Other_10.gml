@@ -136,7 +136,7 @@ if f != ""
 	{
 	tun_load(f);
 	field.update_surf();
-	field.update_ctrl_surf();
+	//field.update_ctrl_surf();
 	}
 }
 save_tun = function(){

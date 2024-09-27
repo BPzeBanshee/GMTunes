@@ -6,7 +6,7 @@ if xx >= 0 && xx <= 160 && yy >= 0 && yy <= 104
 	{
 	var data = ds_grid_get(global.ctrl_grid,xx,yy);
 	if data > 0 then ds_grid_set(global.ctrl_grid,xx,yy,0);
-	(parent.field).update_ctrl_surf_partial(xx,yy);
+	(parent.field).update_surf_partial(xx,yy);//ctrl
 	
 	if data == 8 or data == 9
 		{
@@ -25,7 +25,7 @@ if xx >= 0 && xx <= 160 && yy >= 0 && yy <= 104
 		var ox = global.warp_list[ind][order[2]];
 		var oy = global.warp_list[ind][order[3]];
 		ds_grid_set(global.ctrl_grid,ox,oy,0);
-		(parent.field).update_ctrl_surf_partial(ox,oy);
+		(parent.field).update_surf_partial(ox,oy);//ctrl
 		array_delete(global.warp_list,ind,1);
 		
 		trace("Warp list: "+string(global.warp_list));

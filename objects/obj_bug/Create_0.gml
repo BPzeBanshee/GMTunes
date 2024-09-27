@@ -28,10 +28,10 @@ spr_up = [[],[]];
 //spr_down = [];
 //spr_left = [];
 //spr_right = [];
-spr_notehit_tl = -1;
-spr_notehit_tr = -1;
-spr_notehit_bl = -1;
-spr_notehit_br = -1;
+spr_notehit_tl[0] = -1;
+spr_notehit_tr[0] = -1;
+spr_notehit_bl[0] = -1;
+spr_notehit_br[0] = -1;
 spr_subimg = 0;
 
 ltxy_data = [];

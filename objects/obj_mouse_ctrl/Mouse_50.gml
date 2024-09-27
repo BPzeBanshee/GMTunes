@@ -7,7 +7,7 @@ if xx >= 0 && xx <= 160 && yy >= 0 && yy <= 104
 	if (note == 8 or note == 9) && !mouse_check_button_pressed(mb_left) then exit;
 	var c = ds_grid_get(global.ctrl_grid,xx,yy);
 	ds_grid_set(global.ctrl_grid,xx,yy,note);
-	(parent.field).update_ctrl_surf_partial(xx,yy);
+	(parent.field).update_surf_partial(xx,yy);//ctrl
 	if note == 8
 		{
 		tele_obj = [xx,yy,-1,-1];

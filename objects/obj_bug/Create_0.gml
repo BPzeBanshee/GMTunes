@@ -2,7 +2,7 @@
 bugztype = 0; //0-3 YELLOW/GREEN/BLUE/RED
 bugzname = "";
 bugzid = 0; //0-x
-volume = 8;
+volume = 64;
 
 paused = false;
 grabbed = false;

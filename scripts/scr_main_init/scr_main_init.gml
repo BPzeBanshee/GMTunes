@@ -1,11 +1,24 @@
 function scr_main_init(){
 
+// Macros
 #macro trace show_debug_message
 #macro msg show_message
 
+// Function calls
+audio_master_gain(0.5);
+window_set_caption("GMTunes");
+pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
+
+// Controller objects and globalvars
+global.debug = true;
+global.zoom = 0;
+global.pixel_grid = -1;
+global.ctrl_grid = -1;
+instance_create_depth(x,y,-9999,obj_debug);
+
 // Establishing program directory etc
-if GM_build_type=="run"
-then global.main_dir = working_directory+"/"
+if GM_build_type == "run"
+global.main_dir = working_directory+"/"
 else global.main_dir = program_directory+"/";
 
 var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
@@ -42,35 +55,32 @@ for (var i=0;i<array_length(fonts);i++)
 		}
 	}
 // TODO: work out the debug/small text fonts SimTunes uses
-//trace(global.fnt_default);
-
-// Controller objects
-global.debug = true;
-global.zoom = 0;
-instance_create_depth(x,y,-9999,obj_debug);
-
-gmlzari_init();
-if file_exists(global.main_dir+"TUNERES.DAT")
+if directory_exists(global.main_dir+"TUNERES.DAT_ext")
 	{
-	var result = extract_dat(global.main_dir+"TUNERES.DAT");
-	if result < 0
-	then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+	trace("Extracted folder already present, avoiding extra work");
 	}
-else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(game_save_id+"/TUNERES.DAT_ext"));
-
+else
+	{
+	gmlzari_init();
+	if file_exists(global.main_dir+"TUNERES.DAT")
+		{
+		var result = extract_dat(global.main_dir+"TUNERES.DAT");
+		if result < 0
+		then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+		}
+	else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(game_save_id+"/TUNERES.DAT_ext"));
+	}
 // TODO: load string table from SimTunes.dat
 
 // Load note sprites
 // NOTE: sprite_add_from_surface not used due to performance bug
 global.use_int_spr = false;
-globalvar spr_note2;
-spr_note2[0][0] = -1;
+global.spr_note2[0][0] = -1;
+global.spr_flag2[0] = -1;
 
 var temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/TILES16.BMP");
 if !surface_exists(temp) 
-	{
-	global.use_int_spr = true;
-	}
+global.use_int_spr = true
 else
 	{
 	// load notes, first x line is non-color control notes
@@ -78,14 +88,25 @@ else
 		{
 		for (var xx = 0; xx < 15; xx++)
 			{
-			spr_note2[xx][yy] = sprite_create_from_surface(temp,16*xx,16*yy,16,16,false,false,0,0);
+			global.spr_note2[xx][yy] = sprite_create_from_surface(temp,16*xx,16*yy,16,16,false,false,0,0);
 			}
 		}
 	surface_free(temp);
 	}
 
-global.pixel_grid = -1;
-global.ctrl_grid = -1;
+var temp2 = bmp_load(game_save_id+"/TUNERES.DAT_ext/RESTART2.BMP");
+if !surface_exists(temp2) 
+global.use_int_spr = true
+else
+	{
+	for (var c = 0;c < 4; c++)
+		{
+		global.spr_flag2[c] = sprite_create_from_surface(temp2,48,48*c,48,48,true,false,24,24);
+		}
+	surface_free(temp2);
+	}
+
+
 
 /*temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/SELECTOR.BMP");
 var c = sprite_create_from_surface(temp,0,0,32,32,true,false,0,0);
@@ -96,5 +117,5 @@ if sprite_exists(c)
 	surface_free(temp);
 	}*/
 
-instance_create_depth(x,y,0,obj_intro);
+instance_create_depth(x,y,0,obj_video_intro);
 }

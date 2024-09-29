@@ -31,20 +31,17 @@ if keyboard_check(ord("Y"))
 || keyboard_check(ord("B"))
 || keyboard_check(ord("R"))
 	{
-	m_prev = m.object_index;
 	if !instance_exists(obj_mouse_grab) then mouse_create(obj_mouse_grab);
 	}
 else if keyboard_check(ord("M"))
 	{
-	m_prev = m.object_index;
 	if !instance_exists(obj_mouse_zoom) then mouse_create(obj_mouse_zoom);
 	}
 else
 	{
-	if m.object_index != m_prev
+	if !instance_exists(m) && m_prev != noone
 		{
 		mouse_create(m_prev);
-		m_prev = m.object_index;
 		}
 	}
 	
@@ -90,8 +87,10 @@ if keyboard_check_pressed(vk_enter)
 		calculate_timer();
 		}*/
 	}
-	
-
+if keyboard_check(vk_control) && keyboard_check_pressed(ord("B"))
+	{
+	instance_create_depth(x,y,depth-1,obj_menu_bugz);
+	}
 
 if keyboard_check_pressed(ord("1")) then place_flag(0);
 if keyboard_check_pressed(ord("2")) then place_flag(1);

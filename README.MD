@@ -16,6 +16,9 @@ Simply extract the compiled project ZIP over an existing SimTunes installation. 
 - TAB: change submenu
 - SPACE: toggle pause/resume of Bugz
 - ARROWS/WSAD: move view
+- 1-4: Flag placement
+- 5: Rally Bugz to flags
+- CTRL-B: Preliminary Bugz selection menu
 - +/-: zoom in/out
 
 # Current Status
@@ -27,15 +30,16 @@ GMTunes has been in the works on and off for some years but still remains in a v
 - Bugz loading (.BUG files), currently does not need Bugz loaded for the initial playfield
 - Level loading (.GAL "Gallery" files as well as .TUN save files)
 - Placement of notes and control notes via UI, flag placement via number keys 1-4
+- Stamps (use .STP button to load file, Q/E to rotate)
 - 60 FPS (game originally ran at 30)
+- extraction of TUNERES.DAT assets to %LOCALAPPDATA%\GMTunes
 
 The file explorer is accessible using the button in left corner of the navigation bar. You can create a new file by clicking the **New file** button in the file explorer. You can also create folders by clicking the **New folder** button.
 
-## Things GMTunes DOES NOT support
-- Saving games (WIP but does not work)
-- Original GUI and it's assets (WIP, requires LZARI/`TUNERES.DAT` decoding/extraction)
-- MIDI support (requires an extension to be written)
-- Stamp support (planned)
+## Things GMTunes DOES NOT support at this time
+- Saving games in original SimTunes format
+- UI is completely placeholder, intent is to have original playfield UI and optional 'modern' UI that's less clunky
+- MIDI support (GM has no native support: requires an extension to be written)
 - Configuration menu (planned, but a lot of original menu options are obsolete)
 - Internal folder browser (planned, uses Windows `get_open_filename_ext` for now)
 

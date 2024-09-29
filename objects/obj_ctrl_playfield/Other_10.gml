@@ -2,7 +2,11 @@
 // Feather disable GM2016
 
 mouse_create = function(obj){
-if instance_exists(m) then instance_destroy(m);
+if instance_exists(m)
+	{
+	m_prev = m.object_index;
+	instance_destroy(m);
+	}
 m = instance_create_depth(mouse_x,mouse_y,50,obj);
 m.parent = id;
 }
@@ -31,21 +35,22 @@ if f != ""
 		}
 	}
 }
-load_bug = function(bugzid){
-var mycolor;
+load_bug = function(bugzid,filename=""){
+var mycolor,dir;
 switch bugzid
 	{
-	case 0: mycolor = "Yellow"; break;
-	case 1: mycolor = "Green"; break;
-	case 2: mycolor = "Blue"; break;
-	case 3: mycolor = "Red"; break;
+	case 0: mycolor = "Yellow"; dir=0; break;
+	case 1: mycolor = "Green"; dir=90; break;
+	case 2: mycolor = "Blue"; dir=180; break;
+	case 3: mycolor = "Red"; dir=270; break;
 	default: return -1;
 	}
-var f = get_open_filename_ext("Bugz File|*.BUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
-if f != ""
+if filename == ""
+filename = get_open_filename_ext("Bugz File|*.BUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
+if filename != ""
 	{
-	var mybug = bug_create(room_width*0.5,room_height*0.5,f);
-	mybug.direction = choose(0,90,180,270);
+	var mybug = bug_create(room_width*0.5,room_height*0.5,filename);
+	mybug.direction = dir;
 	mybug.gear = 3;
 	mybug.timer = game_get_speed(gamespeed_fps) / 3;
 	mybug.paused = paused;
@@ -54,8 +59,8 @@ if f != ""
 return -2;
 }
 
-load_yellow = function(){
-var mybug = load_bug(0);
+load_yellow = function(filename=""){
+var mybug = load_bug(0,filename);
 if instance_exists(mybug)
 	{
 	instance_destroy(bug_yellow);
@@ -63,8 +68,8 @@ if instance_exists(mybug)
 	return 0;
 	}
 }
-load_green = function(){
-var mybug = load_bug(1);
+load_green = function(filename=""){
+var mybug = load_bug(1,filename);
 if instance_exists(mybug)
 	{
 	instance_destroy(bug_green);
@@ -72,8 +77,8 @@ if instance_exists(mybug)
 	return 0;
 	}
 }
-load_blue = function(){
-var mybug = load_bug(2);
+load_blue = function(filename=""){
+var mybug = load_bug(2,filename);
 if instance_exists(mybug)
 	{
 	instance_destroy(bug_blue);
@@ -81,8 +86,8 @@ if instance_exists(mybug)
 	return 0;
 	}
 }
-load_red = function(){
-var mybug = load_bug(3);
+load_red = function(filename=""){
+var mybug = load_bug(3,filename);
 if instance_exists(mybug)
 	{
 	instance_destroy(bug_red);
@@ -107,6 +112,7 @@ else
 	flag[flag_id] = instance_create_depth(mouse_x,mouse_y,98,obj_flag);
 	flag[flag_id].flagtype = flag_id;
 	flag[flag_id].image_index = flag_id;
+	if !global.use_int_spr then flag[flag_id].sprite_index = global.spr_flag2[flag_id];
 	}
 }
 

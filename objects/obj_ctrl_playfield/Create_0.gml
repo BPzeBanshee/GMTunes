@@ -1,5 +1,3 @@
-audio_master_gain(0.25);
-
 playfield_name = "New playfield";
 playfield_author = "New author";
 playfield_desc = "This is a new playfield.";
@@ -47,26 +45,14 @@ bug_yellow = noone;
 bug_green = noone;//bug_create(room_width*0.5,room_height*0.5,global.main_dir+"BUGZ/GREEN04.BUG");
 bug_blue = noone;
 bug_red = noone;
-/*
-bug_yellow = bug_create(room_width*0.5,room_height*0.25,global.main_dir+"BUGZ/YELLOW01.BUG");
-bug_green = bug_create(room_width*0.25,room_height*0.5,global.main_dir+"BUGZ/GREEN01.BUG");
-bug_blue = bug_create(room_width*0.75,room_height*0.5,global.main_dir+"BUGZ/BLUE01.BUG");
-bug_red = bug_create(room_width*0.5,room_height*0.75,global.main_dir+"BUGZ/RED01.BUG");
-*/
-//bug_blue.direction = 0;
-//bug_yellow.direction = 180;
-//bug_green.direction = 90;
-/*bug_green.direction = 270;
-bug_green.gear = 3;
-bug_green.speed = bug_green.calculate_speed();*/
 
 // Call method functions
 event_user(0);
 
 // Create mouse cursor
 m = noone;
+m_prev = noone;
 mouse_create(obj_mouse_colour); 
-m_prev = m.object_index;
 
 // First, array list
 txta = []; evt = [];
@@ -76,13 +62,12 @@ array_push(txta,"BUG B");		array_push(evt,load_blue);
 array_push(txta,"BUG R");		array_push(evt,load_red);
 array_push(txta,".TUN");		array_push(evt,load_tun);
 array_push(txta,".BKG");		array_push(evt,load_bkg);
-array_push(txta,".STP");		array_push(evt,function(){mouse_create(obj_mouse_stamp); m_prev = m.object_index;});
-array_push(txta,"GRAB");		array_push(evt,function(){mouse_create(obj_mouse_grab); m_prev = m.object_index;});
-array_push(txta,"CTRL");		array_push(evt,function(){mouse_create(obj_mouse_ctrl); m_prev = m.object_index;});
-array_push(txta,"CLR");			array_push(evt,function(){mouse_create(obj_mouse_colour); m_prev = m.object_index;});
-array_push(txta,"RBW");			array_push(evt,function(){mouse_create(obj_mouse_rainbow); m_prev = m.object_index;});
-array_push(txta,"Z");			array_push(evt,function(){mouse_create(obj_mouse_zoom); m_prev = m.object_index;});
-
+array_push(txta,".STP");		array_push(evt,function(){mouse_create(obj_mouse_stamp);});
+array_push(txta,"GRAB");		array_push(evt,function(){mouse_create(obj_mouse_grab);});
+array_push(txta,"CTRL");		array_push(evt,function(){mouse_create(obj_mouse_ctrl);});
+array_push(txta,"CLR");			array_push(evt,function(){mouse_create(obj_mouse_colour);});
+array_push(txta,"RBW");			array_push(evt,function(){mouse_create(obj_mouse_rainbow);});
+array_push(txta,"Z");			array_push(evt,function(){mouse_create(obj_mouse_zoom);});
 array_push(txta,"X");			array_push(evt,back_to_main);
 
 // Create buttons

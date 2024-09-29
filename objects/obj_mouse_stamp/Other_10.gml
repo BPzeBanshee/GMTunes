@@ -7,8 +7,8 @@ load_stamp = function(file){
 
 if file == "" or !file_exists(file)
 	{
-	instance_destroy();
-	return 0;
+	alarm[0] = 1; // kludge to avoid crash from obj_ctrl_playfield var management
+	return -1;
 	}
 
 // Load file into buffer, do some error checking
@@ -19,7 +19,8 @@ if buffer_word(bu,0) != "STP2"
     {
     msg("File doesn't match SimTunes STP2 format.");
     buffer_delete(bu);
-    instance_destroy();
+    alarm[0] = 1; // kludge to avoid crash from obj_ctrl_playfield var management
+	return -2;
     }
 var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 usually
 buffer_seek(bu,buffer_seek_start,4);
@@ -128,6 +129,4 @@ for (var yy = 0; yy < hh; yy++)
         }
     }
 surface_reset_target();
-
-
 }

@@ -1,3 +1,4 @@
+enabled = true;
 pressed = false;
 entered = false;
 txt = "";

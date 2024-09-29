@@ -24,7 +24,7 @@ switch menu
 			var xx = bx+(16*i);
 			if global.use_int_spr
 			draw_sprite(spr_note,i,xx,by)
-			else draw_sprite(spr_note2[0][i],0,xx,by);
+			else draw_sprite(global.spr_note2[0][i],0,xx,by);
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_colour)
@@ -44,7 +44,7 @@ switch menu
 			var xx = bx+(16*i);
 			if global.use_int_spr
 			draw_sprite(spr_note_ctrl,i,xx,by+16)
-			else draw_sprite(spr_note2[i][0],0,xx,by+16); //myctrlnote,i
+			else draw_sprite(global.spr_note2[i][0],0,xx,by+16); //myctrlnote,i
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_ctrl)
@@ -74,6 +74,7 @@ switch menu
 		var bug = [bug_yellow,bug_green,bug_blue,bug_red];
 		for (var i=0;i<4;i++)
 			{
+			// draw rectangles
 			var c = c_white;
 			switch i
 				{
@@ -82,11 +83,14 @@ switch menu
 				case 2: c = c_aqua; break;
 				case 3: c = c_red; break;
 				}
-			draw_rectangle_color(bbx,by,bbx+63,by+32,c,c,c,c,true);
+			draw_rectangle_color(bbx,by,bbx+62,by+32,c,c,c,c,true);
+			
+			// draw bug sprite
 			if instance_exists(bug[i])
-			then draw_sprite_ext(bug[i].spr_up[2,round(bug[i].spr_subimg)],0,bbx+32,by+16,1,1,bug[i].direction-90,c_white,1)
+			draw_sprite_ext(bug[i].spr_up[2,round(bug[i].spr_subimg)],0,bbx+32,by+16,1,1,bug[i].direction-90,c_white,1)
 			else draw_text(bbx+32,by+16,"N/A");
 			
+			// pause state
 			mmx = (mx >= bbx && mx <= bbx+64) ? true : false;
 			if (mmx && mmy) && mouse_check_button_pressed(mb_left)
 				{

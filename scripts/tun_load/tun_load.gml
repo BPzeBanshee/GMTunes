@@ -575,6 +575,7 @@ for (var i=0;i<4;i++)
 		flag[i].image_index = i;
 		flag[i].direction = flag_list[i][2];
 		flag[i].image_angle = flag_list[i][2];
+		if !global.use_int_spr then flag[i].sprite_index = global.spr_flag2[i];
 		}
 	}
 
@@ -596,6 +597,8 @@ for (var i=0;i<4;i++)
 	bug.volume = bugz[i].volume;
 	bug.direction = bugz[i].dir;
 	bug.calculate_timer();
+	
+	// apply the bugz to obj_ctrl_playfield's local bug tracking
 	switch i
 		{
 		case 0: bug_yellow = bug; break;

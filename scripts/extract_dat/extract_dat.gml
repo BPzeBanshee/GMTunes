@@ -42,13 +42,7 @@ var outfile = sandbox+"/"+filename_name(filehandle)+"_ext/";
 
 if !directory_exists(infile) then directory_create(infile);
 if !directory_exists(outfile) then directory_create(outfile);
-/*
-var fml = instance_create_depth(x,y,depth,obj_lzari);
-buffer_resize(fml.bu_out,sizes[0]);
-buffer_copy(bu,0,offsets[1],fml.bu_in,0);
-fml.outfile = working_directory+"/"+filenames[0];
-fml.Decode();
-*/
+
 var k;
 for (var i=0;i<array_length(filenames);i++)
 	{

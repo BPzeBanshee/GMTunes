@@ -1,5 +1,7 @@
 function bug_create(xx,yy,filehandle){
 if !file_exists(filehandle) then return -1;
+// Name for debug/metadata purposes
+var name = filename_name(filehandle);
 
 // Load file into buffer, do some error checking
 var bu = buffer_create(1024,buffer_grow,1);
@@ -17,26 +19,26 @@ var bugztype = buffer_peek(bu,20,buffer_u16);
 // tbh we could probably skip this for the proto
 
 // load bug and anim sprites
-trace("bug_create: loading ANIM...");
+trace("bug_create({0}): loading ANIM...",name);
 var anim = bug_load_anim(bu);
-trace("bug_create: loading LITE...");
+trace("bug_create({0}): loading LITE...",name);
 var lite = bug_load_lite(bu);
 
 // x/y/blend animation data for note hit
-trace("bug_create: loading LTXY...");
+trace("bug_create({0}): loading LTXY...",name);
 var ltxy = bug_load_ltxy(bu);
-trace("bug_create: loading LTCC...");
+trace("bug_create({0}): loading LTCC...",name);
 var ltcc = bug_load_ltcc(bu);
 
 // load sounds
-trace("bug_create: loading RIFF...");
+trace("bug_create({0}): loading RIFF...",name);
 var snd_struct = bug_load_riff(bu);
 buffer_delete(bu);
 
 var bug = instance_create_depth(xx,yy,0,obj_bug);
-bug.bugzname = filename_name(filehandle);
+bug.bugzname = name;
 bug.bugztype = bugztype;
-bug.bugzid = instance_number(obj_bug);
+bug.bugzid = real(string_digits(name)); //instance_number(obj_bug);
 bug.spr_up = anim;
 //bug.spr_down = anim.spr_down;
 //bug.spr_left = anim.spr_left;

@@ -3,7 +3,7 @@ var f = get_open_filename(".BUG","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;//return -1;
 	}
 
 // Load file into buffer, do some error checking
@@ -14,6 +14,7 @@ if buffer_word(bu,0) != "FORM"
     {
     msg("File doesn't match SimTunes BUGZ format.");
     instance_destroy();
+	exit;//return -2;
     }
     
 var offset = 0;
@@ -24,9 +25,8 @@ var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 u
 if buffer_word(bu,offset) != "TEXT"
 then do offset += 1 until buffer_word(bu,offset) == "TEXT" || offset >= s2;
 
-var size,eof;
-size = buffer_peek_be32(bu,offset+4);// 4 bytes after RIFF for filesize
-eof = offset + size + 8;
+var size = buffer_peek_be32(bu,offset+4);// 4 bytes after RIFF for filesize
+var eof = offset + size + 8;
 trace("\\n");
 trace("TEXT found, offset: "+string(offset)+", size: "+string(size)+", eof:"+string(eof));
 

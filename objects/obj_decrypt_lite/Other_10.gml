@@ -50,7 +50,7 @@ var f = get_open_filename(".BUG","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 
 // Load file into buffer, do some error checking
@@ -61,6 +61,7 @@ if buffer_word(bu,0) != "FORM"
     {
     msg("File doesn't match SimTunes BUGZ format.");
     instance_destroy();
+	exit;
     }
     
 var offset = 0;
@@ -73,9 +74,8 @@ then do offset += 1 until buffer_word(bu,offset) == "STYL" || offset >= s2;
 buffer_seek(bu,buffer_seek_start,offset);
 buffer_read(bu,buffer_u32); // skip first 4 bytes
 
-var size,eof;
-size = buffer_read_be32(bu);// 4 bytes after header for filesize
-eof = buffer_tell(bu) + size;
+var size = buffer_read_be32(bu);// 4 bytes after header for filesize
+var eof = buffer_tell(bu) + size;
 trace("STYL found, offset: "+string(offset)+", size: "+string(size)+", eof:"+string(eof));
 
 // First is always 1, skip
@@ -194,6 +194,7 @@ surface_reset_target();
 var surf2;
 for (var i=0;i<4;i++) surf2[i] = surface_create(width,height);
 
+var a = 0;
 for (var yy=0; yy<=height; yy+=height)
 for (var xx=0; xx<ww; xx+=width)
 	{
@@ -206,20 +207,12 @@ for (var xx=0; xx<ww; xx+=width)
 		}
 	
 	// now the frame's assembled, add to sprite
-	if xx == 0 && yy == 0
-		{
-		spr_notehit_tl = sprite_create_from_surface(surf2[0],0,0,width,height,false,false,width,height);
-		spr_notehit_tr = sprite_create_from_surface(surf2[1],0,0,width,height,false,false,0,height);
-		spr_notehit_br = sprite_create_from_surface(surf2[2],0,0,width,height,false,false,0,0);
-		spr_notehit_bl = sprite_create_from_surface(surf2[3],0,0,width,height,false,false,width,0);
-		}
-	else 
-		{
-		sprite_add_from_surface(spr_notehit_tl,surf2[0],0,0,width,height,false,false);
-		sprite_add_from_surface(spr_notehit_tr,surf2[1],0,0,width,height,false,false);
-		sprite_add_from_surface(spr_notehit_br,surf2[2],0,0,width,height,false,false);
-		sprite_add_from_surface(spr_notehit_bl,surf2[3],0,0,width,height,false,false);
-		}
+	var removeback = false;
+	spr_notehit_tl[a] = sprite_create_from_surface(surf2[0],0,0,width,height,removeback,false,width,height);
+	spr_notehit_tr[a] = sprite_create_from_surface(surf2[1],0,0,width,height,removeback,false,0,height);
+	spr_notehit_br[a] = sprite_create_from_surface(surf2[2],0,0,width,height,removeback,false,0,0);
+	spr_notehit_bl[a] = sprite_create_from_surface(surf2[3],0,0,width,height,removeback,false,width,0);
+	a++;
 	}
 
 

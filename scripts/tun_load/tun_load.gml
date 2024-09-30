@@ -290,6 +290,10 @@ trace("Flag list: "+string(flag_list));
 mystruct.flag_list = flag_list;
 
 // finally, the actual note position data
+var note_grid = ds_grid_create(160,104);
+var ctrl_grid = ds_grid_create(160,104);
+
+
 s = buffer_read(bu,buffer_u32);
 trace("Size of note table size: "+string(s));
 var newbuf = scr_decrypt_chunk(bu,s);
@@ -303,7 +307,7 @@ for (var yy = 0; yy < 104; yy++)
 	for (var xx = 0; xx < 160; xx++)
 		{
 		var data = buffer_read(minibuf,buffer_u8);
-		ds_grid_add(global.pixel_grid,xx,yy,data);
+		ds_grid_add(note_grid,xx,yy,data);
 		}
 	}
 buffer_delete(minibuf);
@@ -327,12 +331,18 @@ for (var yy = 0; yy < 104; yy++)
 			{
 			if data == 34
 			then array_push(startpos,[xx,yy])
-			else ds_grid_add(global.ctrl_grid,xx,yy,data);
+			else ds_grid_add(ctrl_grid,xx,yy,data);
 			}
 		}
 	}
 trace("Starting positions in control bit buffer: "+string(startpos));
 buffer_delete(minibuf);
+
+// write grids to string
+mystruct.note_list = ds_grid_write(note_grid);
+mystruct.ctrl_list = ds_grid_write(ctrl_grid);
+ds_grid_destroy(note_grid);
+ds_grid_destroy(ctrl_grid);
 
 // Random Bullshit #4
 /*
@@ -393,7 +403,7 @@ for (var i=0; i<4; i++)
 		trace("Unknown Bugz Metadata #1: "+string(unk));
 		//buffer_seek(bu,buffer_seek_relative,16);
 	
-		// Current positions (X, Y, DIR)
+		// Current positions (Note X, Note Y, DIR)
 		bugz[i].pos[0] = buffer_read(bu,buffer_u32) * 16; // X
 		bugz[i].pos[1] = buffer_read(bu,buffer_u32) * 16; // Y
 		bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
@@ -582,8 +592,8 @@ for (var i=0;i<4;i++)
 // Pixel/Control grids
 if raw_grids // if loaded as raw ds_grid_writes
 	{
-	ds_grid_read(global.pixel_grid,tun_struct.note_list);
-	ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
+	if tun_struct.note_list != "" ds_grid_read(global.pixel_grid,tun_struct.note_list);
+	if tun_struct.ctrl_list != "" ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
 	}
 global.warp_list = tun_struct.warp_list;
 

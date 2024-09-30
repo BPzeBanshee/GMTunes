@@ -4,10 +4,10 @@ if mode == 0
 	}
 else 
 	{
-	draw_sprite(spr_notehit_tl,spr_index,x,y);
-	draw_sprite(spr_notehit_tr,spr_index,x,y);
-	draw_sprite(spr_notehit_bl,spr_index,x,y);
-	draw_sprite(spr_notehit_br,spr_index,x,y);
+	draw_sprite(spr_notehit_tl[spr_index],0,x,y);
+	draw_sprite(spr_notehit_tr[spr_index],0,x,y);
+	draw_sprite(spr_notehit_bl[spr_index],0,x,y);
+	draw_sprite(spr_notehit_br[spr_index],0,x,y);
 	}
 
 /*if surface_exists(spr2[floor(spr_index)])

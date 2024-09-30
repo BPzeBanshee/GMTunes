@@ -91,6 +91,7 @@
     {"id":{"name":"obj_mouse_rainbow","path":"objects/obj_mouse_rainbow/obj_mouse_rainbow.yy",},},
     {"id":{"name":"obj_mouse_stamp","path":"objects/obj_mouse_stamp/obj_mouse_stamp.yy",},},
     {"id":{"name":"obj_mouse_zoom","path":"objects/obj_mouse_zoom/obj_mouse_zoom.yy",},},
+    {"id":{"name":"obj_ui_loading","path":"objects/obj_ui_loading/obj_ui_loading.yy",},},
     {"id":{"name":"obj_video_intro","path":"objects/obj_video_intro/obj_video_intro.yy",},},
     {"id":{"name":"obj_window","path":"objects/obj_window/obj_window.yy",},},
     {"id":{"name":"rm_debug_tools","path":"rooms/rm_debug_tools/rm_debug_tools.yy",},},

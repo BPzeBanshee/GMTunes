@@ -3,7 +3,7 @@ var f = get_open_filename(".TUN","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 	
 var bu = buffer_create(8,buffer_grow,1);

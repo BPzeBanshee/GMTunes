@@ -150,16 +150,16 @@ for (var ff=0; ff<=frames; ff++)
     }
 
 // Generate sprites for bug
+var sw = ww / 8;
+var sh = hh / 4;
+var smooth = false;
+var removeback = true;
+var xo = 16;//sw / 4;
+var yo = 16;//sh / 4;
 var spr_up;//,spr_down,spr_left,spr_right;
+
 for (var z = 0; z < 3; z++)
     {
-    var sw = ww / 8;
-    var sh = hh / 4;
-    var smooth = false;
-    var removeback = true;
-	var xo = 16;//sw / 4;
-	var yo = 16;//sh / 4;
-	
 	// per issue https://github.com/YoYoGames/GameMaker-Bugs/issues/6165,
 	// save subimages as full sprites separately for now.
 	// additionally optimise by just using the "up" sprites for now.
@@ -170,17 +170,6 @@ for (var z = 0; z < 3; z++)
 	    //spr_down[z][i] = sprite_create_from_surface(surf[z],sw*i,sh*2,sw,sh,removeback,smooth,xo,yo);
 	    //spr_left[z][i] = sprite_create_from_surface(surf[z],sw*i,sh*3,sw,sh,removeback,smooth,xo,yo);
 		}
-    /*for (var i=1; i<8; i++)
-       {
-       sprite_add_from_surface(spr_up[z],surf[z],sw*i,0,sw,sh,removeback,smooth);
-       //sprite_add_from_surface(spr_right[z],surf[z],sw*i,sh,sw,sh,removeback,smooth);
-       //sprite_add_from_surface(spr_down[z],surf[z],sw*i,sh*2,sw,sh,removeback,smooth);
-       //sprite_add_from_surface(spr_left[z],surf[z],sw*i,sh*3,sw,sh,removeback,smooth);
-       }*/
-    //sprite_save_strip(spr_up[z],"pngs/spr_up["+string(z)+"].png");
-    //sprite_save_strip(spr_down[z],"pngs/spr_down["+string(z)+"].png");
-    //sprite_save_strip(spr_left[z],"pngs/spr_left["+string(z)+"].png");
-    //sprite_save_strip(spr_right[z],"pngs/spr_right["+string(z)+"].png");
     }
 for (var i=0;i<array_length(surf);i++) surface_free(surf[i]);
 return spr_up;//{spr_up,spr_down,spr_left,spr_right};

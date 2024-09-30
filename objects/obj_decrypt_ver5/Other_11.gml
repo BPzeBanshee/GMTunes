@@ -8,7 +8,7 @@ var f = get_open_filename(".TUN","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 
 // Load file into buffer, do some error checking
@@ -19,6 +19,7 @@ if buffer_word(bu,0) != "VER5"
     {
     msg("File doesn't match SimTunes VER4/5 format.");
     instance_destroy();
+	exit;
     }
 var eob = buffer_get_size(bu);
     
@@ -57,9 +58,9 @@ buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
 
 
-buffer_save(minibuf,"C:/FILES/gallery_image_decrypted.chk");
+/*buffer_save(minibuf,"C:/FILES/gallery_image_decrypted.chk");
 var aeuhh = scr_encrypt_chunk(minibuf);
-buffer_save(aeuhh,"C:/FILES/gallery_image_reencrypted.chk");
+buffer_save(aeuhh,"C:/FILES/gallery_image_reencrypted.chk");*/
 
 surf = surface_create(160,104);
 surface_set_target(surf);

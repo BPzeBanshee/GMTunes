@@ -1,7 +1,10 @@
-draw_set_font(global.fnt_bolditalic);
-draw_set_color(c_white);
+if !enabled exit;
+scr_draw_vars(global.fnt_bolditalic,fa_left,c_white);
+draw_set_valign(fa_top);
 draw_set_alpha(1);
-draw_set_halign(fa_center);
+draw_text(0,0,"GMTUNES: SIMTUNES-RELATED TOOLS");
+draw_set_font(global.fnt_default);
+draw_text(0,12,"by BPze\nSpecial thanks:\nlucasvb & Yellow\nSimTunes Community");
 
 if sprite_exists(spr)
 	{
@@ -31,21 +34,6 @@ draw_rectangle(46,270,46+157,270+138,true);
 draw_rectangle(427,270,427+176,270+138,true);
 draw_rectangle(280,371,280+77,371+85,true);*/
 
-if loading 
-then 
-	{
-	draw_rectangle_color(0,0,window_get_width(),window_get_height(),c_black,c_black,c_black,c_black,false);
-	draw_text(x,y-96-2,"LOADING...(RUN CMD FOR LOG INFO)")
-	}
-else
-	{
-	draw_set_halign(fa_left);
-	draw_set_valign(fa_top);
-	draw_text(0,0,"GMTUNES: SIMTUNES-RELATED TOOLS");
-	draw_set_font(global.fnt_default);
-	draw_text(0,12,"by BPze\nSpecial thanks:\nlucasvb & Yellow\nSimTunes Community");
-	}
-	
 /*draw_set_font(fnt_arial);
 draw_set_color(c_white);
 draw_set_alpha(1);

@@ -3,7 +3,7 @@ var f = get_open_filename("*.BUG;*.BAC","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;//return -1;
 	}
 
 // Load file into buffer, do some error checking
@@ -15,6 +15,7 @@ if buffer_word(bu,0) != "FORM"
     msg("File doesn't match SimTunes BUGZ format.");
     buffer_delete(bu);
     instance_destroy();
+	exit;//return -2;
     }
 
 var offset = 0;

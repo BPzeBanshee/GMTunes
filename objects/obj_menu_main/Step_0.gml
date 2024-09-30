@@ -1,4 +1,5 @@
 ///@desc Create object if respective button is pressed
+if !enabled exit;
 /*for (var i=0;i<array_length(txta);i++)
     {
     if button[i].pressed then method_call(evt[i],[]);
@@ -24,7 +25,7 @@ else if point_in_rectangle(mouse_x,mouse_y,46,270,46+157,270+138)
 		if !audio_is_playing(snd_gal) audio_play_sound(snd_gal,100,false);
 		over = true;
 		}
-	if mouse_check_button_pressed(mb_left) start_game();
+	if mouse_check_button_pressed(mb_left) start_gallery();
 	cycle_surfpal(surf2,h2);
 	}
 	

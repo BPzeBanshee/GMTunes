@@ -10,6 +10,7 @@ window_set_caption("GMTunes");
 pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 
 // Controller objects and globalvars
+global.playfield = -1;
 global.debug = true;
 global.zoom = 0;
 global.pixel_grid = -1;

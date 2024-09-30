@@ -1,5 +1,5 @@
 ///@desc Create buttons/array list
-loading = false;
+enabled = true;
 over = false;
 
 init_surfpal = function(spr,arr){
@@ -37,8 +37,17 @@ surf3 = init_surfpal(spr_shd_menu3,h3);
 surf4 = init_surfpal(spr_shd_menu4,h4);
 
 start_game = function(){
-loading = true;
-alarm[0] = 1;
+instance_create_depth(0,0,depth-1,obj_ui_loading);
+global.playfield = new default_playfield();
+room_goto(rm_garden);
+}
+
+start_gallery = function(){
+//instance_create_depth(0,0,depth-1,obj_menu_gallery);
+//enabled = false;
+instance_create_depth(0,0,depth-1,obj_ui_loading);
+global.playfield = tun_load_tun(global.main_dir+"GALLERY/ALIENEXP.GAL");
+room_goto(rm_garden);
 }
 
 start_debug = function(){

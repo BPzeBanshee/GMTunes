@@ -5,7 +5,7 @@ var f = get_open_filename(".BUG","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;//return -1;
 	}
 dir = filename_name(f);
 
@@ -17,6 +17,7 @@ if buffer_word(bu,0) != "FORM"
     {
     msg("File doesn't match SimTunes BUGZ format.");
     instance_destroy();
+	exit;//return -2;
     }
 else trace(chr(10));
     

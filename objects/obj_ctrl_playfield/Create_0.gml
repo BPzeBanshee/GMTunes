@@ -1,50 +1,36 @@
-playfield_name = "New playfield";
-playfield_author = "New author";
-playfield_desc = "This is a new playfield.";
-window_set_caption("GMTunes: "+string("{1} - {0}",playfield_author,playfield_name));
+// Variable init
 
-menu = 0;
+// Playfield defaults
+playfield_name = "";
+playfield_author = "";
+playfield_desc = "";
 
-global.pixel_grid = ds_grid_create(160,104);
-global.ctrl_grid = ds_grid_create(160,104);
-global.warp_list = [];
+myback = -1;
+mybackname = "";
 
-global.zoom = 0;
 tele_x = 0;
 tele_y = 0;
 tele_obj = [];
 for (var i=0;i<4;i++) flag[i] = noone;
-
-myback = -1;
-paused = false;
-
-// Dialog result
-dialog = -1;
-
-// Load Background
-mybackname = "";
-var bkg = global.main_dir+"BACKDROP/03GP4BT.BAC";
-if bkg != "" && file_exists(bkg)
-	{
-	myback = bac_load(bkg);
-	if sprite_exists(myback)
-		{
-		mybackname = filename_name(bkg);
-		var bid = layer_background_get_id("lay_bkg");
-		layer_background_blend(bid,c_white);
-		layer_background_sprite(bid,myback);
-		layer_background_xscale(bid,4);
-		layer_background_yscale(bid,4);
-		}
-	}
-field = instance_create_depth(0,0,100,obj_draw_playfield);
-field.parent = id;
-
-// Load Bugz
 bug_yellow = noone;
-bug_green = noone;//bug_create(room_width*0.5,room_height*0.5,global.main_dir+"BUGZ/GREEN04.BUG");
+bug_green = noone;
 bug_blue = noone;
 bug_red = noone;
+
+global.pixel_grid = ds_grid_create(160,104);
+global.ctrl_grid = ds_grid_create(160,104);
+global.warp_list = [];
+global.zoom = 0;
+
+menu = 0;
+paused = false;
+dialog = -1; // Async Dialog result
+
+tun_apply_data(global.playfield,true);
+
+
+field = instance_create_depth(0,0,100,obj_draw_playfield);
+field.parent = id;
 
 // Call method functions
 event_user(0);

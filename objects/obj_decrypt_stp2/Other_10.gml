@@ -3,7 +3,7 @@ var f = get_open_filename("*.STP","");
 if f == ""
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 
 // Load file into buffer, do some error checking
@@ -15,6 +15,7 @@ if buffer_word(bu,0) != "STP2"
     msg("File doesn't match SimTunes STP2 format.");
     buffer_delete(bu);
     instance_destroy();
+	exit;
     }
 var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 usually
 buffer_seek(bu,buffer_seek_start,4);

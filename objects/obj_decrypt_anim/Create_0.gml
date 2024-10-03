@@ -1,6 +1,7 @@
 event_inherited();
 
-surf = [];
+spr = [];
+//surf = [];
 surf_scale = 1.0;
 surf_side = 0;
 

@@ -1,7 +1,7 @@
 ///@desc ANIM data decryption
 // Get file
 var f = get_open_filename(".BUG","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
 	exit;
@@ -49,11 +49,7 @@ for (var ff=0; ff<=frames; ff++)
     trace("ww: "+string(ww)+", hh: "+string(hh));
 	buffer_seek(bu,buffer_seek_relative,52);
 	
-    surf[ff] = surface_create(ww,hh);
-    surface_set_target(surf[ff]);
-    draw_clear_alpha(c_black,1);
-    
-    // Load palette table (BGR, with a single bit for padding set to 00)
+	// Load palette table (BGR, with a single bit for padding set to 00)
     for (var i = 0; i < 256; i++)
         {
         b[i] = buffer_read(bu,buffer_u8);
@@ -62,6 +58,10 @@ for (var ff=0; ff<=frames; ff++)
 		pal[i] = make_color_rgb(r[i],g[i],b[i]);
 		buffer_read(bu,buffer_u8); // padding
         }
+	
+    var surf = surface_create(ww,hh);
+    surface_set_target(surf);
+    draw_clear_alpha(c_black,1);
         
     // Draw sprite using palette
     for (var yy = hh-1; yy >= 0; yy--)
@@ -74,6 +74,9 @@ for (var ff=0; ff<=frames; ff++)
         }
     trace("Done rendering bug portrait. Offset end: "+string(offset)+", EOF: "+string(eof));
     surface_reset_target();
+	
+	spr[ff] = sprite_create_from_surface(surf,0,0,ww,hh,true,false,0,0);
+	surface_free(surf);
     }
 	
 // free buffer

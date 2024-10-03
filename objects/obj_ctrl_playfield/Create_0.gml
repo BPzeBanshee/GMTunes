@@ -11,7 +11,12 @@ mybackname = "";
 tele_x = 0;
 tele_y = 0;
 tele_obj = [];
-for (var i=0;i<4;i++) flag[i] = noone;
+for (var i=0;i<4;i++) 
+	{
+	flag[i] = noone;
+	//buf[i] = buffer_create(1,buffer_grow,1);
+	//loadid[i] = -1;
+	}
 bug_yellow = noone;
 bug_green = noone;
 bug_blue = noone;
@@ -26,7 +31,7 @@ menu = 0;
 paused = false;
 dialog = -1; // Async Dialog result
 
-tun_apply_data(global.playfield,true);
+tun_apply_data(global.playfield);
 
 
 field = instance_create_depth(0,0,100,obj_draw_playfield);

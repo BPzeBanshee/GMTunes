@@ -1,9 +1,9 @@
 /// @desc .BUG/.BAC "SHOW" Decryption
 var f = get_open_filename("*.BUG;*.BAC","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
-	exit;//return -1;
+	exit;
 	}
 
 // Load file into buffer, do some error checking

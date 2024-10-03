@@ -1,6 +1,6 @@
 ///@desc .STP "STP2" Format
 var f = get_open_filename("*.STP","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
 	exit;
@@ -86,11 +86,8 @@ for (var yy = 0; yy < hh; yy++)
     {
     for (var xx = 0; xx < ww; xx++)
         {
-		
 		var data = buffer_read(bu,buffer_u8);
-		//if data > 0 then draw_point_color(xx,yy,scr_note_blend(data));
 		if data > 0 then draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
-		
         }
     }
 surface_reset_target();
@@ -100,7 +97,7 @@ trace(string("time: {0}",get_timer() - t));
 // the other half is always empty and is exactly half - the form identifier bits (so -4).
 var blankspace = buffer_tell(bu)+(ww*hh)+4;
 if blankspace != s2
-then trace("WARNING: end of buffer not matching expected size!\nExpected: "+string(blankspace)+" bytes, Actual: "+string(s2));
+trace("WARNING: end of buffer not matching expected size!\nExpected: "+string(blankspace)+" bytes, Actual: "+string(s2));
 	
 // Now that we're done, free buffer
 buffer_delete(bu);

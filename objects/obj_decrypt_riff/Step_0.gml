@@ -19,4 +19,3 @@ if selected
 		event_user(1);
 		}
     }
-

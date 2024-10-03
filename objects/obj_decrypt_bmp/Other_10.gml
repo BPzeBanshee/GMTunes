@@ -1,9 +1,9 @@
 /// @desc .BMP Loading
 var f = get_open_filename("Windows Bitmap|*.BMP","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 
 surf = bmp_load(f);

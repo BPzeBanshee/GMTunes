@@ -1,15 +1,10 @@
-function bug_create(xx,yy,filehandle){
-if !file_exists(filehandle) then return -1;
-// Name for debug/metadata purposes
-var name = filename_name(filehandle);
+function bug_create_from_buffer(xx,yy,name,bu){
+if !buffer_exists(bu) return -1;
 
-// Load file into buffer, do some error checking
-var bu = buffer_create(1024,buffer_grow,1);
-buffer_load_ext(bu,filehandle,0);
 if buffer_word(bu,0) != "FORM"
     {
     msg("File doesn't match SimTunes BUGZ format.");
-    instance_destroy();
+    return -2;
     }
 
 // Get bugz type from file (0: yellow, 1: green, 2: blue, 3: red)
@@ -51,6 +46,24 @@ bug.spr_notehit_tr = lite.spr_notehit_tr;
 bug.spr_notehit_bl = lite.spr_notehit_bl;
 bug.spr_notehit_br = lite.spr_notehit_br;
 bug.snd_struct = snd_struct;
+return bug;
+}
+
+function bug_create(xx,yy,filehandle){
+if !file_exists(filehandle) then return -1;
+// Name for debug/metadata purposes
+var name = filename_name(filehandle);
+
+// Load file into buffer, do some error checking
+var bu = buffer_create(1024,buffer_grow,1);
+buffer_load_ext(bu,filehandle,0);
+if buffer_word(bu,0) != "FORM"
+    {
+    msg("File doesn't match SimTunes BUGZ format.");
+    return -2;
+    }
+
+var bug = bug_create_from_buffer(xx,yy,name,bu);
 return bug;
 }
 
@@ -157,7 +170,6 @@ var removeback = true;
 var xo = 16;//sw / 4;
 var yo = 16;//sh / 4;
 var spr_up;//,spr_down,spr_left,spr_right;
-
 for (var z = 0; z < 3; z++)
     {
 	// per issue https://github.com/YoYoGames/GameMaker-Bugs/issues/6165,

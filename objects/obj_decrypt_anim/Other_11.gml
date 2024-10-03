@@ -1,4 +1,5 @@
 ///@desc Generate sprites for bug
+// to reuse this code, relocalise surf[xx]
 var ssw = surface_get_width(surf[0]);
 var ssh = surface_get_height(surf[0]);
 var sw = ssw / 8;
@@ -7,7 +8,6 @@ var smooth = false;
 var removeback = true;
 var xo = 16;//sw / 4;
 var yo = 16;//sh / 4;
-
 for (var z=0; z<3; z++)
     {
 	// per issue https://github.com/YoYoGames/GameMaker-Bugs/issues/6165,

@@ -56,7 +56,7 @@ for (var i=0;i<array_length(fonts);i++)
 		}
 	}
 // TODO: work out the debug/small text fonts SimTunes uses
-if directory_exists(global.main_dir+"TUNERES.DAT_ext")
+if directory_exists(game_save_id+"/TUNERES.DAT_ext")
 	{
 	trace("Extracted folder already present, avoiding extra work");
 	}

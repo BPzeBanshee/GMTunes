@@ -45,7 +45,6 @@ room_goto(rm_garden);
 start_gallery = function(){
 //instance_create_depth(0,0,depth-1,obj_menu_gallery);
 //enabled = false;
-instance_create_depth(0,0,depth-1,obj_ui_loading);
 global.playfield = tun_load_tun(global.main_dir+"GALLERY/ALIENEXP.GAL");
 room_goto(rm_garden);
 }

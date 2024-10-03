@@ -12,20 +12,18 @@ ds_grid_clear(global.ctrl_grid,0);
 // Load contents from given file
 var mystruct;
 var fileext = string_lower(filename_ext(file));
-var raw_grid_writes = false;
 
-if fileext == ".tun" or fileext == ".gal" 
+
+if fileext == ".tun" 
+or fileext == ".gal" 
 mystruct = tun_load_tun(file);
 
 if fileext == ".gmtun" 
-	{
-	mystruct = tun_load_gmtun(file);
-	raw_grid_writes = true;
-	}
+mystruct = tun_load_gmtun(file);
 
 if is_struct(mystruct) 
 	{
-	tun_apply_data(mystruct,raw_grid_writes);
+	tun_apply_data(mystruct);
 	return 0;
 	}
 return 1;
@@ -532,15 +530,12 @@ trace(mystruct);
 return mystruct;
 }
 
-function tun_apply_data(tun_struct,raw_grids=true) {
+function tun_apply_data(tun_struct) {
 // Metadata
 playfield_name = tun_struct.name;
 playfield_author = tun_struct.author;
 playfield_desc = tun_struct.desc;
-if playfield_name != ""
-	{
-	window_set_caption(string("GMTunes: {0} - {1}",playfield_author,playfield_name));
-	}
+if playfield_name != "" window_set_caption(string("GMTunes: {0} - {1}",playfield_author,playfield_name));
 
 // Background
 if sprite_exists(myback) then sprite_delete(myback);
@@ -590,11 +585,8 @@ for (var i=0;i<4;i++)
 	}
 
 // Pixel/Control grids
-if raw_grids // if loaded as raw ds_grid_writes
-	{
-	if tun_struct.note_list != "" ds_grid_read(global.pixel_grid,tun_struct.note_list);
-	if tun_struct.ctrl_list != "" ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
-	}
+if tun_struct.note_list != "" ds_grid_read(global.pixel_grid,tun_struct.note_list);
+if tun_struct.ctrl_list != "" ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
 global.warp_list = tun_struct.warp_list;
 
 // finally, actually create the bugz
@@ -620,4 +612,13 @@ for (var i=0;i<4;i++)
 			}
 		}
 	}
+/*var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
+for (var i=0;i<4;i++)
+	{
+	if bugz[i].filename != "" 
+		{
+		loadid[i] = buffer_load_async(buf[i],global.main_dir+"/BUGZ/"+bugz[i].filename,0,-1);
+		if !instance_exists(obj_ui_loading) instance_create_depth(0,0,depth-1,obj_ui_loading);
+		}
+	}*/
 }

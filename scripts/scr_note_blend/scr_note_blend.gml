@@ -1,8 +1,5 @@
 ///@param {real} note
-/*
-TODO: this is "HLE" simulation of getting the note colors,
-the actual data's in the bug's LTCC somewhere.
-*/
+///@desc A switch statement of gml code of the SimTunes color notes. Currently unused.
 function scr_note_blend(note){
 	note = clamp(note,1,25);
 	var color = c_white;

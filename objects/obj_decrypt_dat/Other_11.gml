@@ -1,10 +1,10 @@
 ///@desc .DAT load, attempt 2
 // Get file
 var f = get_open_filename(".DAT","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
-	return 0;
+	exit;
 	}
 
 // Load file into buffer, do some error checking

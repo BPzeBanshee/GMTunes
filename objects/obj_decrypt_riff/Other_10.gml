@@ -1,11 +1,13 @@
 /// @description  .BUG RIFF WAVE file ripping
 
 // Get file to rip sounds from
-var f = get_open_filename(".BUG","");
-if f == ""
+var f = get_open_filename_ext("*.BUG","",@"C:/SimTunes/SIMTUNES/BUGZ/","Load SimTunes .BUG...");
+trace("f: "+string(f));
+
+if string_length(f) == 0
 	{
 	instance_destroy();
-	exit;//return -1;
+	exit;
 	}
 dir = filename_name(f);
 
@@ -28,14 +30,13 @@ var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 u
 
 // Search until "RIFF" is found
 do offset += 1 until buffer_word(bu,offset) == "RIFF" || offset >= s2;
-offset += 4;
 var size,eof;
 do
     {
 	buffer_seek(bu,buffer_seek_start,offset);
     // Establish size of file
-    size = buffer_read(bu,buffer_u32); // size of file - 8, located 4 bytes after 'RIFF'
-    eof = offset + size;
+    size = buffer_peek(bu,offset+4,buffer_u32); // size of file - 8, located 4 bytes after 'RIFF'
+    eof = offset+4 + size;
     trace("RIFF found, offset: "+string(buffer_tell(bu))+", size: "+string(size)+", eof: "+string(eof));
 	
 	// rest of metadata confirms suspected format: 8bit 11025hz mono wavs
@@ -55,31 +56,25 @@ do
 	trace(string(metadata));*/
     
     // Copy binary data to buffer until filesize is reached
-	buffer_seek(bu,buffer_seek_relative,44);
-	size -= 44;
-    buf[name] = buffer_create(size,buffer_fast,1);
+    buf[name] = buffer_create(size+8,buffer_fast,1);
     for (var i = 0; i < size; i++) 
 		{
 		buffer_write(buf[name],buffer_u8,buffer_read(bu,buffer_u8));
 		}
     
     // Create buffer sounds from given buffer
-    snd[name] = audio_create_buffer_sound(buf[name],buffer_u8,11025,0,size,audio_mono);
+    snd[name] = audio_create_buffer_sound(buf[name],buffer_u8,11025,44,size-44,audio_mono);
     name += 1;
     
     // Increment to the next file!
 	offset = eof;
-    //offset = buffer_tell(bu);
-	//trace("Sound "+string(name)+" loaded, offset now at "+string(offset));
-	//var next = buffer_word(bu,offset);
-	//trace(string(next));
 	
 	// Seems to be some amount of padding 
 	if offset < buffer_get_size(bu)
 		{
 		var oo = offset;
 	    do offset += 1 until buffer_word(bu,offset) == "RIFF" || offset == s2;
-		offset += 4;
+		//offset += 4;
 		trace("offset incremented by "+(string(offset - oo)));
 		}
     }

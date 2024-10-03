@@ -47,7 +47,7 @@ and scale (but do not change angle), redesigning of how the draw routines are ne
 
 // Get file
 var f = get_open_filename(".BUG","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
 	exit;
@@ -176,7 +176,7 @@ for (var yy=0;yy<16;yy++)
 surface_reset_target();*/
 
 // These sprites are colour-blended to the color of the playing note (ie. yellow block)
-surf = surface_create(ww,hh);
+var surf = surface_create(ww,hh);
 surface_set_target(surf);
 draw_clear_alpha(c_black,1);
 draw_set_alpha(1);
@@ -214,14 +214,23 @@ for (var xx=0; xx<ww; xx+=width)
 	spr_notehit_bl[a] = sprite_create_from_surface(surf2[3],0,0,width,height,removeback,false,width,0);
 	a++;
 	}
-
+	
+spr_notehit_sheet = sprite_create_from_surface(surf,0,0,ww,hh,false,false,0,0);
+surface_free(surf);
 
 // Prepare window
-sw = surface_get_width(surf)/2;
-sh = surface_get_height(surf)/2;
+sw = sprite_get_width(spr_notehit_sheet)/2;
+sh = sprite_get_height(spr_notehit_sheet)/2;
 image_xscale = sw;
 image_yscale = sh;
 
+// x/y/blend animation data for note hit
+trace("obj_decrypt_lite: loading LTXY...");
+ltxy_data = bug_load_ltxy(bu);
+trace("obj_decrypt_lite: loaded! values: {0}",ltxy_data);
+trace("obj_decrypt_lite: loading LTCC...");
+ltcc_data = bug_load_ltcc(bu);
+trace("obj_decrypt_lite: loaded! values: {0}",ltcc_data);
 // LTXY data
 /*
 spr2 = [];

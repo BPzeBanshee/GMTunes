@@ -60,15 +60,9 @@ while buffer_tell(buffer) < size
 		else if count > 0
 			{
 			buffer_write(buf,buffer_u8,count);
-			buffer_write(buf,buffer_u8,data);
 			count = 0;
 			}
-		else
-			{
-			buffer_write(buf,buffer_u8,data_last);
-			buffer_write(buf,buffer_u8,data);
-			}
-		
+		buffer_write(buf,buffer_u8,data);
 		}
 	data_last = data;
 	}

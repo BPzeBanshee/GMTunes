@@ -1,9 +1,9 @@
 // Get file
 var f = get_open_filename(".BUG","");
-if f == ""
+if string_length(f) == 0
 	{
 	instance_destroy();
-	exit;//return -1;
+	exit;
 	}
 
 // Load file into buffer, do some error checking
@@ -16,6 +16,8 @@ if buffer_word(bu,0) != "FORM"
     instance_destroy();
 	exit;//return -2;
     }
+	
+filename = filename_name(f);
     
 var offset = 0;
 var s = buffer_peek_be32(bu,4); // Big Endian record of filesize according to FORM metadata
@@ -45,7 +47,7 @@ trace("INFO found, offset: "+string(offset)+", size: "+string(size)+", eof:"+str
 // Get description
 for (var i=offset+8;i<eof;i++) str_desc += chr(buffer_peek(bu,i,buffer_u8));
 trace(str_desc);
-str_desc = string_wordwrap_width(str_desc,256,chr(10),false);
+str_descw = string_wordwrap_width(str_desc,256,chr(10),false);
 
 // Free buffer
 buffer_delete(bu);

@@ -1,9 +1,15 @@
 ///@desc Create object if respective button is pressed
+// Feather disable GM2016
 if !enabled exit;
 /*for (var i=0;i<array_length(txta);i++)
     {
     if button[i].pressed then method_call(evt[i],[]);
     }*/
+	
+if !surface_exists(surf) surf = init_surfpal(spr_shd_menu1,h);
+if !surface_exists(surf2) surf2 = init_surfpal(spr_shd_menu2,h2);
+if !surface_exists(surf3) surf3 = init_surfpal(spr_shd_menu3,h3);
+if !surface_exists(surf4) surf4 = init_surfpal(spr_shd_menu4,h4);
 	
 // size: 227x244
 if point_in_rectangle(mouse_x,mouse_y,206,21,206+227,21+244)

@@ -12,7 +12,7 @@ m.parent = id;
 }
 
 back_to_main = function(){
-room_goto(rm_main);
+scr_trans(rm_main);
 }
 load_bkg = function(){
 var f = get_open_filename_ext("Background File|*.BAC","",global.main_dir+"/BACKDROP","Load Background");
@@ -138,7 +138,7 @@ for (var i=0;i<4;i++)
 
 load_tun = function(){
 var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/GALLERY","Load Savefile");
-if f != ""
+if string_length(f)>0
 	{
 	tun_load(f);
 	field.update_surf();
@@ -147,8 +147,9 @@ if f != ""
 }
 save_tun = function(){
 var f = get_save_filename_ext("SimTunes .tun File (.tun)|*.TUN|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Save Savefile");
-if f != ""
+if string_length(f)>0
 	{
+	trace(f);
 	// Feather disable GM1017
 	playfield_name = get_string("Playfield name: ",playfield_name);
 	playfield_author = get_string("Playfield author: ",playfield_author);
@@ -156,4 +157,8 @@ if f != ""
 	window_set_caption("GMTunes: "+string("{1} - {0}",playfield_author,playfield_name));
 	tun_save(f);
 	}
+}
+
+menu_bugz = function(){
+instance_create_depth(x,y,depth-1,obj_menu_bugz);
 }

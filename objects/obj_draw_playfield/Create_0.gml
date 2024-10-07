@@ -1,7 +1,6 @@
 pixel_surf = -1;
-ctrl_surf = -1;
-
-/*update_ctrl_surf = function(){
+/*ctrl_surf = -1;
+update_ctrl_surf = function(){
 var ww = 160*16;
 var hh = 104*16;
 if !surface_exists(ctrl_surf) then ctrl_surf = surface_create(ww,hh);
@@ -91,7 +90,6 @@ else
 	gpu_set_blendmode(bm_subtract);
 	draw_set_alpha(1);
 	draw_rectangle(xx*16,yy*16,(xx*16)+16,(yy*16)+16,false);
-	//draw_point(xx,yy);
 	gpu_set_blendmode(bm_normal);
 	}
 surface_reset_target();

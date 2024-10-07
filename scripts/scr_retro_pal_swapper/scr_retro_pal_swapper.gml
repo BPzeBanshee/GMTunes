@@ -66,7 +66,10 @@ function pal_swap_init_system(_shader, _html5_sprite_shader, _html5_surface_shad
 	global.retro_pal_swapper = _swapper;
 }
 	
-///@func pal_swap_set(palette_sprite_index, palette_index, palette is surface);
+/// @desc  pal_swap_set(palette_sprite_index, palette_index, palette is surface);
+/// @param {Asset.GMSprite,Id.Surface} _pal_sprite Description
+/// @param {real} _pal_index Description
+/// @param {any*} _is_surface Description
 function pal_swap_set(_pal_sprite, _pal_index, _is_surface) {
 	
 	var _swapper = global.retro_pal_swapper;

@@ -39,7 +39,7 @@ var size = buffer_get_size(buffer);
 var t = buffer_tell(buffer);
 buffer_seek(buffer,buffer_seek_start,0);
 
-var buf = buffer_create(1,buffer_grow,1);
+var newbuf = buffer_create(1,buffer_grow,1);
 var data_last = -1;
 var count = 0;
 while buffer_tell(buffer) < size
@@ -48,25 +48,25 @@ while buffer_tell(buffer) < size
 	if data == data_last
 		{
 		count++;
+		if count > 0xFF
+			{
+			buffer_write(newbuf,buffer_u8,0xFF);
+			buffer_write(newbuf,buffer_u8,0);
+			count -= 0xFF;
+			}
 		}
 	else
 		{
-		if count > 0x7F//128
+		if count > 0
 			{
-			buffer_write(buf,buffer_u8,count & 0x7F);
-			buffer_write(buf,buffer_u8,data);
-			count -= 0x7F;
-			}
-		else if count > 0
-			{
-			buffer_write(buf,buffer_u8,count);
+			buffer_write(newbuf,buffer_u8,count);
+			buffer_write(newbuf,buffer_u8,data);
 			count = 0;
 			}
-		buffer_write(buf,buffer_u8,data);
 		}
 	data_last = data;
 	}
 	
 buffer_seek(buffer,buffer_seek_start,t);
-return buf;
+return newbuf;
 }

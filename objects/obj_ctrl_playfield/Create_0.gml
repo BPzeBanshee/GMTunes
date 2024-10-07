@@ -46,7 +46,7 @@ m_prev = noone;
 mouse_create(obj_mouse_colour); 
 
 // First, array list
-txta = []; evt = [];
+/*txta = []; evt = [];
 array_push(txta,"BUG Y");		array_push(evt,load_yellow);
 array_push(txta,"BUG G");		array_push(evt,load_green);
 array_push(txta,"BUG B");		array_push(evt,load_blue);
@@ -66,4 +66,14 @@ for (var i=0; i<array_length(txta); i++)
     {
     button[i] = instance_create_depth(16+(i*48),480-16,-1,obj_button_dgui);
     button[i].txt = txta[i];
-    }
+    }*/
+	
+loading_prompt = false;
+callmethod = function(){};
+var dir = game_save_id+"/TUNERES.dat_ext/";
+gui = {paint: -1,stamp: -1,explore: -1,bugz: -1,file: -1};
+gui.paint = bmp_load_sprite(dir+"Paint.bmp",,,,,,,0,0);
+gui.stamp = bmp_load_sprite(dir+"Stamp.bmp",,,,,,,0,0);
+gui.explore = bmp_load_sprite(dir+"Auto.bmp",,,,,,,0,0);
+gui.bugz = bmp_load_sprite(dir+"Bugz.bmp",,,,,,,0,0);
+gui.file = bmp_load_sprite(dir+"File.bmp",,,,,,,0,0);

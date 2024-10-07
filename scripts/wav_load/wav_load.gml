@@ -28,7 +28,7 @@ if has_metadata && buffer_word(bu,t)=="RIFF"
 		datatag: buffer_word(bu,t+36),				// "data"
 		datasize: buffer_peek(bu,t+40,buffer_u32)		// size of data section
 		}
-	trace(string(m));
+	//trace(string(m));
 	if m._channels == 2 then c = audio_stereo;
 	if m._channels > 2 then c = audio_3D;
 	s = audio_create_buffer_sound(bu,buffer_u8,m.samplerate,o,m.datasize,c);

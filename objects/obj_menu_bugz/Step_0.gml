@@ -1,33 +1,30 @@
 // Feather disable GM2016
-if mouse_check_button_pressed(mb_left)
+if mouse_check_button_pressed(mb_left) && !done
 	{
-	if point_in_rectangle(mouse_x,mouse_y,226,449,226+110,449+32)
+	var mx = mouse_x;
+	var my = mouse_y;
+	
+	var confirm_x = 226;
+	var cancel_x = 344;
+	var reset_x = 461;
+	var button_y = 449; // all the buttons are on same y axis
+	
+	// confirm button
+	if point_in_rectangle(mx,my,confirm_x,button_y,confirm_x+110,button_y+32)
 		{
-		instance_activate_object(obj_ctrl_playfield);
-		
-		var lists = [list_yellow,list_green,list_blue,list_red];
-		for (var i=0;i<4;i++)
-			{
-			trace(lists[i][bug_index[i]]);
-			var o = obj_ctrl_playfield;
-			switch i
-				{
-				case 0: o.load_yellow(dir+lists[i][bug_index[i]]); break;
-				case 1: o.load_green(dir+lists[i][bug_index[i]]); break;
-				case 2: o.load_blue(dir+lists[i][bug_index[i]]); break;
-				case 3: o.load_red(dir+lists[i][bug_index[i]]); break;
-				}
-			}
-			
-		instance_destroy();
+		alarm[0] = 2;
+		loading_prompt = true;
+		done = true;
 		}
 		
-	if point_in_rectangle(mouse_x,mouse_y,344,449,344+110,449+32)
+	// cancel button
+	if point_in_rectangle(mx,my,cancel_x,button_y,cancel_x+110,button_y+32)
 		{
 		instance_destroy();
 		}
 		
-	if point_in_rectangle(mouse_x,mouse_y,461,449,461+110,449+32)
+	// reset bugz
+	if point_in_rectangle(mx,my,reset_x,button_y,reset_x+110,button_y+32)
 		{
 		for (var i=0;i<4;i++)
 			{

@@ -107,7 +107,19 @@ else
 	surface_free(temp2);
 	}
 
+global.spr_ui_txt = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/edot4mc.bmp");
+global.spr_ui_bar = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/status.bmp");
+var _nineslice = sprite_nineslice_create();
+_nineslice.enabled = true;
+_nineslice.left = 2;
+_nineslice.right = 2;
+_nineslice.top = 2;
+_nineslice.bottom = 2;
+_nineslice.tilemode[nineslice_center] = nineslice_hide; 
+sprite_set_nineslice(global.spr_ui_txt,_nineslice);
 
+global.spr_mouse = {copy: -1, cut: -1, magnify: -1,};
+//global.spr_mouse.copy 
 
 /*temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/SELECTOR.BMP");
 var c = sprite_create_from_surface(temp,0,0,32,32,true,false,0,0);

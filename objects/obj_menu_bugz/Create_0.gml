@@ -73,6 +73,8 @@ camera_set_view_size(cam,640,480);
 
 with obj_button_dgui enabled = false;
 with obj_bug paused = true;
+loading_prompt = false;
+done = false;
 
 // variable init
 back = -1;
@@ -95,13 +97,7 @@ for (var i=0;i<4;i++)
 	
 instance_deactivate_object(o);
 
-var b = bmp_load(game_save_id+"/TUNERES.DAT_ext/Loadbugz.bmp");
-if surface_exists(b)
-	{
-	back = sprite_create_from_surface(b,0,0,640,480,false,false,0,0);
-	surface_free(b);
-	}
-
+back = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/Loadbugz.bmp");
 dir = global.main_dir+"/BUGZ/";
 
 list_yellow = [];
@@ -113,11 +109,10 @@ populate_list(list_yellow,dir+"YELLOW*.bug");
 populate_list(list_green,dir+"GREEN*.bug");
 populate_list(list_blue,dir+"BLUE*.bug");
 populate_list(list_red,dir+"RED*.bug");
-trace(list_yellow);
-trace(list_green);
-trace(list_blue);
-trace(list_red);
-
+//trace(list_yellow);
+//trace(list_green);
+//trace(list_blue);
+//trace(list_red);
 
 var lists = [list_yellow,list_green,list_blue,list_red];
 for (var xx=0;xx<4;xx++)

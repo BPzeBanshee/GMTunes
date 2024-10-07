@@ -7,7 +7,7 @@ tested with 8-bit and 24-bit bmps
 NOT tested with 16 or 32-bit bmps
 */
 if !file_exists(file) return -1;
-var t = get_timer();
+//var t = get_timer();
 var buffer = buffer_create(8,buffer_grow,1);
 buffer_load_ext(buffer,file,0);
 
@@ -165,7 +165,6 @@ if compression == 6
 
 	
 // Load palette table (BGR, with a single bit for padding set to 00)
-//var pal;
 var r,g,b;
 if use_pal
 	{
@@ -175,7 +174,6 @@ if use_pal
 		b[i] = buffer_read(buffer,buffer_u8);
 		g[i] = buffer_read(buffer,buffer_u8);
 		r[i] = buffer_read(buffer,buffer_u8);
-		//pal[i] = make_color_rgb(r[i],g[i],b[i]);
 		buffer_read(buffer,buffer_u8); // padding/unused alpha channel
 	    }
 	//trace("buffer position after loading palette table: "+string(buffer_tell(buffer)));
@@ -264,4 +262,37 @@ surface_reset_target();
 buffer_delete(buffer);
 //trace(string("time taken to load {0}: {1}ms",file,(get_timer()-t)));
 return surf;
+}
+
+/**
+ * Uses bmp_load to return an actual sprite instead of a surface.
+ * @param {string} file Description
+ * @param {real} [_x]=0 Description
+ * @param {real} [_y]=0 Description
+ * @param {real} [ww]=-1 Description
+ * @param {real} [hh]=-1 Description
+ * @param {bool} [rmb]=false Description
+ * @param {bool} [smooth]=false Description
+ * @param {real} [xorig]=-1 Description
+ * @param {real} [yorig]=-1 Description
+ */
+function bmp_load_sprite(file,_x=0,_y=0,ww=-1,hh=-1,rmb=false,smooth=false,xorig=-1,yorig=-1) {
+// first, use bmp_load, check for errors
+var b = bmp_load(file);
+if !surface_exists(b) return b;
+
+// then, variable prep
+if ww < 0 ww = surface_get_width(b);
+if hh < 0 hh = surface_get_height(b);
+if xorig < 0 xorig = ww/2;
+if yorig < 0 yorig = hh/2;
+
+// finally, do the deed
+var s = sprite_create_from_surface(b,_x,_y,ww,hh,rmb,smooth,xorig,yorig);
+if sprite_exists(s)
+	{
+	surface_free(b);
+	return s;
+	}
+return -3;
 }

@@ -10,7 +10,7 @@ if select_a >= 1 select_am = false;
 if select_a <= 0 select_am = true;
 
 // ui background
-if sprite_exists(back) draw_sprite(back,0,0,0);
+if sprite_exists(back) draw_sprite(back,0,320,240);
 
 var ax = 7; var ay = 8;
 for (var xx = 0; xx < 4;xx++)

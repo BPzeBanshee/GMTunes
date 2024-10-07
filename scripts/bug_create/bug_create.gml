@@ -15,19 +15,19 @@ var bugztype = buffer_peek(bu,20,buffer_u16);
 
 // load bug and anim sprites
 trace("bug_create({0}): loading ANIM...",name);
-var anim = bug_load_anim(bu);
+var anim = bug_load_anim(bu); with obj_trans tasks++;
 trace("bug_create({0}): loading LITE...",name);
-var lite = bug_load_lite(bu);
+var lite = bug_load_lite(bu); with obj_trans tasks++;
 
 // x/y/blend animation data for note hit
 trace("bug_create({0}): loading LTXY...",name);
-var ltxy = bug_load_ltxy(bu);
+var ltxy = bug_load_ltxy(bu); with obj_trans tasks++;
 trace("bug_create({0}): loading LTCC...",name);
-var ltcc = bug_load_ltcc(bu);
+var ltcc = bug_load_ltcc(bu); with obj_trans tasks++;
 
 // load sounds
 trace("bug_create({0}): loading RIFF...",name);
-var snd_struct = bug_load_riff(bu);
+var snd_struct = bug_load_riff(bu); with obj_trans tasks++;
 buffer_delete(bu);
 
 var bug = instance_create_depth(xx,yy,0,obj_bug);
@@ -65,6 +65,57 @@ if buffer_word(bu,0) != "FORM"
 
 var bug = bug_create_from_buffer(xx,yy,name,bu);
 return bug;
+}
+
+function bug_load_riff_files(dir){
+var riff_dir = filename_dir(dir);
+var snd = [];
+for (var i=0;i<25;i++)
+	{
+	snd[i] = wav_load(riff_dir+"/"+string(i)+".wav",true);
+	}
+return snd;
+}
+
+function bug_load_anim_files(dir){
+
+var sw = 256 / 8;
+var sh = 128 / 4;
+var smooth = false;
+var removeback = true;
+var xo = 16;//sw / 4;
+var yo = 16;//sh / 4;
+var spr_up;//,spr_down,spr_left,spr_right;
+var surf = [];
+for (var z = 0; z < 3; z++)
+    {
+	var buf = sprite_add(dir+"/anim"+string(z)+".png",0,false,false,0,0);
+	surf[z] = surface_create(256,128);
+	surface_set_target(surf[z]);
+	draw_sprite(buf,0,0,0);
+	surface_reset_target();
+	sprite_delete(buf);
+	
+	// per issue https://github.com/YoYoGames/GameMaker-Bugs/issues/6165,
+	// save subimages as full sprites separately for now.
+	// additionally optimise by just using the "up" sprites for now.
+	for (var i=0;i<8;i++)
+		{
+	    spr_up[z][i] = sprite_create_from_surface(surf[z],sw*i,sh,sw,sh,removeback,smooth,xo,yo);
+	    //spr_down[z][i] = sprite_create_from_surface(surf[z],sw*i,sh*2,sw,sh,removeback,smooth,xo,yo);
+	    //spr_left[z][i] = sprite_create_from_surface(surf[z],sw*i,sh*3,sw,sh,removeback,smooth,xo,yo);
+		}
+		
+	surface_free(surf[z]);
+    }
+
+return spr_up;
+}
+
+function bug_load_lite_files(dir){
+// TODO: extract styl_lite mode info first!
+var styl_mode,spr_notehit_tl,spr_notehit_tr,spr_notehit_bl,spr_notehit_br;
+return {styl_mode,spr_notehit_tl,spr_notehit_tr,spr_notehit_bl,spr_notehit_br};
 }
 
 function bug_load_riff(bu){

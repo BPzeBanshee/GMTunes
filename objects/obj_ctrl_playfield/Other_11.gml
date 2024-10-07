@@ -87,10 +87,7 @@ if keyboard_check_pressed(vk_enter)
 		calculate_timer();
 		}*/
 	}
-if keyboard_check(vk_control) && keyboard_check_pressed(ord("B"))
-	{
-	instance_create_depth(x,y,depth-1,obj_menu_bugz);
-	}
+if keyboard_check(vk_control) && keyboard_check_pressed(ord("B")) menu_bugz();
 
 if keyboard_check_pressed(ord("1")) then place_flag(0);
 if keyboard_check_pressed(ord("2")) then place_flag(1);

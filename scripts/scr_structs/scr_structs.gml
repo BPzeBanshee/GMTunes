@@ -40,7 +40,7 @@ function default_playfield() : playfield_struct() constructor {
 	
 	camera_pos = [0,0];
 	pixelsize = 0;
-	bugz.yellow.filename = "YELLOW00.BUG";
+	/*bugz.yellow.filename = "YELLOW00.BUG";
 	bugz.yellow.pos = [1280,832];
 	bugz.yellow.dir = 0;
 	bugz.green.filename = "GREEN00.BUG";
@@ -51,5 +51,5 @@ function default_playfield() : playfield_struct() constructor {
 	bugz.blue.dir = 180;
 	bugz.red.filename = "RED00.BUG";
 	bugz.red.pos = [1280,832];
-	bugz.red.dir = 270;
+	bugz.red.dir = 270;*/
 	}

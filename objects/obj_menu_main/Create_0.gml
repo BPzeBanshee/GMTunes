@@ -37,26 +37,30 @@ surf3 = init_surfpal(spr_shd_menu3,h3);
 surf4 = init_surfpal(spr_shd_menu4,h4);
 
 start_game = function(){
-instance_create_depth(0,0,depth-1,obj_ui_loading);
 global.playfield = new default_playfield();
-room_goto(rm_garden);
+scr_trans(rm_garden);
+enabled = false;
 }
 
 start_gallery = function(){
-//instance_create_depth(0,0,depth-1,obj_menu_gallery);
-//enabled = false;
 global.playfield = tun_load_tun(global.main_dir+"GALLERY/ALIENEXP.GAL");
-room_goto(rm_garden);
+scr_trans(rm_garden);
+enabled = false;
+//room_goto(rm_garden);
 }
 
 start_debug = function(){
-room_goto(rm_debug_tools);
-instance_destroy();
+scr_trans(rm_debug_tools);
+enabled = false;
 }
 
 exit_game = function(){
 game_end();
 }
+
+// Load background
+var f2 = game_save_id+"TUNERES.DAT_ext/Startup2.bmp";
+if file_exists(f2) spr = bmp_load_sprite(f2);
 
 // Load sounds
 var f1 = game_save_id+"TUNERES.DAT_ext/startup.WAV";
@@ -69,7 +73,7 @@ snd_exit = -1;
 snd_quit = -1;
 if file_exists(f1)
 	{
-	trace(f1);
+	//trace(f1);
 	b = wav_load(f1,true);
 	snd_play = wav_load(game_save_id+"TUNERES.DAT_ext/play.wav",true);
 	snd_gal = wav_load(game_save_id+"TUNERES.DAT_ext/gallery.wav",true);
@@ -77,13 +81,4 @@ if file_exists(f1)
 	snd_exit = wav_load(game_save_id+"TUNERES.DAT_ext/exit.wav",true);
 	snd_quit = wav_load(game_save_id+"TUNERES.DAT_ext/quit.wav",true);
 	audio_play_sound(b,0,true);
-	}
-	
-// Load background
-var f2 = game_save_id+"TUNERES.DAT_ext/Startup2.bmp";
-if file_exists(f2)
-	{
-	bmp = bmp_load(f2);
-	spr = sprite_create_from_surface(bmp,0,0,640,480,false,false,0,0);
-	surface_free(bmp);
 	}

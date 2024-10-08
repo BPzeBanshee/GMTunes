@@ -5,6 +5,7 @@ function scr_main_init(){
 #macro msg show_message
 
 // Function calls
+surface_depth_disable(true);
 audio_master_gain(0.5);
 window_set_caption("GMTunes");
 pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
@@ -56,6 +57,7 @@ for (var i=0;i<array_length(fonts);i++)
 		}
 	}
 // TODO: work out the debug/small text fonts SimTunes uses
+#macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
 if directory_exists(game_save_id+"/TUNERES.DAT_ext")
 	{
 	trace("Extracted folder already present, avoiding extra work");
@@ -79,7 +81,7 @@ global.use_int_spr = false;
 global.spr_note2[0][0] = -1;
 global.spr_flag2[0] = -1;
 
-var temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/TILES16.BMP");
+var temp = bmp_load(TUNERES+"TILES16.BMP");
 if !surface_exists(temp) 
 global.use_int_spr = true
 else
@@ -95,7 +97,7 @@ else
 	surface_free(temp);
 	}
 
-var temp2 = bmp_load(game_save_id+"/TUNERES.DAT_ext/RESTART2.BMP");
+var temp2 = bmp_load(TUNERES+"RESTART2.BMP");
 if !surface_exists(temp2) 
 global.use_int_spr = true
 else
@@ -107,8 +109,9 @@ else
 	surface_free(temp2);
 	}
 
-global.spr_ui_txt = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/edot4mc.bmp");
-global.spr_ui_bar = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/status.bmp");
+// Loading Bar assets
+global.spr_ui_txt = bmp_load_sprite(TUNERES+"edot4mc.bmp");
+global.spr_ui_bar = bmp_load_sprite(TUNERES+"status.bmp");
 var _nineslice = sprite_nineslice_create();
 _nineslice.enabled = true;
 _nineslice.left = 2;
@@ -117,6 +120,55 @@ _nineslice.top = 2;
 _nineslice.bottom = 2;
 _nineslice.tilemode[nineslice_center] = nineslice_hide; 
 sprite_set_nineslice(global.spr_ui_txt,_nineslice);
+
+// UI Bug Boxes
+global.spr_ui_bug = [[]];
+var ui_bug = bmp_load(TUNERES+"STOPGO.BMP");
+if surface_exists(ui_bug)
+	{
+	for (var i=0;i<4;i++)
+		{
+		global.spr_ui_bug[i][0] = sprite_create_from_surface(ui_bug,50*i,0,50,34,false,false,0,0);
+		global.spr_ui_bug[i][1] = sprite_create_from_surface(ui_bug,50*i,34,50,34,false,false,0,0);
+		}
+	}
+else
+	{
+	ui_bug = surface_create(50,34);
+	var colors = [c_yellow,c_lime,c_blue,c_red];
+	for (var i=0;i<4;i++)
+		{
+		surface_set_target(ui_bug);
+		draw_clear_alpha(colors[i],0.5);
+		surface_reset_target();
+		global.spr_ui_bug[i][0] = sprite_create_from_surface(ui_bug,0,0,50,34,false,false,0,0);
+		global.spr_ui_bug[i][1] = global.spr_ui_bug[i][0];
+		}
+	surface_free(ui_bug);
+	}
+
+// UI Sliders
+global.spr_ui_slider = [];
+var ui_slider = bmp_load(TUNERES+"4SLIDER.BMP");
+if surface_exists(ui_slider)
+	{
+	for (var i=0;i<4;i++)
+		{
+		global.spr_ui_slider[i] = sprite_create_from_surface(ui_slider,0,6*i,23,5,false,false,12,2);
+		}
+	}
+else
+	{
+	ui_slider = surface_create(23,5);
+	var colors = [c_yellow,c_green,c_blue,c_red];
+	for (var i=0;i<4;i++)
+		{
+		surface_set_target(ui_slider);
+		draw_clear_alpha(colors[i],1);
+		surface_reset_target();
+		global.spr_ui_slider[i] = sprite_create_from_surface(ui_slider,0,0,23,5,false,false,12,2);
+		}
+	}
 
 global.spr_mouse = {copy: -1, cut: -1, magnify: -1,};
 //global.spr_mouse.copy 

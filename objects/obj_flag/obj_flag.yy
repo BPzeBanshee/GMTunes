@@ -34,6 +34,9 @@
     "name":"spr_flag",
     "path":"sprites/spr_flag/spr_flag.yy",
   },
-  "spriteMaskId":null,
+  "spriteMaskId":{
+    "name":"spr_note",
+    "path":"sprites/spr_note/spr_note.yy",
+  },
   "visible":true,
 }

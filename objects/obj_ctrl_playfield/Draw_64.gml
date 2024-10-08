@@ -64,10 +64,10 @@ switch menu
 		}
 		
 	// stamps
-	case 1: draw_sprite(gui.stamp,0,0,by); draw_text(bx,by+16,"STAMP TBA"); break;
+	case 1: /*draw_sprite(gui.stamp,0,0,by);*/ draw_text(bx,by+16,"STAMP TBA"); break;
 	
 	// *** EXPLORE ***
-	case 2: draw_sprite(gui.explore,0,0,by); draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
+	case 2: /*draw_sprite(gui.explore,0,0,by);*/ draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
 		
 	// *** BUGZ ***
 	case 3: 
@@ -75,6 +75,7 @@ switch menu
 		draw_sprite(gui.bugz,0,0,by);
 		var bug = [bug_yellow,bug_green,bug_blue,bug_red];
 		
+		// CHOOSE!
 		var choose_x = 66;
 		var choose_y = by+1;
 		if point_in_rectangle(mx,my,choose_x,choose_y,choose_x+90,choose_y+34)
@@ -87,6 +88,7 @@ switch menu
 				}
 			}
 			
+		// STOP!
 		var stop_x = 174;
 		var stop_y = by+1;
 		if point_in_rectangle(mx,my,stop_x,stop_y,stop_x+72,stop_y+34)
@@ -95,25 +97,31 @@ switch menu
 			}
 			
 		// Bug Buttons
-		// TODO: STOPGO.BMP implementation, correct offsets
 		var bugpic_x = 246;
 		var bugpic_y = by+1;
 		draw_set_halign(fa_center);
 		draw_set_valign(fa_middle);
 		for (var i=0;i<4;i++)
 			{
-			// draw bug sprite
-			var bo = bugpic_x+(50*i);
+			var paused = false;
 			if instance_exists(bug[i])
-			draw_sprite_ext(bug[i].spr_up[2,round(bug[i].spr_subimg)],0,bo+25,by+20,1,1,bug[i].direction-90,c_white,1)
-			else draw_text(bo+25,by+20,"N/A");
-			
-			if point_in_rectangle(mx,my,bo,bugpic_y,bo+50,bugpic_y+34)
 				{
-				if mb if instance_exists(bug[i]) then bug[i].paused = !bug[i].paused;
+				// Background image border changes if paused/unpaused
+				var bo = bugpic_x+(50*i);
+				draw_sprite(global.spr_ui_bug[i][bug[i].paused],0,bo,bugpic_y);
+				
+				// draw bug sprite
+				draw_sprite_ext(bug[i].spr_up[1,round(bug[i].spr_subimg)],0,bo+30,by+19,1,1,bug[i].direction-90,c_white,1)
+				
+				// Click to pause/unpause
+				if point_in_rectangle(mx,my,bo,bugpic_y,bo+50,bugpic_y+34)
+					{
+					if mb if instance_exists(bug[i]) then bug[i].paused = !bug[i].paused;
+					}
 				}
 			}
 			
+		// GO!
 		var go_x = 446;
 		var go_y = by+1;
 		if point_in_rectangle(mx,my,go_x,go_y,go_x+72,go_y+34)
@@ -121,14 +129,24 @@ switch menu
 			if mb for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = false;
 			}
 			
-		// Restart Flag position
+		// RESTART
 		var restart_x = 400;
 		var restart_y = by+38;
-		if point_in_rectangle(mx,my,restart_x,restart_y,restart_x+75,restart_y+26)
+		if instance_exists(obj_flag)
 			{
-			if mb rally_bugz_to_flags();
+			if point_in_rectangle(mx,my,restart_x,restart_y,restart_x+75,restart_y+26)
+				{
+				if mb rally_bugz_to_flags();
+				}
+			}
+		else 
+			{
+			draw_set_alpha(0.5);
+			draw_rectangle_color(restart_x,restart_y,restart_x+75,restart_y+26,c_black,c_black,c_black,c_black,false);
+			draw_set_alpha(1);
 			}
 			
+		// Flags
 		var flag_x = 477;
 		var flag_y = by+38;
 		for (var i=0;i<4;i++)
@@ -140,6 +158,33 @@ switch menu
 					mouse_create(obj_mouse_flag);
 					m.flag_id = i;
 					}
+				}
+			}
+			
+		// Volume
+		var volume_x = 122;
+		var volume_y = by+38;
+		for (var i=0;i<4;i++)
+			{
+			if instance_exists(bug[i]) 
+				{
+				var current_percent = clamp(75 * (bug[i].volume/128),0,75);
+				
+				if point_in_rectangle(mx,my,volume_x,volume_y+(6*i),volume_x+75,volume_y+(6*i)+6)
+					{
+					if mouse_check_button(mb_left)
+						{
+						current_percent = clamp(75 * ((mx-volume_x)/75),0,76);//clamp(mx,volume_x,volume_x+98);
+						}
+					if mouse_check_button_released(mb_left)
+						{
+						var mouse_percent = clamp(128 * ((mx-volume_x)/75),0,128);
+						bug[i].volume = mouse_percent;
+						trace("bug {0} volume set to {1}",i,mouse_percent);
+						}
+					}
+					
+				draw_sprite(global.spr_ui_slider[i],0,volume_x+current_percent,volume_y+3+(6*i));
 				}
 			}
 		break;

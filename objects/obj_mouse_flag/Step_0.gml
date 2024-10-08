@@ -5,10 +5,9 @@ if mouse_check_button_pressed(mb_left)
 	var col = collision_point(mouse_x,mouse_y,o.flag[flag_id],false,false);
 	if col
 		{
-		direction += 90;
-		if direction >=360 direction = 0;
-		col.direction = direction;
-		col.image_angle = direction;
+		col.direction += 90;
+		if col.direction >= 360 col.direction = 0;
+		//col.image_angle = col.direction;
 		}
 	else
 		{

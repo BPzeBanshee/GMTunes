@@ -11,14 +11,16 @@ if mouse_check_button_pressed(mb_left) && !done
 	
 	// confirm button
 	if point_in_rectangle(mx,my,confirm_x,button_y,confirm_x+110,button_y+32)
+	or keyboard_check_pressed(vk_enter)
 		{
-		alarm[0] = 2;
+		alarm[3] = 2;
 		loading_prompt = true;
 		done = true;
 		}
 		
 	// cancel button
 	if point_in_rectangle(mx,my,cancel_x,button_y,cancel_x+110,button_y+32)
+	or keyboard_check_pressed(vk_escape)
 		{
 		instance_destroy();
 		}

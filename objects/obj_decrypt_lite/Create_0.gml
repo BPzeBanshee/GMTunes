@@ -14,4 +14,4 @@ ltcc_data = -1;
 spr_index = 0;
 sw = 0;
 sh = 0;
-event_user(0);
+event_user(1);

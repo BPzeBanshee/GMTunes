@@ -32,3 +32,4 @@ function buffer_read_be16(buffer) {
 	value |= buffer_read(buffer,buffer_u8);
 	return value;
 }
+

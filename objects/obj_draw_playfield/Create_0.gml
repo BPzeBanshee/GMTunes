@@ -63,7 +63,10 @@ for (var xx = 0; xx < ww; xx++)
 				draw_sprite(spr_note,data,xx*16,yy*16);
 				draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
 				}
-			else draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
+			else 
+				{
+				draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
+				}
 			}
 		}
 	}

@@ -16,3 +16,13 @@ function buffer_word(buffer,position) {
 
 	return chr(a)+chr(b)+chr(c)+chr(d);
 }
+
+function buffer_word2(buffer,position){
+	var size = buffer_get_size(buffer);
+	var pos = buffer_tell(buffer);
+	if pos+3 > size return -1;
+	var str = "";
+	repeat 4 str += chr(buffer_read(buffer,buffer_u8));
+	buffer_seek(buffer,buffer_seek_relative,-4);
+	return str;
+}

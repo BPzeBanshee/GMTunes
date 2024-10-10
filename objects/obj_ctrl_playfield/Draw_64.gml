@@ -24,7 +24,7 @@ switch menu
 		
 		// top row
 		var mmy = (my >= by && my <= by+15) ? true : false;
-		for (var i=1;i<25;i++)
+		for (var i=1;i<=25;i++)
 			{
 			var xx = bx+(16*i);
 			if global.use_int_spr
@@ -43,7 +43,7 @@ switch menu
 			
 		// bottom row
 		mmy = (my >= by+16 && my <= by+32) ? true : false;
-		for (var i=1;i<14;i++)
+		for (var i=1;i<=14;i++)
 			{
 			if i == 9 then i++;
 			var xx = bx+(16*i);

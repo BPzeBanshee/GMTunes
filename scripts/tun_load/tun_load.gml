@@ -13,7 +13,6 @@ ds_grid_clear(global.ctrl_grid,0);
 var mystruct;
 var fileext = string_lower(filename_ext(file));
 
-
 if fileext == ".tun" 
 or fileext == ".gal" 
 mystruct = tun_load_tun(file);
@@ -247,10 +246,11 @@ for (var i=0;i<num_warps;i++)
 	warp[1] = buffer_read(bu,buffer_s32);
 	warp[2] = buffer_read(bu,buffer_s32);
 	warp[3] = buffer_read(bu,buffer_s32);
-	if (warp[0] > 0
-	&& warp[1] > 0
-	&& warp[2] > 0
-	&& warp[3] > 0)
+	trace("raw warp values: {0},{1},{2},{3}",warp[0],warp[1],warp[2],warp[3]);
+	if (warp[0] > -1
+	&& warp[1] > -1
+	&& warp[2] > -1
+	&& warp[3] > -1)
 		{
 		warp_list[count][0] = warp[0];
 		warp_list[count][1] = warp[1];
@@ -268,12 +268,12 @@ var flag_list = [];
 for (var i=0;i<4;i++)
 	{
 	// x,y,direction (0-3, 0: up, rotates clockwise 90)
-	flag_list[i][0] = buffer_read(bu,buffer_u32);
-	flag_list[i][1] = buffer_read(bu,buffer_u32);
-	flag_list[i][2] = buffer_read(bu,buffer_u32);
+	flag_list[i][0] = buffer_read(bu,buffer_s32);
+	flag_list[i][1] = buffer_read(bu,buffer_s32);
+	flag_list[i][2] = buffer_read(bu,buffer_s32);
 	
 	// Create flags
-	if flag_list[i][0] > -1
+	if flag_list[i][2] > -1
 		{
 		switch flag_list[i][2]
 			{
@@ -327,8 +327,11 @@ for (var yy = 0; yy < 104; yy++)
 		var data = buffer_read(minibuf,buffer_u8);
 		if data > 0
 			{
-			if data == 34
-			then array_push(startpos,[xx,yy])
+			if data == 34 array_push(startpos,[xx,yy])
+			else if data > 14
+				{
+				trace("control pos ({0},{1}) returned erroneous value {2}",xx,yy,data);
+				}
 			else ds_grid_add(ctrl_grid,xx,yy,data);
 			}
 		}
@@ -554,7 +557,7 @@ if sprite_exists(myback)
 	
 // Camera settings
 x = clamp(tun_struct.camera_pos[0],0,1920);
-y = clamp(tun_struct.camera_pos[1],0,1856);
+y = clamp(tun_struct.camera_pos[1],0,1856);// was 1856
 global.zoom = tun_struct.pixelsize;
 var ww = 640*4;
 var hh = 480*4;
@@ -573,7 +576,7 @@ var flag_list = tun_struct.flag_list;
 for (var i=0;i<4;i++)
 	{
 	// Create flags
-	if flag_list[i][0] > -1
+	if flag_list[i][2] > -1
 		{
 		flag[i] = instance_create_depth(flag_list[i][0]*16,flag_list[i][1]*16,99,obj_flag);
 		flag[i].flagtype = i;

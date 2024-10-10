@@ -40,7 +40,7 @@ if savepath != ""
 
 
 // Font loading
-var size = 12;
+var size = 10; // was 12
 var fonts = ["FONTS/AVALONN.TTF","FONTS/AVALONB.TTF","FONTS/AVALONI.TTF","FONTS/AVALONT.TTF"];
 var f;
 for (var i=0;i<array_length(fonts);i++)
@@ -118,8 +118,10 @@ _nineslice.left = 2;
 _nineslice.right = 2;
 _nineslice.top = 2;
 _nineslice.bottom = 2;
-_nineslice.tilemode[nineslice_center] = nineslice_hide; 
+//_nineslice.tilemode[nineslice_center] = nineslice_hide; 
 sprite_set_nineslice(global.spr_ui_txt,_nineslice);
+
+global.spr_ui_desc = bmp_load_sprite(TUNERES+"Info.bmp",,,,,,,0,0);
 
 // UI Bug Boxes
 global.spr_ui_bug = [[]];

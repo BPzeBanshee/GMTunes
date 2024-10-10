@@ -9,59 +9,54 @@ while (result != "")
 }
 
 load_bug_metadata = function(filename){
-var name = "";
-var desc = "";
-var spr = -1;
-
 // Load file into buffer, do some error checking
 var bu = buffer_create(8,buffer_grow,1);
 buffer_load_ext(bu,filename,0);
 
-if buffer_word(bu,0) != "FORM"
-    {
-    msg("File doesn't match SimTunes BUGZ format.");
-    instance_destroy();
-    }
-    
-var offset = 0;
-var s = buffer_peek_be32(bu,4); // Big Endian record of filesize according to FORM metadata
-var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 usually
+// FORM
+// Faster than a buffer_word script check by *only* 5 cycles, but oh well
+var test = "";
+repeat 4 test += chr(buffer_read(bu,buffer_u8));
+if test != "FORM"
+	{
+	msg("File doesn't match SimTunes BUGZ format.");
+    return -2;
+	}
+buffer_read(bu,buffer_u32);
+	
+// "BUGZTYPE___x"
+buffer_read(bu,buffer_u64);
+buffer_read(bu,buffer_u32);
+var bugztype = buffer_read_be16(bu); // Get bugz type (0: yellow, 1: green, 2: blue, 3: red)
+//trace("BUGZTYPE: {0}",bugztype);
 
 // "TEXT", container for name
-if buffer_word(bu,offset) != "TEXT"
-then do offset += 1 until buffer_word(bu,offset) == "TEXT" || offset >= s2;
-
-var size = buffer_peek_be32(bu,offset+4);// 4 bytes after RIFF for filesize
-var eof = offset + size + 8;
-//trace("\\n");
-//trace("TEXT found, offset: "+string(offset)+", size: "+string(size)+", eof:"+string(eof));
-
-for (var i=offset+8;i<eof;i++) name += chr(buffer_peek(bu,i,buffer_u8));
-//trace(name);
+var name = bug_load_text(bu);
 
 // "INFO" (animation on note hit sprite)
-if buffer_word(bu,offset) != "INFO"
-then do offset += 1 until buffer_word(bu,offset) == "INFO" || offset >= s2;
-    
-// Establish size of file
-size = buffer_peek_be32(bu,offset+4); // 4 bytes after RIFF for filesize
-eof = offset + size + 8;
-//trace("INFO found, offset: "+string(offset)+", size: "+string(size)+", eof:"+string(eof));
+var desc = bug_load_desc(bu);
+desc = string_wordwrap_width(desc,400);
 
-// Get description
-for (var i=offset+8;i<eof;i++) desc += chr(buffer_peek(bu,i,buffer_u8));
-//trace(desc);
-//str_desc = string_wordwrap_width(str_desc,256,chr(10),false);
+// SHOW
+var show = bug_load_show(bu);
 
-// Search until "SHOW" is found
-do offset += 1 until buffer_word(bu,offset) == "SHOW" || offset >= s2;
-buffer_seek(bu,buffer_seek_start,offset);
-spr = bitmap_load_from_buffer(bu);
+// DRUM
+form_skip(bu);
+
+// CODE
+form_skip(bu);
+
+// ANIM
+var spr = bug_load_anim(bu);
+
+while buffer_word(bu,buffer_tell(bu)) != "WAVE" form_skip(bu);
+
+var sounds = bug_load_wave(bu,13);
 
 // Free buffer
 buffer_delete(bu);
 
-return {name,desc,spr};
+return {name,desc,show,spr,sounds};
 }
 
 // some dicking around here to make ui work in playfield
@@ -73,10 +68,15 @@ camera_set_view_size(cam,640,480);
 
 with obj_button_dgui enabled = false;
 with obj_bug paused = true;
+with obj_mouse_parent instance_destroy();
 loading_prompt = false;
 done = false;
 
 // variable init
+anim_index = 0; alarm[1] = 3;
+snd_index_x = 0;
+snd_index_y = 0;
+snd_count = 0;
 back = -1;
 select_a = 1;
 select_am = 1;
@@ -91,13 +91,16 @@ for (var i=0;i<4;i++)
 		{
 		if bug_list[i].bugzid > 0
 		bug_index[i] = bug_list[i].bugzid - 1;
-		trace("bug index "+string(i)+" set to "+string(bug_index[i]));
+		//trace("bug index "+string(i)+" set to "+string(bug_index[i]));
 		}
 	}
 	
+mouse_old = o.m;
+instance_deactivate_object(mouse_old);
 instance_deactivate_object(o);
+instance_deactivate_object(obj_draw_playfield);
 
-back = bmp_load_sprite(game_save_id+"/TUNERES.DAT_ext/Loadbugz.bmp");
+back = bmp_load_sprite(TUNERES+"Loadbugz.bmp");
 dir = global.main_dir+"/BUGZ/";
 
 list_yellow = [];
@@ -113,7 +116,7 @@ populate_list(list_red,dir+"RED*.bug");
 //trace(list_green);
 //trace(list_blue);
 //trace(list_red);
-
+bug = [[]];
 var lists = [list_yellow,list_green,list_blue,list_red];
 for (var xx=0;xx<4;xx++)
 	{

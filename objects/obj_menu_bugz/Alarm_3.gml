@@ -1,3 +1,5 @@
+///@desc Load selected bugs and exit
+// TODO: assign already loaded assets to save time/memory
 instance_activate_object(obj_ctrl_playfield);
 		
 var lists = [list_yellow,list_green,list_blue,list_red];

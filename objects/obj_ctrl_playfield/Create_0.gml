@@ -33,7 +33,6 @@ dialog = -1; // Async Dialog result
 
 tun_apply_data(global.playfield);
 
-
 field = instance_create_depth(0,0,100,obj_draw_playfield);
 field.parent = id;
 
@@ -70,10 +69,11 @@ for (var i=0; i<array_length(txta); i++)
 	
 loading_prompt = false;
 callmethod = function(){};
-var dir = game_save_id+"/TUNERES.dat_ext/";
+
+// Load GUI images
 gui = {paint: -1,stamp: -1,explore: -1,bugz: -1,file: -1};
-gui.paint = bmp_load_sprite(dir+"Paint.bmp",,,,,,,0,0);
-gui.stamp = bmp_load_sprite(dir+"Stamp.bmp",,,,,,,0,0);
-gui.explore = bmp_load_sprite(dir+"Auto.bmp",,,,,,,0,0);
-gui.bugz = bmp_load_sprite(dir+"Bugz.bmp",,,,,,,0,0);
-gui.file = bmp_load_sprite(dir+"File.bmp",,,,,,,0,0);
+gui.paint = bmp_load_sprite(TUNERES+"Paint.bmp",,,,,,,0,0);
+gui.stamp = bmp_load_sprite(TUNERES+"Stamp.bmp",,,,,,,0,0);
+gui.explore = bmp_load_sprite(TUNERES+"Auto.bmp",,,,,,,0,0);
+gui.bugz = bmp_load_sprite(TUNERES+"Bugz.bmp",,,,,,,0,0);
+gui.file = bmp_load_sprite(TUNERES+"File.bmp",,,,,,,0,0);

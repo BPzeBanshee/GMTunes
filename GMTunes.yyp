@@ -106,6 +106,7 @@
     {"id":{"name":"bug_create","path":"scripts/bug_create/bug_create.yy",},},
     {"id":{"name":"extract_dat","path":"scripts/extract_dat/extract_dat.yy",},},
     {"id":{"name":"get_filesize","path":"scripts/get_filesize/get_filesize.yy",},},
+    {"id":{"name":"hex","path":"scripts/hex/hex.yy",},},
     {"id":{"name":"keyboard_check_pressed_sane","path":"scripts/keyboard_check_pressed_sane/keyboard_check_pressed_sane.yy",},},
     {"id":{"name":"scr_decrypt_chunk","path":"scripts/scr_decrypt_chunk/scr_decrypt_chunk.yy",},},
     {"id":{"name":"scr_draw_vars","path":"scripts/scr_draw_vars/scr_draw_vars.yy",},},

@@ -112,7 +112,7 @@ else
 	flag[flag_id] = instance_create_depth(mouse_x,mouse_y,98,obj_flag);
 	flag[flag_id].flagtype = flag_id;
 	flag[flag_id].image_index = flag_id;
-	if !global.use_int_spr then flag[flag_id].sprite_index = global.spr_flag2[flag_id];
+	if global.use_external_assets then flag[flag_id].sprite_index = global.spr_flag2[flag_id];
 	}
 }
 
@@ -161,4 +161,20 @@ if string_length(f)>0
 
 menu_bugz = function(){
 instance_create_depth(x,y,depth-1,obj_menu_bugz);
+}
+
+reset_playfield = function(hard=false){
+ds_grid_clear(global.pixel_grid,0);
+ds_grid_clear(global.ctrl_grid,0);
+global.warp_list = [];
+for (var i=0;i<4;i++) flag[i] = noone;
+with obj_flag instance_destroy();
+
+if hard
+	{
+	with obj_bug instance_destroy();
+	var playfield = new default_playfield();
+	tun_apply_data(playfield);
+	}
+else field.update_surf();
 }

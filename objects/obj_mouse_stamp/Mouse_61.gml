@@ -1,1 +1,0 @@
-if scale > 1 then scale /= 2;

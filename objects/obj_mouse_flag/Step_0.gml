@@ -16,6 +16,6 @@ if mouse_check_button_pressed(mb_left)
 		o.flag[flag_id] = instance_create_depth(mouse_x,mouse_y,98,obj_flag);
 		o.flag[flag_id].flagtype = flag_id;
 		o.flag[flag_id].image_index = flag_id;
-		if !global.use_int_spr then o.flag[flag_id].sprite_index = global.spr_flag2[flag_id];
+		if global.use_external_assets then o.flag[flag_id].sprite_index = global.spr_flag2[flag_id];
 		}
 	}

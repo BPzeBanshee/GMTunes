@@ -101,6 +101,9 @@ bug.spr_notehit_tr = lite.spr_notehit_tr;
 bug.spr_notehit_bl = lite.spr_notehit_bl;
 bug.spr_notehit_br = lite.spr_notehit_br;
 bug.snd_struct = snd_struct;
+
+var g = xy_to_gui(xx,yy);
+trace("bug_create({0}): Bug successfully created at {1},{2} (GUI: {3},{4})",name,xx,yy,g.gx,g.gy);
 return bug;
 }
 

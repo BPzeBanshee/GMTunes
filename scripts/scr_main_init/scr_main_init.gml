@@ -64,27 +64,32 @@ if directory_exists(game_save_id+"/TUNERES.DAT_ext")
 	}
 else
 	{
-	gmlzari_init();
-	if file_exists(global.main_dir+"TUNERES.DAT")
+	if os_type == os_windows
 		{
-		var result = extract_dat(global.main_dir+"TUNERES.DAT");
-		if result < 0
-		then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+		gmlzari_init();
+		if file_exists(global.main_dir+"TUNERES.DAT")
+			{
+			var result = extract_dat(global.main_dir+"TUNERES.DAT");
+			if result < 0
+			then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+			}
+		else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(TUNERES));
 		}
-	else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(game_save_id+"/TUNERES.DAT_ext"));
+	else
+		{
+		trace("No LZARI support here, defo gonna have to run internal assets only");
+		}
 	}
 // TODO: load string table from SimTunes.dat
 
 // Load note sprites
 // NOTE: sprite_add_from_surface not used due to performance bug
-global.use_int_spr = false;
+global.use_external_assets = true;
 global.spr_note2[0][0] = -1;
 global.spr_flag2[0] = -1;
 
 var temp = bmp_load(TUNERES+"TILES16.BMP");
-if !surface_exists(temp) 
-global.use_int_spr = true
-else
+if surface_exists(temp) 
 	{
 	// load notes, first x line is non-color control notes
 	for (var yy = 0; yy <= 25; yy++)
@@ -98,9 +103,7 @@ else
 	}
 
 var temp2 = bmp_load(TUNERES+"RESTART2.BMP");
-if !surface_exists(temp2) 
-global.use_int_spr = true
-else
+if surface_exists(temp2) 
 	{
 	for (var c = 0;c < 4; c++)
 		{
@@ -172,7 +175,8 @@ else
 		}
 	}
 
-global.spr_mouse = {copy: -1, cut: -1, magnify: -1,};
+global.spr_ui_move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
+global.spr_ui_copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
 //global.spr_mouse.copy 
 
 /*temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/SELECTOR.BMP");
@@ -185,4 +189,54 @@ if sprite_exists(c)
 	}*/
 
 instance_create_depth(x,y,0,obj_video_intro);
+}
+
+function scr_main_free(){
+
+// FREE EXTERNAL FONTS
+var external_fonts = [global.fnt_bold,global.fnt_bolditalic,
+global.fnt_italic,global.fnt_default];
+
+for (var i=0;i<array_length(external_fonts);i++)
+	{
+	font_delete(external_fonts[i]);
+	}
+
+// FREE EXTERNAL SPRITES
+var external_sprites = [global.spr_ui_bar,global.spr_ui_txt,
+global.spr_ui_desc,global.spr_ui_move,global.spr_ui_copy];
+
+for (var a=0;a<4;a++)
+	{
+	array_push(external_sprites,global.spr_flag2[a]);
+	array_push(external_sprites,global.spr_ui_bug[a][0]);
+	array_push(external_sprites,global.spr_ui_bug[a][1]);
+	array_push(external_sprites,global.spr_ui_slider[a]);
+	}
+for (var yy = 0; yy <= 25; yy++)
+	{
+	for (var xx = 0; xx < 15; xx++)
+		{
+		array_push(external_sprites,global.spr_note2[xx][yy]);
+		}
+	}
+for (var i=0;i<array_length(external_sprites);i++)
+	{
+	if sprite_exists(external_sprites[i]) sprite_delete(external_sprites[i]);
+	}
+	
+// FREE EXTERNAL SOUNDS
+var external_sounds = [];
+for (var i=0;i<array_length(external_sounds);i++)
+	{
+	if audio_exists(external_sounds[i]) 
+		{
+		audio_free_buffer_sound(external_sprites[i]);//.snd);
+		//buffer_delete(external_sprites[i].buf);
+		}
+	}
+	
+// FREE EXTENSIONS
+gmlzari_free();
+gmlibsmacker_free();
 }

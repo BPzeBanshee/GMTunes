@@ -13,7 +13,7 @@ for (var xx = 0; xx < ww; xx+=16)
 		var data = ds_grid_get(global.ctrl_grid,xx/16,yy/16);
 		if data > 0
 			{
-			if global.use_int_spr
+			if !global.use_external_assets
 			draw_sprite(spr_note_ctrl,data-1,xx,yy)
 			else draw_sprite(spr_note_ctrl2[data-1],0,xx,yy);
 			}
@@ -38,7 +38,7 @@ gpu_set_blendmode(bm_normal);
 
 if data > 0
 	{
-	if global.use_int_spr
+	if !global.use_external_assets
 	draw_sprite(spr_note_ctrl,data-1,rx,ry)
 	else draw_sprite(spr_note_ctrl2[data-1],0,rx,ry);
 	}
@@ -58,14 +58,14 @@ for (var xx = 0; xx < ww; xx++)
 		var data_ctrl = ds_grid_get(global.ctrl_grid,xx,yy);
 		if data > 0 or data_ctrl > 0
 			{
-			if global.use_int_spr
+			if global.use_external_assets
 				{
-				draw_sprite(spr_note,data,xx*16,yy*16);
-				draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
+				draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
 				}
 			else 
 				{
-				draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
+				draw_sprite(spr_note,data,xx*16,yy*16);
+				draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
 				}
 			}
 		}
@@ -81,12 +81,13 @@ surface_set_target(pixel_surf);
 
 if data > 0 or data_ctrl > 0
 	{
-	if global.use_int_spr
+	if global.use_external_assets
+	draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16)
+	else 
 		{
 		draw_sprite(spr_note,data,xx*16,yy*16);
 		draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
 		}
-	else draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
 	}
 else
 	{

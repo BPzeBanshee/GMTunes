@@ -43,7 +43,7 @@ enabled = false;
 }
 
 start_gallery = function(){
-global.playfield = tun_load_tun(global.main_dir+"GALLERY/ALIENEXP.GAL");
+global.playfield = tun_load_tun(global.main_dir+"GALLERY/WATCHING.GAL");
 scr_trans(rm_garden);
 enabled = false;
 //room_goto(rm_garden);

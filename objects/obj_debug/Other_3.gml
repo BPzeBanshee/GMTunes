@@ -1,0 +1,1 @@
+scr_main_free();

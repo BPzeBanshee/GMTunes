@@ -25,4 +25,7 @@ if global.zoom < 2
 	var xy = xy_to_gui(xx,yy);
 	draw_anim(xy.gx,xy.gy);
 	draw_bug(xy.gx,xy.gy);
+	
+	//var g = xy_to_gui(xx+500,yy+50);
+	//draw_line_color(xy.gx,xy.gy,g.gx,g.gy,c_white,c_white);
 	}

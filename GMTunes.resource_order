@@ -68,6 +68,7 @@
     {"name":"buffer_X_beX","order":2,"path":"scripts/buffer_X_beX/buffer_X_beX.yy",},
     {"name":"extract_dat","order":3,"path":"scripts/extract_dat/extract_dat.yy",},
     {"name":"get_filesize","order":2,"path":"scripts/get_filesize/get_filesize.yy",},
+    {"name":"hex","order":18,"path":"scripts/hex/hex.yy",},
     {"name":"keyboard_check_pressed_sane","order":5,"path":"scripts/keyboard_check_pressed_sane/keyboard_check_pressed_sane.yy",},
     {"name":"scr_decrypt_chunk","order":13,"path":"scripts/scr_decrypt_chunk/scr_decrypt_chunk.yy",},
     {"name":"scr_gmlibsmacker","order":1,"path":"scripts/scr_gmlibsmacker/scr_gmlibsmacker.yy",},

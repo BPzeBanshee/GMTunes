@@ -363,7 +363,6 @@ trace("Mystery Number: "+string(meta_number));
 buffer_read(bu,buffer_u32);*/
 
 // Bugz metadata
-
 var bugz_posdir = [];
 var bugz_speed = [];
 var bugz_paused = [];
@@ -398,15 +397,56 @@ for (var i=0; i<4; i++)
 		Mode 0 appears to be position in screen space - 16. It isn't clear how program
 		decides this is to be saved to file nor is it clear why it'd ever need this.
 		(test case: Reverb)
+		
+		new theory: literal x/y offsets from currently-in-use teleport point
+		WATCHING.GAL:
+		yellow bug start pos: 104,12 - *16 = 1664,192
+		suspected teleport point: 89,10 - *16 = 1424,160
+		
+		1664 - 1424 = 240 - /16 = 15
+		192 - 160 = 32 - /16 = 2
+		89 + 15 = 104
+		10 + 2 = 12
+		
+		unk1: [0,0,500,50]
+		xy_to_gui(x,y): 416,48
+		500 - 416 = 84
+		50 - 48 = 2
+		
+		104 - 84 = 20
+		12 - 2 = 10
 		*/
-		unk = [];
+		/*unk = [];
+		var t = buffer_tell(bu);
+		// s32
+		repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
+		trace("Unknown Bugz Metadata #1 (s32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// u32
 		repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
-		trace("Unknown Bugz Metadata #1: "+string(unk));
-		//buffer_seek(bu,buffer_seek_relative,16);
+		trace("Unknown Bugz Metadata #1 (u32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// s16
+		repeat 8 array_push(unk,buffer_read(bu,buffer_s16));
+		trace("Unknown Bugz Metadata #1 (s16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// u16
+		repeat 8 array_push(unk,buffer_read(bu,buffer_u16));
+		trace("Unknown Bugz Metadata #1 (u16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// s8
+		repeat 16 array_push(unk,buffer_read(bu,buffer_s8));
+		trace("Unknown Bugz Metadata #1 (s8): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// u8
+		repeat 16 array_push(unk,buffer_read(bu,buffer_u8));
+		trace("Unknown Bugz Metadata #1 (u8): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// be32
+		repeat 4 array_push(unk,buffer_read_be32(bu));
+		trace("Unknown Bugz Metadata #1 (be32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
+		// be16
+		repeat 8 array_push(unk,buffer_read_be16(bu));
+		trace("Unknown Bugz Metadata #1 (be16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);*/
+		buffer_seek(bu,buffer_seek_relative,16);
 	
 		// Current positions (Note X, Note Y, DIR)
-		bugz[i].pos[0] = buffer_read(bu,buffer_u32) * 16; // X
-		bugz[i].pos[1] = buffer_read(bu,buffer_u32) * 16; // Y
+		bugz[i].pos[0] = buffer_read(bu,buffer_u32); // X
+		bugz[i].pos[1] = buffer_read(bu,buffer_u32); // Y
 		bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
 		switch bugz[i].dir
 			{
@@ -432,17 +472,17 @@ for (var i=0; i<4; i++)
 		var error = buffer_read(bu,buffer_u32);
 		if error > 0 
 			{
-			trace("WARNING: error presence code: "+string(error));
+			trace("WARNING: error presence code: "+hex(error));
 			buffer_seek(bu,buffer_seek_relative,4);
 			
 			var error2 = buffer_read(bu,buffer_u32);
 			if error2 > 0 
 				{
-				trace("WARNING: error2 presence code: "+string(error2));
+				trace("WARNING: error2 presence code: "+hex(error2));
 				var done_offset = false;
-				if error2 == 0xF0 or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
+				if error2 >= 0xF0 && error2 <= 0xF3//or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
 					{
-					trace("offset command "+string(error2)+" found, skipping 5 bytes");
+					trace("offset command "+hex(error2)+" found, skipping 5 bytes");
 					buffer_seek(bu,buffer_seek_relative,5);
 					done_offset = true;
 					}
@@ -477,7 +517,7 @@ for (var i=0; i<4; i++)
 				or ((error2 >> 16) == 0x4050 && ((error >> 16) != 0x4055 && (error >> 16) != 0x404C))
 				or (error2 >> 16) == 0x4052) && !done_offset
 					{
-					trace("offset command "+string(error2)+" found, skipping 49 bytes");
+					trace("offset command "+hex(error2)+" found, skipping 49 bytes");
 					buffer_seek(bu,buffer_seek_relative,49);
 					done_offset = true;
 					}
@@ -485,7 +525,7 @@ for (var i=0; i<4; i++)
 					{
 					// 0x401c is in zimbabwe but has no garbage code
 					// MISHIKO.TUN has only 0x40
-					trace("offset command "+string(error2)+" found, skipping 40 bytes");
+					trace("offset command "+hex(error2)+" found, skipping 40 bytes");
 					buffer_seek(bu,buffer_seek_relative,40);
 					done_offset = true;
 					}
@@ -513,7 +553,7 @@ for (var i=0; i<4; i++)
 		bugz[i].volume = buffer_read(bu,buffer_u32); //0-128 in increments of 16
 		
 		trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz[i].gear,bugz[i].paused,bugz[i].volume));
-		if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = false;
+		if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = true;
 		bugz[i].volume = clamp(bugz[i].volume,0,128);
 		}
 	}
@@ -583,7 +623,7 @@ for (var i=0;i<4;i++)
 		flag[i].image_index = i;
 		flag[i].direction = flag_list[i][2];
 		flag[i].image_angle = flag_list[i][2];
-		if !global.use_int_spr then flag[i].sprite_index = global.spr_flag2[i];
+		if global.use_external_assets then flag[i].sprite_index = global.spr_flag2[i];
 		}
 	}
 
@@ -598,7 +638,7 @@ for (var i=0;i<4;i++)
 	{
 	if bugz[i].filename != ""
 		{
-		var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
+		var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
 		bug.gear = bugz[i].gear;
 		bug.paused = bugz[i].paused;
 		bug.volume = bugz[i].volume;

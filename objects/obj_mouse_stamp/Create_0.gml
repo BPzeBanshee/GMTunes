@@ -1,10 +1,11 @@
 // Inherit the parent event
 event_inherited();
 surf = -1;
-grid = -1;
+grid_note = -1;
+grid_ctrl = -1;
 width = 0;
 height = 0;
-scale = 16;
-
-var f = get_open_filename("*.STP","");
-if f != "" then load_stamp(f);
+scale = 4;
+clear_back = true;
+move_mode = false;
+copy_mode = false;

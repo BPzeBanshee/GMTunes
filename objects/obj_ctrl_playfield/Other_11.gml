@@ -50,9 +50,7 @@ else
 // TODO: just the screen or entire map?
 if (keyboard_check(vk_control) && keyboard_check(vk_f4))
 	{
-	/*ds_grid_clear(global.pixel_grid,0);
-	ds_grid_clear(global.ctrl_grid,0);
-	global.warp_list = [];*/
+	reset_playfield();
 	}
 	
 // Load Game

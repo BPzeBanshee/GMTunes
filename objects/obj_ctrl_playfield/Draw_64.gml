@@ -6,7 +6,7 @@ if loading_prompt
 	{
 	draw_rectangle_color(0,0,640,480,0,0,0,0,false);
 	draw_set_halign(fa_center);
-	draw_text(320,240,"NOW LOADING (MAY LAG A BIT)");
+	draw_text(320,240,"NOW LOADING\n(MAY LAG A BIT)");
 	return;
 	}
 
@@ -27,9 +27,9 @@ switch menu
 		for (var i=1;i<=25;i++)
 			{
 			var xx = bx+(16*i);
-			if global.use_int_spr
-			draw_sprite(spr_note,i,xx,by)
-			else draw_sprite(global.spr_note2[0][i],0,xx,by);
+			if global.use_external_assets
+			draw_sprite(global.spr_note2[0][i],0,xx,by)
+			else draw_sprite(spr_note,i,xx,by);
 			if (mx >= xx && mx <= xx+16 && mmy) && mb
 				{
 				if !instance_exists(obj_mouse_colour)
@@ -47,9 +47,9 @@ switch menu
 			{
 			if i == 9 then i++;
 			var xx = bx+(16*i);
-			if global.use_int_spr
-			draw_sprite(spr_note_ctrl,i,xx,by+16)
-			else draw_sprite(global.spr_note2[i][0],0,xx,by+16); //myctrlnote,i
+			if global.use_external_assets
+			draw_sprite(global.spr_note2[i][0],0,xx,by+16)
+			else draw_sprite(spr_note_ctrl,i,xx,by+16);
 			if (mx >= xx && mx <= xx+16 && mmy) && mb
 				{
 				if !instance_exists(obj_mouse_ctrl)
@@ -64,7 +64,59 @@ switch menu
 		}
 		
 	// stamps
-	case 1: /*draw_sprite(gui.stamp,0,0,by);*/ draw_text(bx,by+16,"STAMP TBA"); break;
+	case 1: 
+	draw_sprite(gui.stamp,0,0,by);
+	
+	var copy_x = 66;
+	var copy_y = by+1;
+	if point_in_rectangle(mx,my,copy_x,copy_y,copy_x+90,copy_y+34)
+		{
+		if mb
+			{
+			if !instance_exists(obj_mouse_stamp)
+				{
+				instance_destroy(m);
+				mouse_create(obj_mouse_stamp); 
+				}
+			m.copy_mode = true;
+			m.move_mode = false;
+			}
+		}
+		
+	var move_x = 156;
+	var move_y = by+1;
+	if point_in_rectangle(mx,my,move_x,move_y,move_x+90,copy_y+34)
+		{
+		if mb
+			{
+			if !instance_exists(obj_mouse_stamp)
+				{
+				instance_destroy(m);
+				mouse_create(obj_mouse_stamp); 
+				}
+			m.copy_mode = false;
+			m.move_mode = true;
+			}
+		}
+	
+	var load_stamp_x = 85;
+	var load_stamp_y = by+38;
+	if point_in_rectangle(mx,my,load_stamp_x,load_stamp_y,load_stamp_x+89,load_stamp_y+26)
+		{
+		if mb
+			{
+			if !instance_exists(obj_mouse_stamp)
+				{
+				instance_destroy(m);
+				mouse_create(obj_mouse_stamp); 
+				var f = get_open_filename("*.STP","");
+				if f != "" then m.load_stamp(f);
+				}
+			}
+		}
+	
+	//draw_text(bx,by+16,"STAMP TBA"); 
+	break;
 	
 	// *** EXPLORE ***
 	case 2: /*draw_sprite(gui.explore,0,0,by);*/ draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
@@ -116,7 +168,7 @@ switch menu
 				// Click to pause/unpause
 				if point_in_rectangle(mx,my,bo,bugpic_y,bo+50,bugpic_y+34)
 					{
-					if mb if instance_exists(bug[i]) then bug[i].paused = !bug[i].paused;
+					if mb if instance_exists(bug[i]) bug[i].paused = !bug[i].paused;
 					}
 				}
 			}
@@ -126,7 +178,7 @@ switch menu
 		var go_y = by+1;
 		if point_in_rectangle(mx,my,go_x,go_y,go_x+72,go_y+34)
 			{
-			if mb for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = false;
+			if mb for (var i=0;i<4;i++) if instance_exists(bug[i]) bug[i].paused = false;
 			}
 			
 		// RESTART
@@ -161,7 +213,22 @@ switch menu
 				}
 			}
 			
-		// Volume
+		// Volume down
+		var vol_down_x = 84;
+		var vol_down_y = by+38;
+		if point_in_rectangle(mx,my,vol_down_x,vol_down_y,vol_down_x+26,vol_down_y+26)
+			{
+			if mb for (var i=0;i<4;i++)
+				{
+				if instance_exists(bug[i])
+					{
+					bug[i].volume -= 16;
+					if bug[i].volume < 0 bug[i].volume = 0;
+					}
+				}
+			}
+			
+		// Volume slider
 		var volume_x = 122;
 		var volume_y = by+38;
 		for (var i=0;i<4;i++)
@@ -174,7 +241,7 @@ switch menu
 					{
 					if mouse_check_button(mb_left)
 						{
-						current_percent = clamp(75 * ((mx-volume_x)/75),0,76);//clamp(mx,volume_x,volume_x+98);
+						current_percent = clamp(75 * ((mx-volume_x)/75),0,76);
 						}
 					if mouse_check_button_released(mb_left)
 						{
@@ -185,6 +252,80 @@ switch menu
 					}
 					
 				draw_sprite(global.spr_ui_slider[i],0,volume_x+current_percent,volume_y+3+(6*i));
+				}
+			}
+			
+		// Volume up
+		var vol_up_x = 208;
+		var vol_up_y = by+38;
+		if point_in_rectangle(mx,my,vol_up_x,vol_up_y,vol_up_x+26,vol_up_y+26)
+			{
+			if mb for (var i=0;i<4;i++)
+				{
+				if instance_exists(bug[i])
+					{
+					bug[i].volume += 16;
+					if bug[i].volume > 128 bug[i].volume = 128;
+					}
+				}
+			}
+			
+		// Speed/Gear down
+		var spd_down_x = 242;
+		var spd_down_y = by+38;
+		if point_in_rectangle(mx,my,spd_down_x,spd_down_y,spd_down_x+26,spd_down_y+26)
+			{
+			if mb for (var i=0;i<4;i++)
+				{
+				if instance_exists(bug[i])
+					{
+					bug[i].gear -= 1;
+					if bug[i].gear < 0 bug[i].gear = 0;
+					bug[i].calculate_timer();
+					}
+				}
+			}
+			
+		// Speed/gear slider
+		var spd_x = 280;
+		var spd_y = by+38;
+		for (var i=0;i<4;i++)
+			{
+			if instance_exists(bug[i]) 
+				{
+				var current_percent = clamp(75 * (bug[i].gear/8),0,75);
+				
+				if point_in_rectangle(mx,my,spd_x,spd_y+(6*i),spd_x+75,spd_y+(6*i)+6)
+					{
+					if mouse_check_button(mb_left)
+						{
+						current_percent = clamp(75 * ((mx-spd_x)/75),0,75);
+						}
+					if mouse_check_button_released(mb_left)
+						{
+						var mouse_percent = clamp(round(8 * ((mx-spd_x)/75)),0,8);
+						bug[i].gear = mouse_percent;
+						trace("bug {0} gear set to {1}",i,mouse_percent);
+						}
+					}
+					
+				draw_sprite(global.spr_ui_slider[i],0,spd_x+current_percent,spd_y+3+(6*i));
+				}
+			}
+			
+		// Gear/speed up
+		var spd_up_x = 366;
+		var spd_up_y = by+38;
+		if point_in_rectangle(mx,my,spd_up_x,spd_up_y,spd_up_x+26,spd_up_y+26)
+			{
+			if mb for (var i=0;i<4;i++)
+				{
+				if instance_exists(bug[i])
+					{
+					bug[i].gear += 1;
+					if bug[i].gear > 8 bug[i].gear = 8;
+					bug[i].calculate_timer();
+					}
 				}
 			}
 		break;

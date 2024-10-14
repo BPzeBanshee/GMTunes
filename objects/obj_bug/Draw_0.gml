@@ -19,12 +19,15 @@ if global.zoom == 2
 		}
 	else
 		{
-		xx = x+8;
-		yy = y+8;
+		xx = x+8;                                                                                                                                                                                                                      
+		yy = y+8;                                     
 		}
 	
 	draw_anim(xx,yy);
 	draw_bug(xx,yy);
+	
+	//var g = xy_to_gui(xx,yy);
+	//draw_line_color(x,y,(x-244),(y-50),c_white,c_white);
 	/*
 	var xx = x+8 + lengthdir_x(8,direction+180);
 	var yy = y+8 + lengthdir_y(8,direction+180);

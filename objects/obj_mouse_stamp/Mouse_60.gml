@@ -1,1 +1,0 @@
-if scale < 32 then scale *= 2;

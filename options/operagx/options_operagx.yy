@@ -1,6 +1,12 @@
 {
   "$GMOperaGXOptions":"",
   "%Name":"operagx",
+  "ConfigValues":{
+    "Web":{
+      "option_operagx_game_name":"GMTunes",
+      "option_operagx_mod_game_name":"GMTunes",
+    },
+  },
   "name":"operagx",
   "option_operagx_display_cursor":true,
   "option_operagx_editUrl":"",

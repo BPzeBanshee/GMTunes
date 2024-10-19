@@ -18,7 +18,7 @@ function playfield_struct() constructor {
 	
 	camera_pos = [-1,-1];
 	pixelsize = -1; // SimTunes uses pixelsize 4,8,16, simplify here to 0-2
-	warp_list = [[-1,-1,-1,-1]]; //[xfrom,yfrom,xto,yto]
+	warp_list = [[]]; //[xfrom,yfrom,xto,yto] //[-1,-1,-1,-1]
 	flag_list = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]]; //[x,y,dir]
 	note_list = -1; //ds_grid_write //[note,x,y]
 	ctrl_list = -1; //ds_grid_write

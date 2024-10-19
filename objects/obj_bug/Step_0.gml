@@ -25,10 +25,7 @@ if timer < 1
 	}
 		
 // Map position wrap
-if y > room_height then y -= room_height;
-if y < 0 then y += room_height;
-if x > room_width then x -= room_width;
-if x < 0 then x += room_width;
+move_wrap(true,true,8);
 
 var xx = floor((x+8)/16);
 var yy = floor((y+8)/16);

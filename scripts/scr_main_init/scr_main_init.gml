@@ -3,12 +3,17 @@ function scr_main_init(){
 // Macros
 #macro trace show_debug_message
 #macro msg show_message
+#macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
+#macro Web:TUNERES "/TUNERES.DAT_ext/"
 
 // Function calls
 surface_depth_disable(true);
 audio_master_gain(0.5);
 window_set_caption("GMTunes");
 pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
+global.use_external_assets = true;
+//if os_type == os_operagx global.use_external_assets = false;
+
 
 // Controller objects and globalvars
 global.playfield = -1;
@@ -23,48 +28,34 @@ if GM_build_type == "run"
 global.main_dir = working_directory+"/"
 else global.main_dir = program_directory+"/";
 
-var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
-var savepath = "";
-if file_exists(config)
+if os_type == os_windows
 	{
-	ini_open(config);
-	savepath = ini_read_string("FILE FOLDERS","mCustomSavePath","");
-	trace(string("savepath returned {0}",savepath));
-	ini_close();
-	}
-if savepath != ""
-	{
-	global.main_dir = string_replace(savepath,@"TUNES\","");
-	trace("global.main_dir set to {0}",global.main_dir);
-	}
-
-
-// Font loading
-var size = 10; // was 12
-var fonts = ["FONTS/AVALONN.TTF","FONTS/AVALONB.TTF","FONTS/AVALONI.TTF","FONTS/AVALONT.TTF"];
-var f;
-for (var i=0;i<array_length(fonts);i++)
-	{
-	if file_exists(global.main_dir+fonts[i])
-	then f = font_add(global.main_dir+fonts[i],size,false,false,32,127)
-	else f = fnt_courier;
-	switch i
+	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
+	if file_exists(config)
 		{
-		case 0: global.fnt_default = f; break;
-		case 1: global.fnt_bold = f; break;
-		case 2: global.fnt_italic = f; break;
-		case 3: global.fnt_bolditalic = f; break;
+		ini_open(config);
+		var savepath = ini_read_string("FILE FOLDERS","mCustomSavePath","");
+		ini_close();
+		trace(string("savepath returned {0}",savepath));
+	
+		if savepath != ""
+			{
+			global.main_dir = string_replace(savepath,@"TUNES\","");
+			trace("global.main_dir set to {0}",global.main_dir);
+			}
 		}
 	}
-// TODO: work out the debug/small text fonts SimTunes uses
-#macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
-if directory_exists(game_save_id+"/TUNERES.DAT_ext")
+	
+// Font loading
+scr_font_init();
+
+// Load note sprites
+scr_spr_init();
+
+if os_type == os_windows && global.use_external_assets 
 	{
-	trace("Extracted folder already present, avoiding extra work");
-	}
-else
-	{
-	if os_type == os_windows
+	// Extract TUNERES.DAT assets if possible
+	if !directory_exists(TUNERES)
 		{
 		gmlzari_init();
 		if file_exists(global.main_dir+"TUNERES.DAT")
@@ -75,16 +66,50 @@ else
 			}
 		else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(TUNERES));
 		}
-	else
+	else trace("Extracted folder already present, avoiding extra work");	
+	
+	// TODO: load string table from SimTunes.dat
+
+	// Play intro graphics+video
+	instance_create_depth(x,y,0,obj_video_intro);
+	}
+else 
+	{
+	//trace("No LZARI support here, defo gonna have to run internal assets only");
+	room_goto(rm_main);
+	}
+}
+
+function scr_font_init(){
+// TODO: work out the debug/small text fonts SimTunes uses
+global.fnt_default = fnt_internal_default;
+global.fnt_italic = fnt_internal_italic;
+global.fnt_bold = fnt_internal_bold;
+global.fnt_bolditalic = fnt_internal_bolditalic;
+
+if global.use_external_assets
+	{
+	var size = 10; // was 12
+	var fonts = ["FONTS/AVALONN.TTF","FONTS/AVALONB.TTF","FONTS/AVALONI.TTF","FONTS/AVALONT.TTF"];
+	for (var i=0;i<array_length(fonts);i++)
 		{
-		trace("No LZARI support here, defo gonna have to run internal assets only");
+		if file_exists(global.main_dir+fonts[i]) 
+			{
+			var f = font_add(global.main_dir+fonts[i],size,false,false,32,127);
+			switch i
+				{
+				case 0: global.fnt_default = f; break;
+				case 1: global.fnt_bold = f; break;
+				case 2: global.fnt_italic = f; break;
+				case 3: global.fnt_bolditalic = f; break;
+				}
+			}
 		}
 	}
-// TODO: load string table from SimTunes.dat
+}
 
-// Load note sprites
+function scr_spr_init(){
 // NOTE: sprite_add_from_surface not used due to performance bug
-global.use_external_assets = true;
 global.spr_note2[0][0] = -1;
 global.spr_flag2[0] = -1;
 
@@ -122,7 +147,7 @@ _nineslice.right = 2;
 _nineslice.top = 2;
 _nineslice.bottom = 2;
 //_nineslice.tilemode[nineslice_center] = nineslice_hide; 
-sprite_set_nineslice(global.spr_ui_txt,_nineslice);
+if sprite_exists(global.spr_ui_txt) sprite_set_nineslice(global.spr_ui_txt,_nineslice);
 
 global.spr_ui_desc = bmp_load_sprite(TUNERES+"Info.bmp",,,,,,,0,0);
 
@@ -175,68 +200,63 @@ else
 		}
 	}
 
+global.spr_ui_cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,false,0,0); 
+cursor_sprite = global.spr_ui_cursor;
+window_set_cursor(cr_none);
+
 global.spr_ui_move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
 global.spr_ui_copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
-//global.spr_mouse.copy 
-
-/*temp = bmp_load(game_save_id+"/TUNERES.DAT_ext/SELECTOR.BMP");
-var c = sprite_create_from_surface(temp,0,0,32,32,true,false,0,0);
-if sprite_exists(c) 
-	{
-	cursor_sprite = c;
-	window_set_cursor(cr_none);
-	surface_free(temp);
-	}*/
-
-instance_create_depth(x,y,0,obj_video_intro);
 }
 
 function scr_main_free(){
 
-// FREE EXTERNAL FONTS
-var external_fonts = [global.fnt_bold,global.fnt_bolditalic,
-global.fnt_italic,global.fnt_default];
-
-for (var i=0;i<array_length(external_fonts);i++)
+if global.use_external_assets
 	{
-	font_delete(external_fonts[i]);
-	}
+	// FREE EXTERNAL FONTS
+	var external_fonts = [global.fnt_bold,global.fnt_bolditalic,
+	global.fnt_italic,global.fnt_default];
 
-// FREE EXTERNAL SPRITES
-var external_sprites = [global.spr_ui_bar,global.spr_ui_txt,
-global.spr_ui_desc,global.spr_ui_move,global.spr_ui_copy];
-
-for (var a=0;a<4;a++)
-	{
-	array_push(external_sprites,global.spr_flag2[a]);
-	array_push(external_sprites,global.spr_ui_bug[a][0]);
-	array_push(external_sprites,global.spr_ui_bug[a][1]);
-	array_push(external_sprites,global.spr_ui_slider[a]);
-	}
-for (var yy = 0; yy <= 25; yy++)
-	{
-	for (var xx = 0; xx < 15; xx++)
+	for (var i=0;i<array_length(external_fonts);i++)
 		{
-		array_push(external_sprites,global.spr_note2[xx][yy]);
+		font_delete(external_fonts[i]);
 		}
-	}
-for (var i=0;i<array_length(external_sprites);i++)
-	{
-	if sprite_exists(external_sprites[i]) sprite_delete(external_sprites[i]);
-	}
-	
-// FREE EXTERNAL SOUNDS
-var external_sounds = [];
-for (var i=0;i<array_length(external_sounds);i++)
-	{
-	if audio_exists(external_sounds[i]) 
+
+	// FREE EXTERNAL SPRITES
+	var external_sprites = [global.spr_ui_bar,global.spr_ui_txt,
+	global.spr_ui_desc,global.spr_ui_move,global.spr_ui_copy];
+
+	for (var a=0;a<4;a++)
 		{
-		audio_free_buffer_sound(external_sprites[i]);//.snd);
-		//buffer_delete(external_sprites[i].buf);
+		array_push(external_sprites,global.spr_flag2[a]);
+		array_push(external_sprites,global.spr_ui_bug[a][0]);
+		array_push(external_sprites,global.spr_ui_bug[a][1]);
+		array_push(external_sprites,global.spr_ui_slider[a]);
 		}
-	}
+	for (var yy = 0; yy <= 25; yy++)
+		{
+		for (var xx = 0; xx < 15; xx++)
+			{
+			array_push(external_sprites,global.spr_note2[xx][yy]);
+			}
+		}
+	for (var i=0;i<array_length(external_sprites);i++)
+		{
+		if sprite_exists(external_sprites[i]) sprite_delete(external_sprites[i]);
+		}
 	
-// FREE EXTENSIONS
-gmlzari_free();
-gmlibsmacker_free();
+	// FREE EXTERNAL SOUNDS
+	var external_sounds = [];
+	for (var i=0;i<array_length(external_sounds);i++)
+		{
+		if audio_exists(external_sounds[i]) 
+			{
+			audio_free_buffer_sound(external_sprites[i]);//.snd);
+			//buffer_delete(external_sprites[i].buf);
+			}
+		}
+	
+	// FREE EXTENSIONS
+	gmlzari_free();
+	gmlibsmacker_free();
+	}
 }

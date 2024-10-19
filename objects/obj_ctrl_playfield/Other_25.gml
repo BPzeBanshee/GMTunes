@@ -22,9 +22,7 @@ switch menu
 		for (var i=1;i<25;i++)
 			{
 			var xx = bx+(16*i);
-			if !global.use_external_assets
-			draw_sprite(spr_note,i,xx,by)
-			else draw_sprite(global.spr_note2[0][i],0,xx,by);
+			draw_sprite(spr_note,i,xx,by);
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_colour)
@@ -42,9 +40,7 @@ switch menu
 			{
 			if i == 9 then i++;
 			var xx = bx+(16*i);
-			if !global.use_external_assets
-			draw_sprite(spr_note_ctrl,i,xx,by+16)
-			else draw_sprite(global.spr_note2[i][0],0,xx,by+16); //myctrlnote,i
+			draw_sprite(spr_note_ctrl,i,xx,by+16);
 			if (mx >= xx && mx <= xx+16 && mmy) && mouse_check_button_pressed(mb_left)
 				{
 				if !instance_exists(obj_mouse_ctrl)

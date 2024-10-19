@@ -14,7 +14,7 @@ switch mode
 	// loading bar if needed
 	case 1:
 		{
-		tasks++;
+		//tasks++;
 		if tasks >= max_tasks mode = 2;
 		break;
 		}

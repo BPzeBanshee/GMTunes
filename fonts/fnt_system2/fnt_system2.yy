@@ -1,6 +1,6 @@
 {
   "$GMFont":"",
-  "%Name":"fnt_courier",
+  "%Name":"fnt_system2",
   "AntiAlias":0,
   "applyKerning":0,
   "ascender":12,
@@ -117,7 +117,7 @@
   "last":0,
   "lineHeight":18,
   "maintainGms1Font":false,
-  "name":"fnt_courier",
+  "name":"fnt_system2",
   "parent":{
     "name":"Fonts",
     "path":"folders/Fonts.yy",

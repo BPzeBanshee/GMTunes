@@ -20,3 +20,14 @@ function hex(val){
 	// Returning result :
 	return s;
 	}
+	
+function hex_array(arr){
+	var str = "[ ";
+	for (var i=0;i<array_length(arr);i++)
+		{
+		str += hex(arr[i]);
+		if i < array_length(arr)-1 str += ",";
+		}
+	str += " ]";
+	return str;
+}

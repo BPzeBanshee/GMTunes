@@ -64,8 +64,8 @@ for (var xx = 0; xx < ww; xx++)
 				}
 			else 
 				{
-				draw_sprite(spr_note,data,xx*16,yy*16);
-				draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
+				if data > 0 draw_sprite(spr_note,data-1,xx*16,yy*16);
+				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,xx*16,yy*16);
 				}
 			}
 		}
@@ -85,15 +85,15 @@ if data > 0 or data_ctrl > 0
 	draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16)
 	else 
 		{
-		draw_sprite(spr_note,data,xx*16,yy*16);
-		draw_sprite(spr_note_ctrl,data_ctrl,xx*16,yy*16);
+		if data > 0 draw_sprite(spr_note,data-1,xx*16,yy*16);
+		if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,xx*16,yy*16);
 		}
 	}
 else
 	{
 	gpu_set_blendmode(bm_subtract);
 	draw_set_alpha(1);
-	draw_rectangle(xx*16,yy*16,(xx*16)+16,(yy*16)+16,false);
+	draw_rectangle(xx*16,yy*16,(xx*16)+15,(yy*16)+15,false);
 	gpu_set_blendmode(bm_normal);
 	}
 surface_reset_target();

@@ -12,9 +12,18 @@ if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
 var cam = view_camera[0];
 var cx = camera_get_view_x(cam);
 var cy = camera_get_view_y(cam);
-var cw = camera_get_view_width(cam);
-var ch = camera_get_view_height(cam);
-camera_set_view_pos(cam,clamp(cx+xo,0,room_width-cw),clamp(cy+yo,0,room_height+(256/(global.zoom+1))-ch));
+
+var xform = room_width - camera_get_view_width(cam);
+var yform = 0;
+switch global.zoom
+	{
+	case 2: yform = 1664 - 416; break;
+	case 1: yform = 1664 - (416*2); break;
+	case 0: break;
+	}
+// (64 * global.zoom);// (64 * (global.zoom/2));
+//room_height+(256/(global.zoom+1))-ch;
+camera_set_view_pos(cam,clamp(cx+xo,0,xform),clamp(cy+yo,0,yform));
 
 // Bugz
 if keyboard_check_pressed(vk_space)

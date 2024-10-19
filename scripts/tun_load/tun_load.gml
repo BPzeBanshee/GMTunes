@@ -379,183 +379,121 @@ for (var i=0; i<4; i++)
 	trace(bugname_str);
 	bugz[i].filename = bugname_str;
 	
-	if (eob - buffer_tell(bu)) == 87
+	/*
+	First four values are the zoom levels, followed by x/y positions of the Bugz
+	offset by a value depending on aforementioned zoom level (2: -8, 1: -12, 0: -14).
+	Placing a Bug at 0,0 using a start flag proves these are meant to be read as s32s.
+	Presumably interpreted as relative to drawing of sprite.
+	TODO: are these hardcoded or affected by sprite size? not all bugz are the same
+	but they're close!
+	*/
+	unk = [];
+	repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
+	trace("Suspected actual x/y data (s32): {0}",unk); unk = [];
+	/*var x_offset = 14;
+	switch buffer_read(bu,buffer_s32)
 		{
-		trace("WARNING: metadata corruption, deferring read");
-		bugz[i] = bugz[i-1];	//copy all stats from previous bug
-		bugz[i].filename = bugname_str; //re-apply unique filename
+		case 0: break;
+		case 1: x_offset = 12; break;
+		case 2: x_offset = 8; break;
+		}
+	var y_offset = 14;
+	switch buffer_read(bu,buffer_s32)
+		{
+		case 0: break;
+		case 1: y_offset = 12; break;
+		case 2: y_offset = 8; break;
+		}
+	bugz[i].pos[0] = 4 * room_width * ((buffer_read(bu,buffer_s32)+x_offset) / 640); // X
+	bugz[i].pos[1] = 4 * room_height * ((buffer_read(bu,buffer_s32)+y_offset) / 480); // Y
+	trace("XY Values: {0}",bugz[i].pos);*/
+	//bugz[i].pos[1] = buffer_read(bu,buffer_u32); // Y
+	
+	// Current positions (Note X, Note Y, DIR)
+	//buffer_seek(bu,buffer_seek_relative,8);
+	var note_x = buffer_read(bu,buffer_u32); // X
+	var note_y = buffer_read(bu,buffer_u32); // Y
+	bugz[i].pos[0] = note_x;
+	bugz[i].pos[1] = note_y; 
+	trace("Note XY Values: {0},{1}",note_x,note_y);
+	
+	bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
+	var corrected_dir = 0;
+	switch bugz[i].dir
+		{
+		case 0: corrected_dir = 90; break;
+		case 1: corrected_dir = 0; break;
+		case 2: corrected_dir = 270; break;
+		case 3: corrected_dir = 180; break;
+		}
+	trace("Direction: "+string(bugz[i].dir)+" ("+string(corrected_dir)+")");//, Position: "+string("{0}",bugz[i].pos));
+	bugz[i].dir = corrected_dir;	
+	/*
+	The following two uint32s seem to be almost always 0,
+	unless there's going to be error codes in the following
+	two uint32s in which case some projects have the first
+	value of 1.
+	
+	8,0 : user test 8
+	0,1 : citytalk.gal (yellow)
+	34,0 : funkbow.tun. citytalk.gal (green/blue/red)
+	*/
+	//unk = [];
+	//repeat 2 array_push(unk,buffer_read(bu,buffer_u32));
+	//trace("Suspected Teleport State Codes: "+string(unk));
+	//buffer_seek(bu,buffer_seek_relative,8);
+	var error1 = buffer_read(bu,buffer_u32);
+	var error2 = buffer_read(bu,buffer_u32);
+	trace("Mystery Error Codes: {0},{1}",error1,error2);
+	if error1 == 0 && error2 == 0
+		{
+		buffer_seek(bu,buffer_seek_relative,8);
 		}
 	else
 		{
-		/*
-		First four uint32s here appear to be absolute x/y positions of the Bugz.
-		First two values determine mode:
-		Mode 2 appears to be absolute position - 8.
-		This wraps around if you place the bug at the top/left most parts to uint32 cap - 8.
-		(tested with user .tuns)
+		tun_error_code_old(bu);
+		/*var pos = buffer_tell(bu);
+		var offset = 16;
+		if (error1 == 34 && error2 == 0) offset = 48;//repeat_value = 6;
 		
-		Mode 0 appears to be position in screen space - 16. It isn't clear how program
-		decides this is to be saved to file nor is it clear why it'd ever need this.
-		(test case: Reverb)
-		
-		new theory: literal x/y offsets from currently-in-use teleport point
-		WATCHING.GAL:
-		yellow bug start pos: 104,12 - *16 = 1664,192
-		suspected teleport point: 89,10 - *16 = 1424,160
-		
-		1664 - 1424 = 240 - /16 = 15
-		192 - 160 = 32 - /16 = 2
-		89 + 15 = 104
-		10 + 2 = 12
-		
-		unk1: [0,0,500,50]
-		xy_to_gui(x,y): 416,48
-		500 - 416 = 84
-		50 - 48 = 2
-		
-		104 - 84 = 20
-		12 - 2 = 10
-		*/
-		/*unk = [];
-		var t = buffer_tell(bu);
-		// s32
-		repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
-		trace("Unknown Bugz Metadata #1 (s32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// u32
-		repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
-		trace("Unknown Bugz Metadata #1 (u32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// s16
-		repeat 8 array_push(unk,buffer_read(bu,buffer_s16));
-		trace("Unknown Bugz Metadata #1 (s16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// u16
-		repeat 8 array_push(unk,buffer_read(bu,buffer_u16));
-		trace("Unknown Bugz Metadata #1 (u16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// s8
-		repeat 16 array_push(unk,buffer_read(bu,buffer_s8));
-		trace("Unknown Bugz Metadata #1 (s8): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// u8
-		repeat 16 array_push(unk,buffer_read(bu,buffer_u8));
-		trace("Unknown Bugz Metadata #1 (u8): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// be32
-		repeat 4 array_push(unk,buffer_read_be32(bu));
-		trace("Unknown Bugz Metadata #1 (be32): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);
-		// be16
-		repeat 8 array_push(unk,buffer_read_be16(bu));
-		trace("Unknown Bugz Metadata #1 (be16): "+string(unk)); unk = []; buffer_seek(bu,buffer_seek_start,t);*/
-		buffer_seek(bu,buffer_seek_relative,16);
-	
-		// Current positions (Note X, Note Y, DIR)
-		bugz[i].pos[0] = buffer_read(bu,buffer_u32); // X
-		bugz[i].pos[1] = buffer_read(bu,buffer_u32); // Y
-		bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
-		switch bugz[i].dir
+		while buffer_tell(bu) < pos+offset
 			{
-			case 0: bugz[i].dir = 90; break;
-			case 1: bugz[i].dir = 0; break;
-			case 2: bugz[i].dir = 270; break;
-			case 3: bugz[i].dir = 180; break;
-			}
-		trace("Direction: "+string(bugz[i].dir)+", Position: "+string("{0}",bugz[i].pos));
-		
-		/*
-		The following two uint32s seem to be almost always 0,
-		unless there's going to be error codes in the following
-		two uint32s in which case some projects have the first
-		value of 1.
-		*/
-		unk = [];
-		repeat 2 array_push(unk,buffer_read(bu,buffer_u32));
-		trace("Unknown Bugz Metadata #2: "+string(unk));
-		//buffer_seek(bu,buffer_seek_relative,8);
-		
-		// error code presence of some kind
-		var error = buffer_read(bu,buffer_u32);
-		if error > 0 
-			{
-			trace("WARNING: error presence code: "+hex(error));
-			buffer_seek(bu,buffer_seek_relative,4);
+			unk = [];
+			repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
+			trace("Mystery values: {0} (hex: {1})",unk,hex_array(unk));
 			
-			var error2 = buffer_read(bu,buffer_u32);
-			if error2 > 0 
-				{
-				trace("WARNING: error2 presence code: "+hex(error2));
-				var done_offset = false;
-				if error2 >= 0xF0 && error2 <= 0xF3//or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
-					{
-					trace("offset command "+hex(error2)+" found, skipping 5 bytes");
-					buffer_seek(bu,buffer_seek_relative,5);
-					done_offset = true;
-					}
-				/*
-				some bullshit in CITYTALK.GAL
-				if error2 == 0x4056c000 
-				or error2 == 0x4055c000
-				or error2 == 0x40280000
-				or error2 == 0x40580000
-				*/
-				/*
-				TODO: some values here are shared on 'error2' but correlate to a 44 byte
-				skip rather than a 53-byte skip. Zimbabwe has an error2 code but not
-				an error code. Mishiko and Clown have error and error2 codes that
-				don't correlate. 0x404B is listed at least once for a 44-byte skip.
-				
-				FUNKBOW.TUN
-				error:  0x40550C00
-				error2: 0x40504000
-				*/
+			var e = buffer_read(bu,buffer_u32);
+			if e > 0 trace("u32 read between values: {0}",e);
+			}
 			
-				if ((error2 >> 16) == 0x4029 
-				or ((error2 >> 16) == 0x4042 && (error >> 16) != 0x404F)
-				or ((error2 >> 16) == 0x4044 && (error >> 16) != 0x4052)
-				
-				// MR_D.GAL/MISHIKO.TUN?
-				or ((error2 >> 16) == 0x404B && (error >> 16) != 0x4018 && (error >> 16) != 0x4054)
-				or (error2 >> 16) == 0x404E 
-				
-				// whack shit resaving Reverb
-				// FUNKBOW.TUN
-				or ((error2 >> 16) == 0x4050 && ((error >> 16) != 0x4055 && (error >> 16) != 0x404C))
-				or (error2 >> 16) == 0x4052) && !done_offset
-					{
-					trace("offset command "+hex(error2)+" found, skipping 49 bytes");
-					buffer_seek(bu,buffer_seek_relative,49);
-					done_offset = true;
-					}
-				if (error2 >> 24) >= 0x40 && !done_offset
-					{
-					// 0x401c is in zimbabwe but has no garbage code
-					// MISHIKO.TUN has only 0x40
-					trace("offset command "+hex(error2)+" found, skipping 40 bytes");
-					buffer_seek(bu,buffer_seek_relative,40);
-					done_offset = true;
-					}
-				}
-			}
-		else
+		// trim if irregular position
+		if frac(buffer_tell(bu)/2) != 0 && frac(pos/2)!=0
 			{
-			buffer_seek(bu,buffer_seek_relative,4);
+			buffer_read(bu,buffer_u8);
+			trace("u8 trim");
 			}
-	
-		/*
-		There's a set of 4 uint8s here which are suspected to be some kind
-		of remainder coordinates set by the tweezer objects upon picking up
-		Bugz. On a fresh project these default to 0, when picked up by a
-		Tweezer tool the second pair is usually defaulted to 16,64.
-		I've never seen the first pair as anything but 0.
-		*/
-		unk = [];
-		repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
-		trace("Suspected 'Tweezer' values: "+string(unk));
-		//buffer_seek(bu,buffer_seek_relative,4);
-	
-		bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
-		bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
-		bugz[i].volume = buffer_read(bu,buffer_u32); //0-128 in increments of 16
-		
-		trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz[i].gear,bugz[i].paused,bugz[i].volume));
-		if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = true;
-		bugz[i].volume = clamp(bugz[i].volume,0,128);
+		else buffer_read(bu,buffer_u32);*/
 		}
+	
+	/*
+	There's a set of 4 uint8s here which are suspected to be some kind
+	of remainder coordinates set by the tweezer objects upon picking up
+	Bugz. On a fresh project these default to 0, when picked up by a
+	Tweezer tool the second pair is usually defaulted to 16,64.
+	I've never seen the first pair as anything but 0.
+	*/
+	unk = [];
+	repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
+	trace("Suspected 'Tweezer' values: "+string(unk));
+	//buffer_seek(bu,buffer_seek_relative,4);
+	
+	bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
+	bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
+	bugz[i].volume = buffer_read(bu,buffer_u32); //0-128 in increments of 16
+		
+	trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz[i].gear,bugz[i].paused,bugz[i].volume));
+	if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = true;
+	bugz[i].volume = clamp(bugz[i].volume,0,128);
 	}
 
 // clear buffer
@@ -582,8 +520,11 @@ if playfield_name != "" window_set_caption(string("GMTunes: {0} - {1}",playfield
 
 // Background
 if sprite_exists(myback) then sprite_delete(myback);
-var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
-myback = bac_load(dir);
+if global.use_external_assets
+	{
+	var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
+	myback = bac_load(dir);
+	}
 //trace(dir+" resulted in code "+string(myback));
 if sprite_exists(myback)
 	{
@@ -592,15 +533,29 @@ if sprite_exists(myback)
 	layer_background_sprite(bid,myback);
 	layer_background_xscale(bid,4);
 	layer_background_yscale(bid,4);
+	layer_background_vtiled(bid,false);
+	layer_background_htiled(bid,false);
 	mybackname = tun_struct.background;
+	}
+else
+	{
+	trace("sprite_exists(myback) failed, loading internal bkg...");
+	var bid = layer_background_get_id("lay_bkg");
+	layer_background_blend(bid,c_white);
+	layer_background_sprite(bid,spr_playfield_bkg);
+	layer_background_xscale(bid,4);
+	layer_background_yscale(bid,4);
+	layer_background_vtiled(bid,true);
+	layer_background_htiled(bid,true);
+	mybackname = "";
 	}
 	
 // Camera settings
-x = clamp(tun_struct.camera_pos[0],0,1920);
-y = clamp(tun_struct.camera_pos[1],0,1856);// was 1856
 global.zoom = tun_struct.pixelsize;
-var ww = 640*4;
-var hh = 480*4;
+var ww = 640*4; // 1920
+var hh = 480*4; // 1856
+x = clamp(tun_struct.camera_pos[0],0,ww);
+y = clamp(tun_struct.camera_pos[1],0,hh);
 switch global.zoom
 	{
 	case 1: ww /= 2; hh /= 2; break;
@@ -639,6 +594,7 @@ for (var i=0;i<4;i++)
 	if bugz[i].filename != ""
 		{
 		var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
+		//var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
 		bug.gear = bugz[i].gear;
 		bug.paused = bugz[i].paused;
 		bug.volume = bugz[i].volume;
@@ -655,13 +611,77 @@ for (var i=0;i<4;i++)
 			}
 		}
 	}
-/*var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
-for (var i=0;i<4;i++)
-	{
-	if bugz[i].filename != "" 
+}
+
+function tun_error_code_old(bu){
+// error code presence of some kind
+	var error = buffer_read(bu,buffer_u32);
+	if error > 0 
 		{
-		loadid[i] = buffer_load_async(buf[i],global.main_dir+"/BUGZ/"+bugz[i].filename,0,-1);
-		if !instance_exists(obj_ui_loading) instance_create_depth(0,0,depth-1,obj_ui_loading);
+		trace("WARNING: error presence code: "+hex(error));
+		buffer_seek(bu,buffer_seek_relative,4);
+			
+		var error2 = buffer_read(bu,buffer_u32);
+		if error2 > 0 
+			{
+			trace("WARNING: error2 presence code: "+hex(error2));
+			var done_offset = false;
+			if error2 >= 0xF0 && error2 <= 0xF3//or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
+				{
+				trace("offset command "+hex(error2)+" found, skipping 5 bytes");
+				buffer_seek(bu,buffer_seek_relative,5);
+				done_offset = true;
+				}
+			/*
+			some bullshit in CITYTALK.GAL
+			if error2 == 0x4056c000 
+			or error2 == 0x4055c000
+			or error2 == 0x40280000
+			or error2 == 0x40580000
+			*/
+			/*
+			TODO: some values here are shared on 'error2' but correlate to a 44 byte
+			skip rather than a 53-byte skip. Zimbabwe has an error2 code but not
+			an error code. Mishiko and Clown have error and error2 codes that
+			don't correlate. 0x404B is listed at least once for a 44-byte skip.
+				
+			FUNKBOW.TUN
+			error:  0x40550C00
+			error2: 0x40504000
+			*/
+			
+			if ((error2 >> 16) == 0x4029 
+			or ((error2 >> 16) == 0x4042 && (error >> 16) != 0x404F)
+			or ((error2 >> 16) == 0x4044 && (error >> 16) != 0x4052)
+				
+			// MR_D.GAL/MISHIKO.TUN?
+			or ((error2 >> 16) == 0x404B && (error >> 16) != 0x4018 && (error >> 16) != 0x4054)
+			or (error2 >> 16) == 0x404E 
+				
+			// whack shit resaving Reverb
+			// FUNKBOW.TUN
+			or ((error2 >> 16) == 0x4050 && ((error >> 16) != 0x4055 && (error >> 16) != 0x404C))
+			or (error2 >> 16) == 0x4052) && !done_offset
+				{
+				trace("offset command "+hex(error2)+" found, skipping 49 bytes");
+				buffer_seek(bu,buffer_seek_relative,49);
+				done_offset = true;
+				}
+			if (error2 >> 24) >= 0x40 && !done_offset
+				{
+				// 0x401c is in zimbabwe but has no garbage code
+				// MISHIKO.TUN has only 0x40
+				trace("offset command "+hex(error2)+" found, skipping 40 bytes");
+				buffer_seek(bu,buffer_seek_relative,40);
+				done_offset = true;
+				}
+			}
 		}
-	}*/
+	else //buffer_seek(bu,buffer_seek_relative,4);
+		{
+		trace("weirdest shit, no offset command found, gonna try skipping 48 bytes anyway");
+		buffer_seek(bu,buffer_seek_relative,48);
+		//var t = buffer_tell(bu);
+		//var offset = 48;
+		}
 }

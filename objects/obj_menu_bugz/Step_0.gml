@@ -1,4 +1,5 @@
 // Feather disable GM2016
+if !ready exit;
 if mouse_check_button_pressed(mb_left) && !done
 	{
 	var mx = mouse_x;
@@ -13,9 +14,9 @@ if mouse_check_button_pressed(mb_left) && !done
 	if point_in_rectangle(mx,my,confirm_x,button_y,confirm_x+110,button_y+32)
 	or keyboard_check_pressed(vk_enter)
 		{
-		alarm[3] = 2;
-		loading_prompt = true;
 		done = true;
+		loading_obj = instance_create_depth(0,0,depth-1,obj_loading);
+		alarm[3] = 2;
 		}
 		
 	// cancel button

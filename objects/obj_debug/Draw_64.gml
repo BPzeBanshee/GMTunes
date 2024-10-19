@@ -3,7 +3,7 @@
 if global.debug
     {
     // Init colour, positions, font etc
-    scr_draw_vars(fnt_small,fa_right,make_color_rgb(90,218,90));
+    scr_draw_vars(fnt_internal_bold,fa_right,make_color_rgb(90,218,90));
 	draw_set_valign(fa_top);
 	draw_set_alpha(1);
         

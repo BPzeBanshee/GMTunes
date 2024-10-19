@@ -8,7 +8,8 @@
 //leave it, but if you are experiencing performances issues, there are some
 //ways to make this work a bit more efficiently.
 #define PixelSize 1./TexturePageSize
-#define PalHeight ColorCount * PixelSize
+//#define PalHeight ColorCount * PixelSize
+const float PalHeight = ColorCount * PixelSize;
 #define Transparent vec4(.0,.0,.0,.0)
 #define Tolerance 0.004
 

@@ -5,16 +5,16 @@ frame = 0;
 timer = 0;
 surf = -1;
 
-// Company logos
-spr_logo1 = -1;
-spr_logo2 = -1;
-var f1 = TUNERES+"MaxKids.bmp";
-var f2 = TUNERES+"IwaiLogo.bmp";
-if file_exists(f1) spr_logo1 = bmp_load_sprite(f1);
-if file_exists(f2) spr_logo2 = bmp_load_sprite(f2);
-
-if os_type == os_windows
+if global.use_external_assets
 	{
+	// Company logos
+	spr_logo1 = -1;
+	spr_logo2 = -1;
+	var f1 = TUNERES+"MaxKids.bmp";
+	var f2 = TUNERES+"IwaiLogo.bmp";
+	if file_exists(f1) spr_logo1 = bmp_load_sprite(f1,,,,,,,0,0);
+	if file_exists(f2) spr_logo2 = bmp_load_sprite(f2,,,,,,,0,0);
+
 	gmlibsmacker_init();
 
 	// Version string

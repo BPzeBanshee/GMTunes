@@ -137,7 +137,16 @@ for (var i=0;i<4;i++)
 }
 
 load_tun = function(){
-var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/GALLERY","Load Savefile");
+var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Load Savefile");
+if string_length(f)>0
+	{
+	tun_load(f);
+	field.update_surf();
+	//field.update_ctrl_surf();
+	}
+}
+load_gal = function(){
+var f = get_open_filename_ext("SimTunes Gallery File (.gal)|*.GAL|SimTunes .tun File (.tun)|*.TUN|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/GALLERY","Load Savefile");
 if string_length(f)>0
 	{
 	tun_load(f);
@@ -160,7 +169,7 @@ if string_length(f)>0
 }
 
 menu_bugz = function(){
-instance_create_depth(x,y,depth-1,obj_menu_bugz);
+instance_create_depth(x,y,depth,obj_menu_bugz);//-1
 }
 
 reset_playfield = function(hard=false){

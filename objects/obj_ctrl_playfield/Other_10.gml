@@ -16,7 +16,7 @@ scr_trans(rm_main);
 }
 load_bkg = function(){
 var f = get_open_filename_ext("Background File|*.BAC","",global.main_dir+"/BACKDROP","Load Background");
-if f != ""
+if string_length(f)>0
 	{
 	var s = bac_load(f);
 	if sprite_exists(s)
@@ -155,7 +155,7 @@ if string_length(f)>0
 	}
 }
 save_tun = function(){
-var f = get_save_filename_ext("SimTunes .tun File (.tun)|*.TUN|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Save Savefile");
+var f = get_save_filename_ext("GMTunes file (.gmtun)|*.GMTUN|SimTunes .tun File (.tun)|*.TUN","",global.main_dir+"/TUNES","Save Savefile");
 if string_length(f)>0
 	{
 	trace(f);

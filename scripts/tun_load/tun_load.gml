@@ -246,7 +246,7 @@ for (var i=0;i<num_warps;i++)
 	warp[1] = buffer_read(bu,buffer_s32);
 	warp[2] = buffer_read(bu,buffer_s32);
 	warp[3] = buffer_read(bu,buffer_s32);
-	trace("raw warp values: {0},{1},{2},{3}",warp[0],warp[1],warp[2],warp[3]);
+	//trace("raw warp values: {0},{1},{2},{3}",warp[0],warp[1],warp[2],warp[3]);
 	if (warp[0] > -1
 	&& warp[1] > -1
 	&& warp[2] > -1
@@ -389,7 +389,7 @@ for (var i=0; i<4; i++)
 	*/
 	unk = [];
 	repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
-	trace("Suspected actual x/y data (s32): {0}",unk); unk = [];
+	trace("Scale/X/Y data relative to camera: {0}",unk); unk = [];
 	/*var x_offset = 14;
 	switch buffer_read(bu,buffer_s32)
 		{
@@ -409,12 +409,12 @@ for (var i=0; i<4; i++)
 	trace("XY Values: {0}",bugz[i].pos);*/
 	//bugz[i].pos[1] = buffer_read(bu,buffer_u32); // Y
 	
-	// Current positions (Note X, Note Y, DIR)
-	//buffer_seek(bu,buffer_seek_relative,8);
+	// Note X/Y positions (X, Y, DIR)
+	// NOTE: Multiply positions by 16 to get absolute x/y for now
 	var note_x = buffer_read(bu,buffer_u32); // X
 	var note_y = buffer_read(bu,buffer_u32); // Y
-	bugz[i].pos[0] = note_x;
-	bugz[i].pos[1] = note_y; 
+	bugz[i].pos[0] = note_x * 16;
+	bugz[i].pos[1] = note_y * 16; 
 	trace("Note XY Values: {0},{1}",note_x,note_y);
 	
 	bugz[i].dir = buffer_read(bu,buffer_u32); // Dir
@@ -444,6 +444,7 @@ for (var i=0; i<4; i++)
 	//buffer_seek(bu,buffer_seek_relative,8);
 	var error1 = buffer_read(bu,buffer_u32);
 	var error2 = buffer_read(bu,buffer_u32);
+	var tele = [];
 	trace("Mystery Error Codes: {0},{1}",error1,error2);
 	if error1 == 0 && error2 == 0
 		{
@@ -451,7 +452,28 @@ for (var i=0; i<4; i++)
 		}
 	else
 		{
-		tun_error_code_old(bu);
+		if (error1 == 0 && error2 == 1) // WATCHING.GAL GREEN02.BUG
+			{
+			tun_error_code_01(bu);
+			}
+		else if (error1 == 1 && error2 == 0) // RAINSONG.GAL YELLOW02.BUG
+			{
+			tun_error_code_10(bu);
+			}
+		else if (error1 == 8 && error2 == 0) // WATCHING.GAL YELLOW02.BUG, most user projects mid-teleport
+			{
+			tele = tun_error_code_80(bu);
+			}
+		else if (error1 == 34 && error2 == 0) // RANDOMFU.GAL all Bugz
+			{
+			tun_error_code_34(bu);
+			}
+		
+		/*var pair3 = buffer_read(bu,buffer_u32);
+		if pair3 == 0 
+		buffer_seek(bu,buffer_seek_relative,8) // usually if this is zero, good to proceed
+		else tun_bugz_exit_code(bu);*/
+		//tun_error_code_old(bu);
 		/*var pos = buffer_tell(bu);
 		var offset = 16;
 		if (error1 == 34 && error2 == 0) offset = 48;//repeat_value = 6;
@@ -486,6 +508,8 @@ for (var i=0; i<4; i++)
 	repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
 	trace("Suspected 'Tweezer' values: "+string(unk));
 	//buffer_seek(bu,buffer_seek_relative,4);
+	
+	bugz[i].ctrl = tele;
 	
 	bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
 	bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
@@ -593,12 +617,18 @@ for (var i=0;i<4;i++)
 	{
 	if bugz[i].filename != ""
 		{
-		var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
-		//var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
+		//var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
+		var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
 		bug.gear = bugz[i].gear;
 		bug.paused = bugz[i].paused;
 		bug.volume = bugz[i].volume;
 		bug.direction = bugz[i].dir;
+		if array_length(bugz[i].ctrl) > 0
+			{
+			bug.ctrl_x = bugz[i].ctrl[0];
+			bug.ctrl_y = bugz[i].ctrl[1];
+			bug.warp = true;
+			}
 		bug.calculate_timer();
 	
 		// apply the bugz to obj_ctrl_playfield's local bug tracking
@@ -611,6 +641,139 @@ for (var i=0;i<4;i++)
 			}
 		}
 	}
+}
+
+function tun_error_code_01(bu){
+var pair1 = [];
+repeat 4
+	{
+	array_push(pair1,buffer_read(bu,buffer_u32));
+	trace("WARNING: Error presence code: {0} (Hex: {1})",pair1,hex_array(pair1));
+	pair1 = [];
+	}
+buffer_read(bu,buffer_u8);
+return 0;
+}
+
+function tun_error_code_10(bu){
+var count = 1;
+var pair1 = [];
+var pair2 = [];
+repeat 4
+	{
+	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
+	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
+	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	pair1 = [];
+	pair2 = [];
+	}
+
+// Are these teleport note destination points or something else?
+// Seems to always be a pair of values after a F03F 0000 read
+var ctrl_x = buffer_read(bu,buffer_u32);
+var ctrl_y = buffer_read(bu,buffer_u32);
+trace("Mystery co-ordinate values found (teleport?): {0},{1}",ctrl_x,ctrl_y);
+
+var ex = buffer_read(bu,buffer_u32);
+if ex > 0
+	{
+	// read out exit code
+	var arr = [ex];
+	repeat 3 array_push(arr,buffer_read(bu,buffer_u32));
+	trace("WARNING: Exit code: {0} (Hex: {1})",arr,hex_array(arr));
+
+	// research shows an additional byte is always slapped on at the end
+	// before the Tweezer values
+	buffer_read(bu,buffer_u32);
+	buffer_read(bu,buffer_u8);
+	}
+else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
+return [ctrl_x,ctrl_y];
+}
+
+function tun_error_code_34(bu){
+// read out exit code
+var pair1 = [];
+var pair2 = [];
+var count = 1;
+repeat 5
+	{
+	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
+	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
+	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	pair1 = [];
+	pair2 = [];
+	}
+	
+var ex = buffer_read(bu,buffer_u32);
+if ex > 0
+	{
+	// read out exit code
+	var arr = [ex];
+	repeat 3 array_push(arr,buffer_read(bu,buffer_u32));
+	trace("WARNING: Exit code: {0} (Hex: {1})",arr,hex_array(arr));
+
+	// research shows an additional byte is always slapped on at the end
+	// before the Tweezer values
+	buffer_read(bu,buffer_u32);
+	buffer_read(bu,buffer_u8);
+	}
+else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
+
+// No exit code here
+return 0;
+}
+
+function tun_error_code_80(bu){
+// Deal with the 0x40__ lines and their gaps first
+var pair1 = [];
+var pair2 = [];
+repeat 4
+	{
+	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
+	trace("WARNING: Mystery code: {0} (Hex: {1})",pair1,hex_array(pair1));
+	
+	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
+	trace("WARNING: Mystery code: {0} (Hex: {1})",pair2,hex_array(pair2));
+	
+	pair1 = [];
+	pair2 = [];
+	}
+	
+// Spray Test 8 shows these are teleport note destination points
+var ctrl_x = buffer_read(bu,buffer_u32);
+var ctrl_y = buffer_read(bu,buffer_u32);
+trace("Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
+
+// Process exit code
+tun_bugz_exit_code(bu);
+
+// gap 
+buffer_read(bu,buffer_u32);
+
+return [ctrl_x * 16,ctrl_y * 16];
+}
+
+function tun_bugz_exit_code(bu){
+/*
+Known example codes:
+WATCHING.GAL
+[1,2,0,0xF0]: YELLOW02.BUG
+[1,2,0,0xF1]: GREEN02.BUG
+[1,2,0,0xF2]: BLUE02.BUG
+[1,2,0,0xF3]: RED02.BUG
+*/
+// read out exit code
+var arr = [];
+repeat 4 array_push(arr,buffer_read(bu,buffer_u32));
+trace("WARNING: Exit code: {0} (Hex: {1})",arr,hex_array(arr));
+
+// research shows an additional byte is always slapped on at the end
+// before the Tweezer values
+buffer_read(bu,buffer_u8);
+return 0;
 }
 
 function tun_error_code_old(bu){

@@ -31,16 +31,19 @@ return 0;
 }
 
 function gmlibsmacker_version(){
+if !is_struct(global.dll_gmlibsmacker) return -1;
 var e = external_call(global.dll_gmlibsmacker.version);
 return e;
 }
 
 function gmlibsmacker_open_smk(file){
+if !is_struct(global.dll_gmlibsmacker) return -1;
 var e = external_call(global.dll_gmlibsmacker.open_smk,file);
 return e;
 }
 
 function gmlibsmacker_close_smk(){
+if !is_struct(global.dll_gmlibsmacker) return -1;
 var e = external_call(global.dll_gmlibsmacker.close_smk);
 return e;
 }

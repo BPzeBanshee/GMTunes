@@ -4,6 +4,7 @@ function bug_struct() constructor {
 	dir = 0; //0-3, 0: up, 1: right, etc
 	gear = 4;
 	pos = [0,0]; //[x,y,dir]
+	ctrl = [-1,-1];
 	paused = false; //true/false
 	volume = 128; //0-128 in increments of 16
 	}

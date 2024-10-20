@@ -7,26 +7,40 @@ cam_siz = [camera_get_view_width(cam),camera_get_view_height(cam)];
 camera_set_view_pos(cam,0,0);
 camera_set_view_size(cam,640,480);
 
-with obj_button_dgui enabled = false;
-with obj_bug paused = true;
-
 var o = obj_ctrl_playfield;
 var bug_list = [o.bug_yellow,o.bug_green,o.bug_blue,o.bug_red];
 for (var i=0;i<4;i++) 
 	{
+	// menu functions
 	bug_index[i] = 0;
 	bug_pos[i] = 0;
 	
+	// reinstate bug metadata
+	bug_x[i] = -1;
+	bug_y[i] = -1;
+	bug_dir[i] = 0;
+	bug_paused[i] = 0;
+	bug_gear[i] = 0;
+	bug_volume[i] = 0;
+	
 	if instance_exists(bug_list[i]) 
 		{
-		if bug_list[i].bugzid > 0
-		bug_index[i] = bug_list[i].bugzid - 1;
+		if bug_list[i].bugzid > 0 bug_index[i] = bug_list[i].bugzid - 1;
+		bug_x[i] = bug_list[i].x;
+		bug_y[i] = bug_list[i].y;
+		bug_dir[i] = bug_list[i].direction;
+		bug_paused[i] = bug_list[i].paused;
+		bug_gear[i] = bug_list[i].gear;
+		bug_volume[i] = bug_list[i].volume;
 		//trace("bug index "+string(i)+" set to "+string(bug_index[i]));
 		}
 	}
 
+with obj_button_dgui enabled = false;	
+
 instance_deactivate_object(mouse_old);
 instance_deactivate_object(o);
+instance_deactivate_object(obj_bug);
 instance_deactivate_object(obj_draw_playfield);
 }
 

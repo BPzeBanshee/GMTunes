@@ -14,6 +14,8 @@ if timer < 1
 		{
 		x = ctrl_x;
 		y = ctrl_y;
+		ctrl_x = -1;
+		ctrl_y = -1;
 		warp = false;
 		}
 	else
@@ -25,7 +27,7 @@ if timer < 1
 	}
 		
 // Map position wrap
-move_wrap(true,true,8);
+move_wrap(true,true,0);
 
 var xx = floor((x+8)/16);
 var yy = floor((y+8)/16);

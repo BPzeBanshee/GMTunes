@@ -26,8 +26,9 @@ for (var i=0;i<4;i++)
 		{
 		str[i].filename =	mybugz[i].bugzname;
 		str[i].dir =		mybugz[i].direction;
-		str[i].gear =		mybugz[i].gear;
 		str[i].pos =		[mybugz[i].x,mybugz[i].y];
+		str[i].ctrl =		[mybugz[i].ctrl_x,mybugz[i].ctrl_y];
+		str[i].gear =		mybugz[i].gear;
 		str[i].paused =		mybugz[i].paused;
 		str[i].volume =		mybugz[i].volume;
 		}
@@ -234,12 +235,13 @@ for (var i=0;i<4;i++)
 	buffer_write(bu,buffer_text,bugz[i].filename);
 	buffer_write(bu,buffer_u8,0);
 	
-	// unknown data, tweezer info?
-	buffer_write(bu,buffer_u32,0);
-	buffer_write(bu,buffer_u32,2);
-	repeat 2 buffer_write(bu,buffer_u32,0);
+	// Camera scale / Absolute X/Y
+	// Kludge this to just extrapolate from note x/y for now
+	repeat 2 buffer_write(bu,buffer_u32,global.zoom);
+	buffer_write(bu,buffer_u32,round(bugz[i].pos[0]*16));
+	buffer_write(bu,buffer_u32,round(bugz[i].pos[1]*16));
 	
-	// positions
+	// Note x/y positions
 	buffer_write(bu,buffer_u32,round(bugz[i].pos[0]));
 	buffer_write(bu,buffer_u32,round(bugz[i].pos[1]));
 	var value = 0;
@@ -256,13 +258,14 @@ for (var i=0;i<4;i++)
 	repeat 2 buffer_write(bu,buffer_u32,0);
 	
 	// error code (lets not make this more difficult than it needs to be)
+	// TODO: mid-teleport code has stuff here
 	buffer_write(bu,buffer_u32,0);
 	buffer_write(bu,buffer_u32,0);
 	
 	// unknown bugz data #3, possibly tweezer related again?
-	repeat 2 buffer_write(bu,buffer_u8,0);
-	buffer_write(bu,buffer_u8,16);
-	buffer_write(bu,buffer_u8,64);
+	repeat 4 buffer_write(bu,buffer_u8,0);
+	//buffer_write(bu,buffer_u8,16);
+	//buffer_write(bu,buffer_u8,64);
 	
 	// misc. bugz metadata
 	buffer_write(bu,buffer_u32,bugz[i].gear);

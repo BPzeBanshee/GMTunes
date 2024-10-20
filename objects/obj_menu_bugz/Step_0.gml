@@ -23,7 +23,10 @@ if mouse_check_button_pressed(mb_left) && !done
 	if point_in_rectangle(mx,my,cancel_x,button_y,cancel_x+110,button_y+32)
 	or keyboard_check_pressed(vk_escape)
 		{
-		instance_destroy();
+		done = true;
+		loading_obj = instance_create_depth(0,0,depth-1,obj_loading);
+		alarm[4] = 2;
+		//instance_destroy();
 		}
 		
 	// reset bugz

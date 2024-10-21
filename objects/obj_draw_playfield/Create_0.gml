@@ -50,6 +50,8 @@ var hh = 104;//ds_grid_height(global.pixel_grid);
 if !surface_exists(pixel_surf) then pixel_surf = surface_create(ww*16,hh*16); //ww,hh
 surface_set_target(pixel_surf);
 draw_clear_alpha(c_black,0);
+
+// Draw notes
 for (var xx = 0; xx < ww; xx++)
 	{
 	for (var yy = 0; yy < hh; yy++)
@@ -70,9 +72,9 @@ for (var xx = 0; xx < ww; xx++)
 			}
 		}
 	}
-
 surface_reset_target();
 }
+
 update_surf_partial = function(xx,yy){
 var data = ds_grid_get(global.pixel_grid,xx,yy);
 var data_ctrl = ds_grid_get(global.ctrl_grid,xx,yy);
@@ -97,4 +99,12 @@ else
 	gpu_set_blendmode(bm_normal);
 	}
 surface_reset_target();
+}
+
+update_surf_zone = function(xx,yy,w,h){
+for (var ny = yy - h; ny < yy + h; yy++)
+for (var nx = xx - w; nx < xx + w; nx++)
+	{
+	update_surf_partial(nx,ny);
+	}
 }

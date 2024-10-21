@@ -18,8 +18,11 @@ for (var i=0;i<4;i++)
 	// reinstate bug metadata
 	bug_x[i] = -1;
 	bug_y[i] = -1;
+	bug_ctrl_x[i] = -1;
+	bug_ctrl_y[i] = -1;
+	bug_warp[i] = false;
+	bug_paused[i] = false;
 	bug_dir[i] = 0;
-	bug_paused[i] = 0;
 	bug_gear[i] = 0;
 	bug_volume[i] = 0;
 	
@@ -28,8 +31,11 @@ for (var i=0;i<4;i++)
 		if bug_list[i].bugzid > 0 bug_index[i] = bug_list[i].bugzid - 1;
 		bug_x[i] = bug_list[i].x;
 		bug_y[i] = bug_list[i].y;
-		bug_dir[i] = bug_list[i].direction;
+		bug_ctrl_x[i] = bug_list[i].ctrl_x;
+		bug_ctrl_y[i] = bug_list[i].ctrl_y;
+		bug_warp[i] = bug_list[i].warp;
 		bug_paused[i] = bug_list[i].paused;
+		bug_dir[i] = bug_list[i].direction;
 		bug_gear[i] = bug_list[i].gear;
 		bug_volume[i] = bug_list[i].volume;
 		//trace("bug index "+string(i)+" set to "+string(bug_index[i]));

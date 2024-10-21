@@ -5,9 +5,10 @@ trace("Loading playfield from "+string(file)+"...");
 
 // Clear playfield first
 with obj_bug instance_destroy();
-with obj_flag instance_destroy();
 ds_grid_clear(global.pixel_grid,0);
 ds_grid_clear(global.ctrl_grid,0);
+global.warp_list = [];
+global.flag_list = [];
 
 // Load contents from given file
 var mystruct;
@@ -29,33 +30,27 @@ return 1;
 }
 
 function tun_load_tun(file){
-// Load file into buffer, do some error checking
+
+// Load file into buffer
 var bu = buffer_create(8,buffer_grow,1);
 buffer_load_ext(bu,file,0);
-if buffer_word(bu,0) != "VER5"
-&& buffer_word(bu,0) != "VER4"
+
+// do some error checking
+var form = buffer_read_word(bu);
+if form != "VER5" && form != "VER4"
     {
     msg("File doesn't match SimTunes VER4/5 format.");
     return -3;
     }
+	
+// Prep playfield struct and vars
 var eob = buffer_get_size(bu);
-
 var mystruct = new playfield_struct(); 
-    
-// Start offsetting, get project name + single space padding indicating end of string
-buffer_seek(bu,buffer_seek_start,4);
 
-var s = buffer_read(bu,buffer_u32); // u32 size of project name string
-//buffer_seek(bu,buffer_seek_relative,s);
-trace("Size of string: "+string(s));
-
+// Project name
+var name_size = buffer_read(bu,buffer_u32);
 var str_name = "";
-for (var i=0; i<s; i++)
-    {
-    var a = buffer_read(bu,buffer_u8);
-    str_name = str_name + chr(a);
-    }
-//buffer_read(bu,buffer_u8); // skip space at end of string
+repeat name_size str_name += chr(buffer_read(bu,buffer_u8));
 trace("Project Name: '"+str_name+"'");
 mystruct.name = str_name;
 
@@ -69,8 +64,8 @@ repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
 trace("Unknown BS #1: "+string(unk));
 
 // Get binary size of next blob minus size bit (assuming preview picture)
-s = buffer_read(bu,buffer_u32);
-buffer_seek(bu,buffer_seek_relative,s);
+var skip = buffer_read(bu,buffer_u32);
+buffer_seek(bu,buffer_seek_relative,skip);
 /*trace("Size of preview picture in bytes: "+string(s));
 var newbuf = scr_decrypt_chunk(bu,s);
 var minibuf = newbuf.buf;
@@ -173,51 +168,40 @@ if f2 != ""
 	{
 	buffer_save(minibuf,f2);
 	}*/
-	
-// Author name string size
-var author_size = buffer_read(bu,buffer_u32);
-//buffer_seek(bu,buffer_seek_relative,author_size);
-trace("Size of author str: "+string(author_size));
 
 // Author name
+var author_size = buffer_read(bu,buffer_u32);
 var str_author = "";
-for (var i=0;i<author_size;i++)
-    {
-    str_author += chr(buffer_read(bu,buffer_u8));
-    }
+repeat author_size str_author += chr(buffer_read(bu,buffer_u8));
 trace("Author string: "+string(str_author));
 mystruct.author = str_author;
 
 // Description (big endian but doesn't matter as it's just an offset bit)
 var desc_size = buffer_read(bu,buffer_u32);
-//buffer_seek(bu,buffer_seek_relative,desc_size);
 var str_desc = "";
-for (var i=0;i<desc_size;i++)
-    {
-    str_desc += chr(buffer_read(bu,buffer_u8));
-    }
+repeat desc_size str_desc += chr(buffer_read(bu,buffer_u8));
 trace("Desc string: "+string(str_desc));
 mystruct.desc = str_desc;
 
 // TODO: Mystery data here, seems to be 8 bytes of 00 following a value,
 // then another value after 8 bytes, then FF FF FF FF
-var unkb = [];
-repeat 28 array_push(unkb,buffer_read(bu,buffer_u8));
-trace("Unknown BS #2: "+string(unkb));
+unk = [];
+repeat 28 array_push(unk,buffer_read(bu,buffer_u8));
+trace("Unknown BS #2: {0}",unk);
 
 // Pull background filename as string
 var str_size = buffer_read(bu,buffer_u32);
 var bkg_file = "";
-for (var i=0;i<str_size;i++) bkg_file += chr(buffer_read(bu,buffer_u8));
-trace("background filename: "+string(bkg_file));
+repeat str_size bkg_file += chr(buffer_read(bu,buffer_u8));
+trace("background filename: {0}",bkg_file);
 mystruct.background = bkg_file;
 	
 // Camera/Zoom positions
 var cam_x = buffer_read(bu,buffer_u32);
 var cam_y = buffer_read(bu,buffer_u32);
 var pixelsize = buffer_read(bu,buffer_u32);
-trace(string("cam: [{0},{1}]",cam_x,cam_y));
-trace(string("pixelsize: {0}",pixelsize));
+trace("cam: [{0},{1}]",cam_x,cam_y);
+trace("pixelsize: {0}",pixelsize);
 mystruct.camera_pos = [cam_x,cam_y];
 switch pixelsize
 	{
@@ -228,9 +212,9 @@ switch pixelsize
 	}
 
 // Random BS #3
-var unkc = [];
-repeat 20 array_push(unkc,buffer_read(bu,buffer_u8));
-trace("Unknown BS #3: "+string(unkc));
+var unk = [];
+repeat 20 array_push(unk,buffer_read(bu,buffer_u8));
+trace("Unknown BS #3: {0}",unk);
 
 // Teleporter warp list
 // Count is apparently always hardlocked at 61
@@ -291,14 +275,13 @@ mystruct.flag_list = flag_list;
 var note_grid = ds_grid_create(160,104);
 var ctrl_grid = ds_grid_create(160,104);
 
-
-s = buffer_read(bu,buffer_u32);
-trace("Size of note table size: "+string(s));
-var newbuf = scr_decrypt_chunk(bu,s);
+var chunk_size = buffer_read(bu,buffer_u32);
+trace("Size of note table size: "+string(chunk_size));
+var newbuf = scr_decrypt_chunk(bu,chunk_size);
 var minibuf = newbuf.buf;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
-trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
+trace("buffer decoded, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
 
 for (var yy = 0; yy < 104; yy++)
 	{
@@ -311,9 +294,9 @@ for (var yy = 0; yy < 104; yy++)
 buffer_delete(minibuf);
 
 // ...then the control bit position data
-s = buffer_read(bu,buffer_u32);
-trace("Size of note table size: "+string(s));
-newbuf = scr_decrypt_chunk(bu,s);
+chunk_size = buffer_read(bu,buffer_u32);
+trace("Size of note table size: "+string(chunk_size));
+newbuf = scr_decrypt_chunk(bu,chunk_size);
 minibuf = newbuf.buf;
 minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
@@ -349,18 +332,15 @@ ds_grid_destroy(ctrl_grid);
 /*
 Third value seems to be some kind of timer that changes
 from save to save, but is usually a low number.
-*/
-var unkd = [];
-repeat 4 array_push(unkd,buffer_read(bu,buffer_u32));
-//repeat 16 array_push(unkd,buffer_read(bu,buffer_u8));
-trace("Random Bullshit #4: "+string(unkd));
 
-// Mystery number, metadata version related?
-// REVERB.GAL: 0x0D/13, BIRDINTH.GAL: 0x13/19, ALIENEXP.GAL: 0x1F/31
-// CITYTALK.GAL: 0x00/0
-/*var meta_number = buffer_read(bu,buffer_u32);
-trace("Mystery Number: "+string(meta_number));
-buffer_read(bu,buffer_u32);*/
+Could it be metadata versioning, or something else?
+REVERB.GAL: 0x0D/13, BIRDINTH.GAL: 0x13/19, ALIENEXP.GAL: 0x1F/31
+CITYTALK.GAL: 0x00/0
+*/
+unk = [];
+repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
+//repeat 16 array_push(unkd,buffer_read(bu,buffer_u8));
+trace("Random Bullshit #4: {0}",unk);
 
 // Bugz metadata
 var bugz_posdir = [];
@@ -369,10 +349,14 @@ var bugz_paused = [];
 var bugz_volume = [];
 var bugz = [mystruct.bugz.yellow,mystruct.bugz.green,mystruct.bugz.blue,mystruct.bugz.red];
 
-// should be 60*4 bytes after the bugz names, the strings make it inconsistent tho
+// total field size should be 60*4 bytes after the bugz names
+// the strings and error codes make it inconsistent tho
+trace("File bytes remaining: {0}",eob - buffer_tell(bu));
+
 for (var i=0; i<4; i++)
 	{
-	trace("BUG "+string(i)+" METADATA - file bytes remaining: "+string(eob - buffer_tell(bu)));
+	trace("=== BUG {0} METADATA ===",i);
+	
 	var bugname_size = buffer_read(bu,buffer_u32);
 	var bugname_str = "";
 	repeat bugname_size bugname_str += chr(buffer_read(bu,buffer_u8));
@@ -389,7 +373,7 @@ for (var i=0; i<4; i++)
 	*/
 	unk = [];
 	repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
-	trace("Scale/X/Y data relative to camera: {0}",unk); unk = [];
+	trace("Scale/X/Y data relative to camera: {0}",unk);
 	/*var x_offset = 14;
 	switch buffer_read(bu,buffer_s32)
 		{
@@ -407,7 +391,6 @@ for (var i=0; i<4; i++)
 	bugz[i].pos[0] = 4 * room_width * ((buffer_read(bu,buffer_s32)+x_offset) / 640); // X
 	bugz[i].pos[1] = 4 * room_height * ((buffer_read(bu,buffer_s32)+y_offset) / 480); // Y
 	trace("XY Values: {0}",bugz[i].pos);*/
-	//bugz[i].pos[1] = buffer_read(bu,buffer_u32); // Y
 	
 	// Note X/Y positions (X, Y, DIR)
 	// NOTE: Multiply positions by 16 to get absolute x/y for now
@@ -426,7 +409,7 @@ for (var i=0; i<4; i++)
 		case 2: corrected_dir = 270; break;
 		case 3: corrected_dir = 180; break;
 		}
-	trace("Direction: "+string(bugz[i].dir)+" ("+string(corrected_dir)+")");//, Position: "+string("{0}",bugz[i].pos));
+	trace("Direction: "+string(bugz[i].dir)+" ("+string(corrected_dir)+")");
 	bugz[i].dir = corrected_dir;	
 	/*
 	The following two uint32s seem to be almost always 0,
@@ -438,21 +421,18 @@ for (var i=0; i<4; i++)
 	0,1 : citytalk.gal (yellow)
 	34,0 : funkbow.tun. citytalk.gal (green/blue/red)
 	*/
-	//unk = [];
-	//repeat 2 array_push(unk,buffer_read(bu,buffer_u32));
-	//trace("Suspected Teleport State Codes: "+string(unk));
-	//buffer_seek(bu,buffer_seek_relative,8);
 	var error1 = buffer_read(bu,buffer_u32);
 	var error2 = buffer_read(bu,buffer_u32);
 	var tele = [];
-	trace("Mystery Error Codes: {0},{1}",error1,error2);
+	
 	if error1 == 0 && error2 == 0
 		{
 		buffer_seek(bu,buffer_seek_relative,8);
 		}
 	else
 		{
-		if (error1 == 0 && error2 == 1) // WATCHING.GAL GREEN02.BUG
+		trace("WARNING: Mystery Start Codes: {0},{1}",error1,error2);
+		if (error1 == 0 && error2 == 1) // WATCHING.GAL GREEN02.BUG, CITYTALK.GAL YELLOW
 			{
 			tun_error_code_01(bu);
 			}
@@ -460,7 +440,7 @@ for (var i=0; i<4; i++)
 			{
 			tun_error_code_10(bu);
 			}
-		else if (error1 == 8 && error2 == 0) // WATCHING.GAL YELLOW02.BUG, most user projects mid-teleport
+		else if (error1 == 8 && error2 == 0) // WATCHING.GAL YELLOW02.BUG, user projects mid-teleport
 			{
 			tele = tun_error_code_80(bu);
 			}
@@ -468,33 +448,6 @@ for (var i=0; i<4; i++)
 			{
 			tun_error_code_34(bu);
 			}
-		
-		/*var pair3 = buffer_read(bu,buffer_u32);
-		if pair3 == 0 
-		buffer_seek(bu,buffer_seek_relative,8) // usually if this is zero, good to proceed
-		else tun_bugz_exit_code(bu);*/
-		//tun_error_code_old(bu);
-		/*var pos = buffer_tell(bu);
-		var offset = 16;
-		if (error1 == 34 && error2 == 0) offset = 48;//repeat_value = 6;
-		
-		while buffer_tell(bu) < pos+offset
-			{
-			unk = [];
-			repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
-			trace("Mystery values: {0} (hex: {1})",unk,hex_array(unk));
-			
-			var e = buffer_read(bu,buffer_u32);
-			if e > 0 trace("u32 read between values: {0}",e);
-			}
-			
-		// trim if irregular position
-		if frac(buffer_tell(bu)/2) != 0 && frac(pos/2)!=0
-			{
-			buffer_read(bu,buffer_u8);
-			trace("u8 trim");
-			}
-		else buffer_read(bu,buffer_u32);*/
 		}
 	
 	/*
@@ -507,16 +460,14 @@ for (var i=0; i<4; i++)
 	unk = [];
 	repeat 4 array_push(unk,buffer_read(bu,buffer_u8));
 	trace("Suspected 'Tweezer' values: "+string(unk));
-	//buffer_seek(bu,buffer_seek_relative,4);
 	
 	bugz[i].ctrl = tele;
-	
 	bugz[i].gear = buffer_read(bu,buffer_u32); //0-8
 	bugz[i].paused = buffer_read(bu,buffer_u32); //0:paused, 1: playing, flip this later
 	bugz[i].volume = buffer_read(bu,buffer_u32); //0-128 in increments of 16
 		
 	trace(string("bug {0} speed: {1}, paused: {2}, volume: {3}",i,bugz[i].gear,bugz[i].paused,bugz[i].volume));
-	if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = true;
+	if string_upper(filename_ext(file))==".GAL" then bugz[i].paused = false;
 	bugz[i].volume = clamp(bugz[i].volume,0,128);
 	}
 
@@ -592,19 +543,7 @@ camera_set_view_pos(cam,x,y);
 
 // Flags
 var flag_list = tun_struct.flag_list;
-for (var i=0;i<4;i++)
-	{
-	// Create flags
-	if flag_list[i][2] > -1
-		{
-		flag[i] = instance_create_depth(flag_list[i][0]*16,flag_list[i][1]*16,99,obj_flag);
-		flag[i].flagtype = i;
-		flag[i].image_index = i;
-		flag[i].direction = flag_list[i][2];
-		flag[i].image_angle = flag_list[i][2];
-		if global.use_external_assets then flag[i].sprite_index = global.spr_flag2[i];
-		}
-	}
+global.flag_list = flag_list;
 
 // Pixel/Control grids
 if tun_struct.note_list != "" ds_grid_read(global.pixel_grid,tun_struct.note_list);
@@ -648,7 +587,7 @@ var pair1 = [];
 repeat 4
 	{
 	array_push(pair1,buffer_read(bu,buffer_u32));
-	trace("WARNING: Error presence code: {0} (Hex: {1})",pair1,hex_array(pair1));
+	trace("tun_error_code_01(): {0} (Hex: {1})",pair1,hex_array(pair1));
 	pair1 = [];
 	}
 buffer_read(bu,buffer_u8);
@@ -663,8 +602,8 @@ repeat 4
 	{
 	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
 	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
-	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
 	pair1 = [];
 	pair2 = [];
 	}
@@ -693,7 +632,6 @@ return [ctrl_x,ctrl_y];
 }
 
 function tun_error_code_34(bu){
-// read out exit code
 var pair1 = [];
 var pair2 = [];
 var count = 1;
@@ -701,8 +639,8 @@ repeat 5
 	{
 	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
 	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
-	trace("WARNING: Mystery pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	trace("tun_error_code_34() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("tun_error_code_34() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
 	pair1 = [];
 	pair2 = [];
 	}
@@ -721,8 +659,6 @@ if ex > 0
 	buffer_read(bu,buffer_u8);
 	}
 else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
-
-// No exit code here
 return 0;
 }
 
@@ -730,14 +666,13 @@ function tun_error_code_80(bu){
 // Deal with the 0x40__ lines and their gaps first
 var pair1 = [];
 var pair2 = [];
+var count = 1;
 repeat 4
 	{
 	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
-	trace("WARNING: Mystery code: {0} (Hex: {1})",pair1,hex_array(pair1));
-	
 	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("WARNING: Mystery code: {0} (Hex: {1})",pair2,hex_array(pair2));
-	
+	trace("tun_error_code_80() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("tun_error_code_80() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
 	pair1 = [];
 	pair2 = [];
 	}
@@ -745,7 +680,7 @@ repeat 4
 // Spray Test 8 shows these are teleport note destination points
 var ctrl_x = buffer_read(bu,buffer_u32);
 var ctrl_y = buffer_read(bu,buffer_u32);
-trace("Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
+trace("tun_error_code_80() - Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
 
 // Process exit code
 tun_bugz_exit_code(bu);
@@ -768,7 +703,7 @@ WATCHING.GAL
 // read out exit code
 var arr = [];
 repeat 4 array_push(arr,buffer_read(bu,buffer_u32));
-trace("WARNING: Exit code: {0} (Hex: {1})",arr,hex_array(arr));
+trace("Mystery Exit(?) code: {0} (Hex: {1})",arr,hex_array(arr));
 
 // research shows an additional byte is always slapped on at the end
 // before the Tweezer values

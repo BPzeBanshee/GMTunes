@@ -1,3 +1,4 @@
+///@desc Cancel
 if loading_obj.alpha < 1
 alarm[4] = 1
 else

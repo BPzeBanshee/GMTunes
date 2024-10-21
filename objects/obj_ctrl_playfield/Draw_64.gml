@@ -199,7 +199,9 @@ if use_classic_gui
 			// RESTART
 			var restart_x = 400;
 			var restart_y = by+38;
-			if instance_exists(obj_flag)
+			var flags = global.flag_list[0,2] + global.flag_list[1,2] 
+			+ global.flag_list[2,2] + global.flag_list[3,2];
+			if flags > -4
 				{
 				if point_in_rectangle(mx,my,restart_x,restart_y,restart_x+75,restart_y+26)
 					{

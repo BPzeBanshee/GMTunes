@@ -482,17 +482,14 @@ return midi_data;
 }
 
 function bug_load_wave(bu,num_sounds=25){
-var offset = buffer_tell(bu);
-var filesize = buffer_get_size(bu);
-if buffer_word(bu,offset) != "WAVE"
+if buffer_word(bu,buffer_tell(bu)) != "WAVE"
 	{
 	msg("Problem in bug_load_wave()!");
 	return 1;
 	}
-var count = 0;
+	
 var buf,snd;
-
-for (var i=0;i<26;i++)
+for (var i=0;i<=num_sounds;i++)
 	{
 	// Skip 'WAVE/TWAV' fourcc
 	//trace("FORM {0}: {1}",i,buffer_word(bu,buffer_tell(bu)));
@@ -500,12 +497,6 @@ for (var i=0;i<26;i++)
 
 	// Establish size of WAV file
 	var size = buffer_read_be32(bu);
-
-	/*if i >= num_sounds
-		{
-		buffer_seek(bu,buffer_seek_relative,size);
-		exit;
-		}*/
 	
 	// Pre-header data
 	var header_size = 10; //WAVE

@@ -7,7 +7,7 @@ if instance_exists(m)
 	m_prev = m.object_index;
 	instance_destroy(m);
 	}
-m = instance_create_depth(mouse_x,mouse_y,50,obj);
+m = instance_create_depth(mouse_x,mouse_y,depth-1,obj);
 m.parent = id;
 }
 
@@ -99,37 +99,32 @@ if instance_exists(mybug)
 
 place_flag = function(flag_id){
 if mouse_y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
-var col = collision_point(mouse_x,mouse_y,flag[flag_id],false,false);
-if col
+var xx = floor(mouse_x/16);
+var yy = floor(mouse_y/16);
+if xx == global.flag_list[flag_id,0] && yy == global.flag_list[flag_id,1]
 	{
-	col.direction += 90;
-	col.image_angle = col.direction;
+	global.flag_list[flag_id,2] += 90;
+	if global.flag_list[flag_id,2] >= 360 global.flag_list[flag_id,2] = 0;
 	}
-else
-	{
-	if instance_exists(flag[flag_id]) then instance_destroy(flag[flag_id]);
-	
-	flag[flag_id] = instance_create_depth(mouse_x,mouse_y,98,obj_flag);
-	flag[flag_id].flagtype = flag_id;
-	flag[flag_id].image_index = flag_id;
-	if global.use_external_assets then flag[flag_id].sprite_index = global.spr_flag2[flag_id];
-	}
+else global.flag_list[flag_id,2] = 0;
+global.flag_list[flag_id,0] = xx;
+global.flag_list[flag_id,1] = yy;
 }
 
 rally_bugz_to_flags = function(){
 var bugz = [bug_yellow,bug_green,bug_blue,bug_red];
 for (var i=0;i<4;i++)
 	{
-	if flag[i] && bugz[i]
+	if global.flag_list[i,2] != -1 && bugz[i]
 		{
 		bugz[i].grabbed = false;
 		bugz[i].warp = false;
 		bugz[i].ctrl_x = -1;
 		bugz[i].ctrl_y = -1;
-		bugz[i].x = flag[i].x;
-		bugz[i].y = flag[i].y;
-		bugz[i].direction_p = flag[i].direction;
-		bugz[i].direction = flag[i].direction;
+		bugz[i].x = global.flag_list[i,0] * 16;
+		bugz[i].y = global.flag_list[i,1] * 16;
+		bugz[i].direction_p = global.flag_list[i,2];
+		bugz[i].direction = global.flag_list[i,2];
 		bugz[i].timer = 0;
 		bugz[i].calculate_timer();
 		}
@@ -176,8 +171,7 @@ reset_playfield = function(hard=false){
 ds_grid_clear(global.pixel_grid,0);
 ds_grid_clear(global.ctrl_grid,0);
 global.warp_list = [];
-for (var i=0;i<4;i++) flag[i] = noone;
-with obj_flag instance_destroy();
+global.flag_list = [];
 
 if hard
 	{

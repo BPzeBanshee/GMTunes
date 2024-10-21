@@ -18,3 +18,11 @@ if place_teleporter
 	place_teleporter = false;
 	note = 8;
 	}
+	
+// existing flag check
+for (var i=0;i<4;i++)
+	{
+	if xx == global.flag_list[i,0] 
+	&& yy == global.flag_list[i,1]
+	global.flag_list[i,2] = -1;
+	}

@@ -200,12 +200,18 @@ else
 		}
 	}
 
-global.spr_ui_cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,false,0,0); 
-cursor_sprite = global.spr_ui_cursor;
-window_set_cursor(cr_none);
+global.spr_ui = {};
+global.spr_ui.cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,,0,0);
+global.spr_ui.tweezer = bmp_load_sprite(TUNERES+"TWEEZER0.BMP",,,,,true,,0,0);
+global.spr_ui.tweezer2 = bmp_load_sprite(TUNERES+"TWEEZER1.BMP",,,,,true,,0,0);
+global.spr_ui.magnify = bmp_load_sprite(TUNERES+"MAGNIFY.BMP",,,,,true,,8,8);
+global.spr_ui.move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
+global.spr_ui.copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
+global.spr_ui.tone = bmp_load_sprite(TUNERES+"TONE.BMP",,,,,true,,0,0);
+global.spr_ui.gradient = bmp_load_sprite(TUNERES+"GRADIENT.BMP",,,,,true,,0,0);
 
-global.spr_ui_move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
-global.spr_ui_copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
+cursor_sprite = global.spr_ui.cursor;
+window_set_cursor(cr_none);
 }
 
 function scr_main_free(){
@@ -222,9 +228,16 @@ if global.use_external_assets
 		}
 
 	// FREE EXTERNAL SPRITES
-	var external_sprites = [global.spr_ui_bar,global.spr_ui_txt,
-	global.spr_ui_desc,global.spr_ui_move,global.spr_ui_copy];
+	var external_sprites = [];
+	
+	// Add ui struct sprites to list
+	var spr_ui_names = struct_get_names(global.spr_ui);
+	for (var i=0;i<struct_names_count(global.spr_ui);i++)
+		{
+		array_push(external_sprites,struct_get(global.spr_ui,spr_ui_names[i]));
+		}
 
+	// add the playfield assets and hardcoded ui stuff
 	for (var a=0;a<4;a++)
 		{
 		array_push(external_sprites,global.spr_flag2[a]);
@@ -239,10 +252,15 @@ if global.use_external_assets
 			array_push(external_sprites,global.spr_note2[xx][yy]);
 			}
 		}
+		
+	// finally, iterate through list and remove the lot
 	for (var i=0;i<array_length(external_sprites);i++)
 		{
 		if sprite_exists(external_sprites[i]) sprite_delete(external_sprites[i]);
 		}
+	
+	// and flag struct gone for garbage collector just in case
+	delete global.spr_ui;
 	
 	// FREE EXTERNAL SOUNDS
 	var external_sounds = [];
@@ -250,7 +268,7 @@ if global.use_external_assets
 		{
 		if audio_exists(external_sounds[i]) 
 			{
-			audio_free_buffer_sound(external_sprites[i]);//.snd);
+			audio_free_buffer_sound(external_sounds[i]);//.snd);
 			//buffer_delete(external_sprites[i].buf);
 			}
 		}

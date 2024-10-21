@@ -23,9 +23,12 @@ else
 			{
 			mybug.x = bug_x[i];
 			mybug.y = bug_y[i];
+			mybug.ctrl_x = bug_ctrl_x[i];
+			mybug.ctrl_y = bug_ctrl_y[i];
+			mybug.warp = bug_warp[i];
+			mybug.paused = bug_paused[i];
 			mybug.direction = bug_dir[i];
 			mybug.gear = bug_gear[i];
-			mybug.paused = bug_paused[i];
 			mybug.volume = bug_volume[i];
 			}
 		}

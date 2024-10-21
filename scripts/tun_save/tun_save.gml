@@ -8,10 +8,10 @@ if file == "" then return -2;
 var myflags;
 for (var i=0;i<4;i++)
 	{
-	if flag[i] != noone
+	if global.flag_list[i,2] != -1
 		{
-		var flag_dir = flag[i].direction;
-		myflags[i] = [round(flag[i].x/16), round(flag[i].y/16), flag_dir];
+		var flag_dir = global.flag_list[i,2];
+		myflags[i] = [round(global.flag_list[i,0]/16), round(global.flag_list[i,1]/16), flag_dir];
 		}
 	else myflags[i] = [-1, -1, -1];
 	}

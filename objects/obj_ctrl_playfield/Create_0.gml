@@ -15,12 +15,7 @@ mybackname = "";
 tele_x = 0;
 tele_y = 0;
 tele_obj = [];
-for (var i=0;i<4;i++) 
-	{
-	flag[i] = noone;
-	//buf[i] = buffer_create(1,buffer_grow,1);
-	//loadid[i] = -1;
-	}
+
 bug_yellow = noone;
 bug_green = noone;
 bug_blue = noone;
@@ -29,6 +24,7 @@ bug_red = noone;
 global.pixel_grid = ds_grid_create(160,104);
 global.ctrl_grid = ds_grid_create(160,104);
 global.warp_list = [];
+global.flag_list = [];
 global.zoom = 0;
 
 menu = 0;

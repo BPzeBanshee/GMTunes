@@ -1,21 +1,43 @@
+if mouse_y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
+var xx = floor(x/16);
+var yy = floor(y/16);
 if mouse_check_button_pressed(mb_left)
 	{
-	if mouse_y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
-	var o = obj_ctrl_playfield;
-	var col = collision_point(mouse_x,mouse_y,o.flag[flag_id],false,false);
-	if col
+	// SimTunes dictates flags cannot share positions with other flags
+	for (var i=0;i<4;i++)
 		{
-		col.direction += 90;
-		if col.direction >= 360 col.direction = 0;
-		//col.image_angle = col.direction;
+		if xx == global.flag_list[i,0] 
+		&& yy == global.flag_list[i,1]
+		&& i != flag_id
+		global.flag_list[i,2] = -1;
 		}
+		
+	// it also dictates flags cannot share positions with control notes,
+	// probably because it's considered a special type of control note itself
+	if ds_grid_get(global.ctrl_grid,xx,yy) > 0
+		{
+		ds_grid_set(global.ctrl_grid,xx,yy,0);
+		obj_draw_playfield.update_surf_partial(xx,yy);
+		}
+		
+	//if xx == global.flag_list[flag_id,0] && yy == global.flag_list[flag_id,1]
+	if global.flag_list[flag_id,2] == -1 
+	global.flag_list[flag_id,2] = 0
 	else
 		{
-		if instance_exists(o.flag[flag_id]) then instance_destroy(o.flag[flag_id]);
-	
-		o.flag[flag_id] = instance_create_depth(mouse_x,mouse_y,98,obj_flag);
-		o.flag[flag_id].flagtype = flag_id;
-		o.flag[flag_id].image_index = flag_id;
-		if global.use_external_assets then o.flag[flag_id].sprite_index = global.spr_flag2[flag_id];
+		global.flag_list[flag_id,2] -= 90;
+		if global.flag_list[flag_id,2] < 0 global.flag_list[flag_id,2] = 270;
+		}
+	global.flag_list[flag_id,0] = xx;
+	global.flag_list[flag_id,1] = yy;
+	}
+if mouse_check_button_pressed(mb_right)
+	{
+	for (var i=0; i<4;i++)
+		{
+		// could nuke the x/y values but SimTunes actually keeps them (cfr TRAVELIN.GAL)
+		if xx == global.flag_list[i,0] 
+		&& yy == global.flag_list[i,1]
+		global.flag_list[i,2] = -1;
 		}
 	}

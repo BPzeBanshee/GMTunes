@@ -82,7 +82,6 @@
     {"id":{"name":"obj_decrypt_stp2","path":"objects/obj_decrypt_stp2/obj_decrypt_stp2.yy",},},
     {"id":{"name":"obj_decrypt_ver5","path":"objects/obj_decrypt_ver5/obj_decrypt_ver5.yy",},},
     {"id":{"name":"obj_draw_playfield","path":"objects/obj_draw_playfield/obj_draw_playfield.yy",},},
-    {"id":{"name":"obj_flag","path":"objects/obj_flag/obj_flag.yy",},},
     {"id":{"name":"obj_init","path":"objects/obj_init/obj_init.yy",},},
     {"id":{"name":"obj_loading","path":"objects/obj_loading/obj_loading.yy",},},
     {"id":{"name":"obj_menu_bugz","path":"objects/obj_menu_bugz/obj_menu_bugz.yy",},},

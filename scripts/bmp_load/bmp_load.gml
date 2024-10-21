@@ -1,5 +1,6 @@
 /// @desc Loads a .bmp onto a surface and returns the surface ID.
-/// @param {string} file Name of .bmp file
+/// @param {String} file Name of .bmp file
+/// @returns {Id.Surface,Real}
 function bmp_load(file){
 /*
 bmp_load(), by BPze
@@ -221,44 +222,9 @@ buffer_set_surface(sb,flip,0);
 surface_set_target(surf);
 draw_surface_ext(flip,0,bmp_height,1,-1,0,c_white,1);
 surface_reset_target();
+
 surface_free(flip);
 buffer_delete(sb);
-/*
-// OLD: manually blend colors and draw to surface per pixel
-var surf = surface_create(bmp_width,bmp_height);
-surface_set_target(surf);
-draw_clear_alpha(c_black,1);
-draw_set_alpha(1);
-var padding = (bmp_width mod 4);
-var pad = padding > 0 ? 4-padding : 0;
-var c;
-var a = 1;
-for (var yy = bmp_height-1; yy >= 0; yy--)
-    {
-    for (var xx = 0; xx < bmp_width+pad; xx++)
-        {
-		if use_pal
-			{
-			c = pal[buffer_read(buffer,buffer_u8)];
-			}
-		else 
-			{
-			var b = buffer_read(buffer,buffer_u8);
-			var g = buffer_read(buffer,buffer_u8);
-			var r = buffer_read(buffer,buffer_u8);
-			c = make_color_rgb(r,g,b);
-			if bpp == 32
-				{
-				a = buffer_read(buffer,buffer_u8);
-				draw_set_alpha(a);
-				}
-			}
-		if xx < bmp_width then draw_point_color(xx,yy,c);
-        }
-    }
-surface_reset_target();
-*/
-
 buffer_delete(buffer);
 //trace(string("time taken to load {0}: {1}ms",file,(get_timer()-t)));
 return surf;
@@ -275,11 +241,12 @@ return surf;
  * @param {bool} [smooth]=false Description
  * @param {real} [xorig]=-1 Description
  * @param {real} [yorig]=-1 Description
+ * @returns {Asset.GMSprite,Real}
  */
 function bmp_load_sprite(file,_x=0,_y=0,ww=-1,hh=-1,rmb=false,smooth=false,xorig=-1,yorig=-1) {
 // first, use bmp_load, check for errors
 var b = bmp_load(file);
-if !surface_exists(b) return b;
+if !surface_exists(b) return -2;
 
 // then, variable prep
 if ww < 0 ww = surface_get_width(b);

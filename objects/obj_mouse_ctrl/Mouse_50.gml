@@ -22,7 +22,7 @@ if xx >= 0 && xx <= 160 && yy >= 0 && yy <= 104
 		}
 		
 	// existing flag check
-	for (var i=0;i<3;i++)
+	for (var i=0;i<4;i++)
 		{
 		if xx == global.flag_list[i,0] 
 		&& yy == global.flag_list[i,1]

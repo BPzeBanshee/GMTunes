@@ -28,7 +28,7 @@ var size = buffer_get_size(bu); // actual size of file loaded into buffer
 // .STP "STP2"
 // reset surface/ds_maps if present
 unload_stamp();
-
+scale = 4;
 // reset strings if reloading
 //name = "";
 //author = "";
@@ -102,7 +102,7 @@ for (var yy = 0; yy < height; yy++)
 // For reasons currently unclear, the stamp always take half of the remaining space after the string data
 // the other half is always empty and is exactly half - the form identifier bits (so -4).
 var blankspace = buffer_tell(bu);
- trace("Buffer position: {0}, Size: {1}",blankspace,size);
+trace("Buffer position: {0}, Size: {1}",blankspace,size);
 	
 // Now that we're done, free buffer
 buffer_delete(bu);

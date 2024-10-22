@@ -66,6 +66,7 @@ trace("Unknown BS #1: "+string(unk));
 // Get binary size of next blob minus size bit (assuming preview picture)
 var skip = buffer_read(bu,buffer_u32);
 buffer_seek(bu,buffer_seek_relative,skip);
+trace("Size of preview picture chunk: {0} bytes",skip);
 /*trace("Size of preview picture in bytes: "+string(s));
 var newbuf = scr_decrypt_chunk(bu,s);
 var minibuf = newbuf.buf;
@@ -186,7 +187,8 @@ mystruct.desc = str_desc;
 // TODO: Mystery data here, seems to be 8 bytes of 00 following a value,
 // then another value after 8 bytes, then FF FF FF FF
 unk = [];
-repeat 28 array_push(unk,buffer_read(bu,buffer_u8));
+repeat 7 array_push(unk,buffer_read(bu,buffer_s32));
+//repeat 28 array_push(unk,buffer_read(bu,buffer_u8));
 trace("Unknown BS #2: {0}",unk);
 
 // Pull background filename as string
@@ -212,8 +214,9 @@ switch pixelsize
 	}
 
 // Random BS #3
-var unk = [];
-repeat 20 array_push(unk,buffer_read(bu,buffer_u8));
+unk = [];
+repeat 5 array_push(unk,buffer_read(bu,buffer_s32));
+//repeat 20 array_push(unk,buffer_read(bu,buffer_u8));
 trace("Unknown BS #3: {0}",unk);
 
 // Teleporter warp list
@@ -374,23 +377,6 @@ for (var i=0; i<4; i++)
 	unk = [];
 	repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
 	trace("Scale/X/Y data relative to camera: {0}",unk);
-	/*var x_offset = 14;
-	switch buffer_read(bu,buffer_s32)
-		{
-		case 0: break;
-		case 1: x_offset = 12; break;
-		case 2: x_offset = 8; break;
-		}
-	var y_offset = 14;
-	switch buffer_read(bu,buffer_s32)
-		{
-		case 0: break;
-		case 1: y_offset = 12; break;
-		case 2: y_offset = 8; break;
-		}
-	bugz[i].pos[0] = 4 * room_width * ((buffer_read(bu,buffer_s32)+x_offset) / 640); // X
-	bugz[i].pos[1] = 4 * room_height * ((buffer_read(bu,buffer_s32)+y_offset) / 480); // Y
-	trace("XY Values: {0}",bugz[i].pos);*/
 	
 	// Note X/Y positions (X, Y, DIR)
 	// NOTE: Multiply positions by 16 to get absolute x/y for now
@@ -412,14 +398,15 @@ for (var i=0; i<4; i++)
 	trace("Direction: "+string(bugz[i].dir)+" ("+string(corrected_dir)+")");
 	bugz[i].dir = corrected_dir;	
 	/*
-	The following two uint32s seem to be almost always 0,
-	unless there's going to be error codes in the following
-	two uint32s in which case some projects have the first
-	value of 1.
+	The following two uint32s are some kind of command code pair.
+	If either are non-zero it's implied there's some extra metadata
+	in the Bugz data that needs to be parsed.
 	
-	8,0 : user test 8
-	0,1 : citytalk.gal (yellow)
-	34,0 : funkbow.tun. citytalk.gal (green/blue/red)
+	Known functions from testing:
+	8,0 : Teleport control block
+	1,0 : Arrow control block
+	34,0 : Obsolete start position data (not seen in user-made .tuns)
+	0,1 : Undetermined (cfr. CITYTALK.GAL (Yellow))
 	*/
 	var error1 = buffer_read(bu,buffer_u32);
 	var error2 = buffer_read(bu,buffer_u32);
@@ -431,23 +418,19 @@ for (var i=0; i<4; i++)
 		}
 	else
 		{
-		trace("WARNING: Mystery Start Codes: {0},{1}",error1,error2);
+		trace("WARNING: Bugz Codes: {0},{1}",error1,error2);
+		
 		if (error1 == 0 && error2 == 1) // WATCHING.GAL GREEN02.BUG, CITYTALK.GAL YELLOW
-			{
-			tun_error_code_01(bu);
-			}
-		else if (error1 == 1 && error2 == 0) // RAINSONG.GAL YELLOW02.BUG
-			{
-			tun_error_code_10(bu);
-			}
+		tun_bugz_code_01(bu)
+		
+		else if (error1 == 1 && error2 == 0) // RAINSONG.GAL YELLOW02.BUG, yellow test.tun
+		tele = tun_bugz_code_10(bu)
+		
 		else if (error1 == 8 && error2 == 0) // WATCHING.GAL YELLOW02.BUG, user projects mid-teleport
-			{
-			tele = tun_error_code_80(bu);
-			}
+		tele = tun_bugz_code_80(bu)
+			
 		else if (error1 == 34 && error2 == 0) // RANDOMFU.GAL all Bugz
-			{
-			tun_error_code_34(bu);
-			}
+		tun_bugz_code_34(bu);
 		}
 	
 	/*
@@ -582,37 +565,65 @@ for (var i=0;i<4;i++)
 	}
 }
 
-function tun_error_code_01(bu){
+function tun_bugz_code_01(bu){
 var pair1 = [];
+var count = 1;
 repeat 4
 	{
 	array_push(pair1,buffer_read(bu,buffer_u32));
-	trace("tun_error_code_01(): {0} (Hex: {1})",pair1,hex_array(pair1));
-	pair1 = [];
+	trace("* Value #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1));
+	pair1 = []; count++;
 	}
 buffer_read(bu,buffer_u8);
 return 0;
 }
 
-function tun_error_code_10(bu){
+function tun_bugz_code_10(bu){
+/*
+Current testing suggests this operates similar to code 80,
+but is used when saved mid-transit for arrow control blocks.
+
+Even pairs almost always have nothing.
+Odd pairs contain at least one set usually in 0,x,x,40 (64)
+and a set with either 0,0,F0,3F (240,63) or 0,0,F0,BF (240,191)
+
+On an up-left arrow save, 
+pair 1 had a 04 set, pair 3 was 0,0,0,0, pair 5 and 7 had 0,0,F0,BF
+On a left arrow save, 
+pair 1 had a 04 set, pair 3 had 0,0,F0,3F but pair 5 had 0,0,F0,BF
+On a down-left arrow save, 
+pair 1 and 3 had a 04 set, pair 5 had 0,0,F0,BF but pair 7 had 0,0,F0,3F
+On a right arrow save, 
+pair 1 had a 04 set, pair 3 and 5 had 0,0,F0,3F
+On down-right arrow save, 
+pair 1 and 3 had a 04 set, pair 5 and 7 had 0,0,F0,3F 
+
+On an up-left arrow save specifically pointed to -1,-1, 
+pair 1 and 3 had 0,0,0,40 (64), pair 5 and 7 had 0,0,F0,BF.
+Same test pointed to 0,0 saved at different moments,
+pair 1 and 3 had 0,0,1c,40 on first save, 8,40 on second save
+*/
 var count = 1;
 var pair1 = [];
 var pair2 = [];
 repeat 4
 	{
-	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
-	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
-	trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
-	pair1 = [];
-	pair2 = [];
+	array_push(pair1,buffer_read(bu,buffer_f32));
+	buffer_read(bu,buffer_u32);
+	//repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
+	//repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
+	//trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	//trace("tun_error_code_10() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	//pair1 = [];
+	//pair2 = [];
 	}
+trace("Suspected floating point values: {0}",pair1);
 
-// Are these teleport note destination points or something else?
-// Seems to always be a pair of values after a F03F 0000 read
-var ctrl_x = buffer_read(bu,buffer_u32);
-var ctrl_y = buffer_read(bu,buffer_u32);
-trace("Mystery co-ordinate values found (teleport?): {0},{1}",ctrl_x,ctrl_y);
+// Saving a left arrow jump that goes past the border yields wrapped values
+// proving this should be signed, not unsigned
+var ctrl_x = buffer_read(bu,buffer_s32);
+var ctrl_y = buffer_read(bu,buffer_s32);
+trace("Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
 
 var ex = buffer_read(bu,buffer_u32);
 if ex > 0
@@ -628,41 +639,64 @@ if ex > 0
 	buffer_read(bu,buffer_u8);
 	}
 else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
-return [ctrl_x,ctrl_y];
+return [ctrl_x * 16,ctrl_y * 16];
 }
 
-function tun_error_code_34(bu){
+function tun_bugz_code_34(bu){
+/*
+Research and testing with other codes, and the inability
+to be able to get this thing to appear on user-generated
+.tuns suggest it's an indev-only flag for starting
+positions.
+*/
 var pair1 = [];
 var pair2 = [];
-var count = 1;
-repeat 5
+var count = 1;//0
+repeat 4
 	{
+	/*array_push(pair1,buffer_read(bu,buffer_f32)); count++;
+	if count == 4
+		{
+		repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
+		trace("End of values stamp: {0}",pair2);
+		}
+	else buffer_read(bu,buffer_u32);*/
 	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
 	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("tun_error_code_34() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
-	trace("tun_error_code_34() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	trace("* Pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("* Pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
 	pair1 = [];
 	pair2 = [];
 	}
+//trace("Suspected floating point values: {0}",pair1);
 	
+// These values appear to be note x/y positions,
+// but can be off by one. Maybe intended as direction
+// indicator to extrapolate off?
+var ctrl_x = buffer_read(bu,buffer_s32);
+var ctrl_y = buffer_read(bu,buffer_s32);
+trace("* Starting position values found: {0},{1}",ctrl_x,ctrl_y);
+	
+// Exit code
 var ex = buffer_read(bu,buffer_u32);
 if ex > 0
 	{
 	// read out exit code
 	var arr = [ex];
 	repeat 3 array_push(arr,buffer_read(bu,buffer_u32));
-	trace("WARNING: Exit code: {0} (Hex: {1})",arr,hex_array(arr));
+	trace("* Exit(?) code: {0} (Hex: {1})",arr,hex_array(arr));
 
 	// research shows an additional byte is always slapped on at the end
 	// before the Tweezer values
 	buffer_read(bu,buffer_u32);
 	buffer_read(bu,buffer_u8);
 	}
-else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
-return 0;
+else buffer_seek(bu,buffer_seek_relative,8);
+
+return [ctrl_x*16,ctrl_y*16];
 }
 
-function tun_error_code_80(bu){
+function tun_bugz_code_80(bu){
 // Deal with the 0x40__ lines and their gaps first
 var pair1 = [];
 var pair2 = [];
@@ -671,27 +705,18 @@ repeat 4
 	{
 	repeat 4 array_push(pair1,buffer_read(bu,buffer_u8));
 	repeat 4 array_push(pair2,buffer_read(bu,buffer_u8));
-	trace("tun_error_code_80() - pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
-	trace("tun_error_code_80() - pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
+	trace("* Pair #{0}: {1} (Hex: {2})",count,pair1,hex_array(pair1)); count++;
+	trace("* Pair #{0}: {1} (Hex: {2})",count,pair2,hex_array(pair2)); count++;
 	pair1 = [];
 	pair2 = [];
 	}
 	
 // Spray Test 8 shows these are teleport note destination points
-var ctrl_x = buffer_read(bu,buffer_u32);
-var ctrl_y = buffer_read(bu,buffer_u32);
-trace("tun_error_code_80() - Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
+var ctrl_x = buffer_read(bu,buffer_s32);
+var ctrl_y = buffer_read(bu,buffer_s32);
+trace("* Teleport destination values found: {0},{1}",ctrl_x,ctrl_y);
 
 // Process exit code
-tun_bugz_exit_code(bu);
-
-// gap 
-buffer_read(bu,buffer_u32);
-
-return [ctrl_x * 16,ctrl_y * 16];
-}
-
-function tun_bugz_exit_code(bu){
 /*
 Known example codes:
 WATCHING.GAL
@@ -700,86 +725,14 @@ WATCHING.GAL
 [1,2,0,0xF2]: BLUE02.BUG
 [1,2,0,0xF3]: RED02.BUG
 */
-// read out exit code
 var arr = [];
 repeat 4 array_push(arr,buffer_read(bu,buffer_u32));
-trace("Mystery Exit(?) code: {0} (Hex: {1})",arr,hex_array(arr));
+trace("* Mystery Exit(?) code: {0} (Hex: {1})",arr,hex_array(arr));
 
-// research shows an additional byte is always slapped on at the end
-// before the Tweezer values
+// research shows an additional 5 bytes is always slapped 
+// on at the end before the Tweezer values
+buffer_read(bu,buffer_u32);
 buffer_read(bu,buffer_u8);
-return 0;
-}
 
-function tun_error_code_old(bu){
-// error code presence of some kind
-	var error = buffer_read(bu,buffer_u32);
-	if error > 0 
-		{
-		trace("WARNING: error presence code: "+hex(error));
-		buffer_seek(bu,buffer_seek_relative,4);
-			
-		var error2 = buffer_read(bu,buffer_u32);
-		if error2 > 0 
-			{
-			trace("WARNING: error2 presence code: "+hex(error2));
-			var done_offset = false;
-			if error2 >= 0xF0 && error2 <= 0xF3//or error2 == 0xF1 or error2 == 0xF2 or error2 == 0xF3
-				{
-				trace("offset command "+hex(error2)+" found, skipping 5 bytes");
-				buffer_seek(bu,buffer_seek_relative,5);
-				done_offset = true;
-				}
-			/*
-			some bullshit in CITYTALK.GAL
-			if error2 == 0x4056c000 
-			or error2 == 0x4055c000
-			or error2 == 0x40280000
-			or error2 == 0x40580000
-			*/
-			/*
-			TODO: some values here are shared on 'error2' but correlate to a 44 byte
-			skip rather than a 53-byte skip. Zimbabwe has an error2 code but not
-			an error code. Mishiko and Clown have error and error2 codes that
-			don't correlate. 0x404B is listed at least once for a 44-byte skip.
-				
-			FUNKBOW.TUN
-			error:  0x40550C00
-			error2: 0x40504000
-			*/
-			
-			if ((error2 >> 16) == 0x4029 
-			or ((error2 >> 16) == 0x4042 && (error >> 16) != 0x404F)
-			or ((error2 >> 16) == 0x4044 && (error >> 16) != 0x4052)
-				
-			// MR_D.GAL/MISHIKO.TUN?
-			or ((error2 >> 16) == 0x404B && (error >> 16) != 0x4018 && (error >> 16) != 0x4054)
-			or (error2 >> 16) == 0x404E 
-				
-			// whack shit resaving Reverb
-			// FUNKBOW.TUN
-			or ((error2 >> 16) == 0x4050 && ((error >> 16) != 0x4055 && (error >> 16) != 0x404C))
-			or (error2 >> 16) == 0x4052) && !done_offset
-				{
-				trace("offset command "+hex(error2)+" found, skipping 49 bytes");
-				buffer_seek(bu,buffer_seek_relative,49);
-				done_offset = true;
-				}
-			if (error2 >> 24) >= 0x40 && !done_offset
-				{
-				// 0x401c is in zimbabwe but has no garbage code
-				// MISHIKO.TUN has only 0x40
-				trace("offset command "+hex(error2)+" found, skipping 40 bytes");
-				buffer_seek(bu,buffer_seek_relative,40);
-				done_offset = true;
-				}
-			}
-		}
-	else //buffer_seek(bu,buffer_seek_relative,4);
-		{
-		trace("weirdest shit, no offset command found, gonna try skipping 48 bytes anyway");
-		buffer_seek(bu,buffer_seek_relative,48);
-		//var t = buffer_tell(bu);
-		//var offset = 48;
-		}
+return [ctrl_x * 16,ctrl_y * 16];
 }

@@ -1,4 +1,4 @@
-// TODO: draw surface of stamp here
+// Draw surface of stamp here
 event_inherited();
 var xx = device_mouse_x_to_gui(0);
 var yy = device_mouse_y_to_gui(0);
@@ -15,15 +15,14 @@ if surface_exists(surf)
     image_yscale = hh;
     image_angle = direction;
 	
-	
 	if device_mouse_y_to_gui(0) > 416
 		{
 		xx = room_width/2;
 		yy = room_height/2;
 		}
+		
     var sx = xx + lengthdir_x(ww,direction+180) + lengthdir_x(hh,direction+90);
     var sy = yy + lengthdir_y(ww,direction+180) + lengthdir_y(hh,direction+90);
-	
     draw_surface_ext(surf,sx,sy,scale,scale,direction,c_white,1);
 	
 	/*var sh = string_height(desc);
@@ -34,7 +33,7 @@ if surface_exists(surf)
 else
 	{
 	if global.use_external_assets
-	draw_sprite(move_mode ? global.spr_ui_move : global.spr_ui_copy,0,xx,yy)
+	draw_sprite(move_mode ? global.spr_ui.move : global.spr_ui.copy,0,xx,yy)
 	else 
 		{
 		draw_set_color(move_mode ? c_aqua : c_orange);

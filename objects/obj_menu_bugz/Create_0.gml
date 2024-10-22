@@ -111,6 +111,7 @@ return {name,desc,show,spr,sounds};
 }
 
 // variable init
+if global.use_external_assets cursor_sprite = global.spr_ui.cursor;
 done = false;
 ready = false;
 anim_index = 0; 

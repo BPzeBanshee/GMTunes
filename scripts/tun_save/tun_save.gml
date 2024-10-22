@@ -168,7 +168,7 @@ buffer_write(bu,buffer_text,desc_str);
 buffer_write(bu,buffer_u8,0);
 
 // garbage data #2
-repeat 28 buffer_write(bu,buffer_u8,0);
+repeat 7 buffer_write(bu,buffer_u32,0);
 
 // background filename (taken from obj_ctrl_playfield background vars)
 var back_str = mystruct.background;//"03GP4BT.BAC";
@@ -182,7 +182,7 @@ buffer_write(bu,buffer_u32,round(y));
 buffer_write(bu,buffer_u32,myzoom);
 
 // garbage data #3
-repeat 20 buffer_write(bu,buffer_u8,0);
+repeat 5 buffer_write(bu,buffer_u32,0);
 
 // teleporter warp list
 var num_warps = 0; // TODO: actually get warp count
@@ -198,9 +198,9 @@ for (var i=0; i<num_warps;i++)
 // Flag list
 for (var i=0;i<4;i++)
 	{
-	buffer_write(bu,buffer_u32,mystruct.flag_list[i][0]);
-	buffer_write(bu,buffer_u32,mystruct.flag_list[i][1]);
-	buffer_write(bu,buffer_u32,mystruct.flag_list[i][2]);
+	buffer_write(bu,buffer_s32,mystruct.flag_list[i][0]);
+	buffer_write(bu,buffer_s32,mystruct.flag_list[i][1]);
+	buffer_write(bu,buffer_s32,mystruct.flag_list[i][2]);
 	}
 	
 // Note position data

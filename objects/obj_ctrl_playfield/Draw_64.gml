@@ -128,9 +128,9 @@ if use_classic_gui
 						{
 						instance_destroy(m);
 						mouse_create(obj_mouse_stamp); 
-						var f = get_open_filename("*.STP","");
-						if f != "" then m.load_stamp(f);
 						}
+					var f = get_open_filename("*.STP","");
+					if f != "" then m.load_stamp(f);
 					}
 				}
 	

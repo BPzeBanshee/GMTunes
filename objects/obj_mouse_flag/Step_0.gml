@@ -17,7 +17,7 @@ if mouse_check_button_pressed(mb_left)
 	if ds_grid_get(global.ctrl_grid,xx,yy) > 0
 		{
 		ds_grid_set(global.ctrl_grid,xx,yy,0);
-		obj_draw_playfield.update_surf_partial(xx,yy);
+		(parent.field).update_surf_partial(xx,yy);
 		}
 		
 	//if xx == global.flag_list[flag_id,0] && yy == global.flag_list[flag_id,1]

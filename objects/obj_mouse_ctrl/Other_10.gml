@@ -19,3 +19,13 @@ delete_teleporter_block = function(xx,yy,data)
 		
 	trace(string("[{0},{1}]",xx,yy)+" removed from warp list\nUpdated warp list: "+string(global.warp_list));
 	}
+	
+delete_flag = function(xx,yy)
+	{
+	for (var i=0;i<4;i++)
+		{
+		if xx == global.flag_list[i,0] 
+		&& yy == global.flag_list[i,1]
+		global.flag_list[i,2] = -1;
+		}
+	}

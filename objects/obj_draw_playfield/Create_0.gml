@@ -101,10 +101,30 @@ else
 surface_reset_target();
 }
 
-update_surf_zone = function(xx,yy,w,h){
+/*update_surf_zone = function(xx,yy,w,h){
 for (var ny = yy - h; ny < yy + h; yy++)
 for (var nx = xx - w; nx < xx + w; nx++)
 	{
 	update_surf_partial(nx,ny);
+	}
+}*/
+
+draw_flags = function(){
+// Draw flags on top
+var ind = 0;
+var spr = spr_flag;
+for (var i=0;i<4;i++)
+	{
+	// Create flags
+	if global.flag_list[i][2] > -1
+		{
+		var fx = global.flag_list[i][0] * 16;
+		var fy = global.flag_list[i][1] * 16;
+		var dir = global.flag_list[i][2];
+		if global.use_external_assets
+		spr = global.spr_flag2[i]
+		else ind = i;
+		draw_sprite_ext(spr,ind,fx+8,fy+8,1,1,dir,c_white,1);
+		}
 	}
 }

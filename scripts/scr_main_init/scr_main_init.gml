@@ -49,6 +49,9 @@ if os_type == os_windows
 // Font loading
 scr_font_init();
 
+// Sound loading
+scr_snd_init();
+
 // Load note sprites
 scr_spr_init();
 
@@ -108,8 +111,19 @@ if global.use_external_assets
 	}
 }
 
+function scr_snd_init(){
+global.snd_ui = {};
+for (var i=0;i<25;i++)
+	{
+	var fname = "0"+string_replace_all(string_format(i+1,2,0)," ","0")+".WAV";
+	//trace(fname);
+	global.snd_ui.beep[i] = wav_load(TUNERES+fname);
+	}
+}
+
 function scr_spr_init(){
 // NOTE: sprite_add_from_surface not used due to performance bug
+global.spr_ui = {};
 global.spr_note2[0][0] = -1;
 global.spr_flag2[0] = -1;
 
@@ -138,8 +152,8 @@ if surface_exists(temp2)
 	}
 
 // Loading Bar assets
-global.spr_ui_txt = bmp_load_sprite(TUNERES+"edot4mc.bmp");
-global.spr_ui_bar = bmp_load_sprite(TUNERES+"status.bmp");
+global.spr_ui.txt = bmp_load_sprite(TUNERES+"edot4mc.bmp");
+global.spr_ui.bar = bmp_load_sprite(TUNERES+"status.bmp");
 var _nineslice = sprite_nineslice_create();
 _nineslice.enabled = true;
 _nineslice.left = 2;
@@ -147,19 +161,19 @@ _nineslice.right = 2;
 _nineslice.top = 2;
 _nineslice.bottom = 2;
 //_nineslice.tilemode[nineslice_center] = nineslice_hide; 
-if sprite_exists(global.spr_ui_txt) sprite_set_nineslice(global.spr_ui_txt,_nineslice);
+if sprite_exists(global.spr_ui.txt) sprite_set_nineslice(global.spr_ui.txt,_nineslice);
 
-global.spr_ui_desc = bmp_load_sprite(TUNERES+"Info.bmp",,,,,,,0,0);
+global.spr_ui.desc = bmp_load_sprite(TUNERES+"Info.bmp",,,,,,,0,0);
 
 // UI Bug Boxes
-global.spr_ui_bug = [[]];
+global.spr_ui.bug = [[]];
 var ui_bug = bmp_load(TUNERES+"STOPGO.BMP");
 if surface_exists(ui_bug)
 	{
 	for (var i=0;i<4;i++)
 		{
-		global.spr_ui_bug[i][0] = sprite_create_from_surface(ui_bug,50*i,0,50,34,false,false,0,0);
-		global.spr_ui_bug[i][1] = sprite_create_from_surface(ui_bug,50*i,34,50,34,false,false,0,0);
+		global.spr_ui.bug[i][0] = sprite_create_from_surface(ui_bug,50*i,0,50,34,false,false,0,0);
+		global.spr_ui.bug[i][1] = sprite_create_from_surface(ui_bug,50*i,34,50,34,false,false,0,0);
 		}
 	}
 else
@@ -171,20 +185,20 @@ else
 		surface_set_target(ui_bug);
 		draw_clear_alpha(colors[i],0.5);
 		surface_reset_target();
-		global.spr_ui_bug[i][0] = sprite_create_from_surface(ui_bug,0,0,50,34,false,false,0,0);
-		global.spr_ui_bug[i][1] = global.spr_ui_bug[i][0];
+		global.spr_ui.bug[i][0] = sprite_create_from_surface(ui_bug,0,0,50,34,false,false,0,0);
+		global.spr_ui.bug[i][1] = global.spr_ui.bug[i][0];
 		}
 	surface_free(ui_bug);
 	}
 
 // UI Sliders
-global.spr_ui_slider = [];
+global.spr_ui.slider = [];
 var ui_slider = bmp_load(TUNERES+"4SLIDER.BMP");
 if surface_exists(ui_slider)
 	{
 	for (var i=0;i<4;i++)
 		{
-		global.spr_ui_slider[i] = sprite_create_from_surface(ui_slider,0,6*i,23,5,false,false,12,2);
+		global.spr_ui.slider[i] = sprite_create_from_surface(ui_slider,0,6*i,23,5,false,false,12,2);
 		}
 	}
 else
@@ -196,11 +210,27 @@ else
 		surface_set_target(ui_slider);
 		draw_clear_alpha(colors[i],1);
 		surface_reset_target();
-		global.spr_ui_slider[i] = sprite_create_from_surface(ui_slider,0,0,23,5,false,false,12,2);
+		global.spr_ui.slider[i] = sprite_create_from_surface(ui_slider,0,0,23,5,false,false,12,2);
 		}
 	}
+	
+// UI 'Highlights'
+global.spr_ui.playnote = [];
+global.spr_ui.chooser = [];
+var temp3 = bmp_load(TUNERES+"hilights.bmp");
+if surface_exists(temp3)
+	{
+	for (var i=0;i<5;i++) 
+		{
+		global.spr_ui.playnote[i] = sprite_create_from_surface(temp3,91+(5*i),202,5,9,false,false,0,0);
+		}
+		
+	global.spr_ui.chooser[0] = sprite_create_from_surface(temp3,90,160,20,20,false,false,0,0);
+	global.spr_ui.chooser[1] = sprite_create_from_surface(temp3,90,180,20,20,false,false,0,0);
+	}
+surface_free(temp3);
 
-global.spr_ui = {};
+// Mouse cursors
 global.spr_ui.cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,,0,0);
 global.spr_ui.tweezer = bmp_load_sprite(TUNERES+"TWEEZER0.BMP",,,,,true,,0,0);
 global.spr_ui.tweezer2 = bmp_load_sprite(TUNERES+"TWEEZER1.BMP",,,,,true,,0,0);
@@ -209,6 +239,12 @@ global.spr_ui.move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
 global.spr_ui.copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
 global.spr_ui.tone = bmp_load_sprite(TUNERES+"TONE.BMP",,,,,true,,0,0);
 global.spr_ui.gradient = bmp_load_sprite(TUNERES+"GRADIENT.BMP",,,,,true,,0,0);
+
+var ctrl_files = ["Blank.bmp","LEFT.BMP","RIGHT.BMP","UTURN.BMP","EAST.BMP","SOUTH.BMP","WEST.BMP","NORTH.BMP","WARP.BMP","WARPOUT.BMP","RANDOM.BMP","NWEST.BMP","NEAST.BMP","SEAST.BMP","SWEST.BMP"];
+for (var i=0;i<array_length(ctrl_files);i++)
+	{
+	global.spr_ui.ctrl[i] = bmp_load_sprite(TUNERES+ctrl_files[i],,,,,true,,0,0);
+	}
 
 cursor_sprite = global.spr_ui.cursor;
 window_set_cursor(cr_none);
@@ -234,16 +270,36 @@ if global.use_external_assets
 	var spr_ui_names = struct_get_names(global.spr_ui);
 	for (var i=0;i<struct_names_count(global.spr_ui);i++)
 		{
-		array_push(external_sprites,struct_get(global.spr_ui,spr_ui_names[i]));
+		var st = struct_get(global.spr_ui,spr_ui_names[i]);
+		if is_array(st)
+			{
+			// nested array AKA: array of handles within array of handles
+			if is_array(st[0])
+				{
+				for (var j=0;j<array_length(st);j++)
+					{
+					for (var k=0;k<array_length(st[j]);k++)
+						{
+						array_push(external_sprites,st[j][k]);
+						}
+					}
+				}
+			// just an array of handles
+			else for (var j=0;j<array_length(st);j++)
+				{
+				array_push(external_sprites,st[j]);
+				}
+			}
+		else array_push(external_sprites,st);
 		}
 
 	// add the playfield assets and hardcoded ui stuff
 	for (var a=0;a<4;a++)
 		{
 		array_push(external_sprites,global.spr_flag2[a]);
-		array_push(external_sprites,global.spr_ui_bug[a][0]);
-		array_push(external_sprites,global.spr_ui_bug[a][1]);
-		array_push(external_sprites,global.spr_ui_slider[a]);
+		//array_push(external_sprites,global.spr_ui_bug[a][0]);
+		//array_push(external_sprites,global.spr_ui_bug[a][1]);
+		//array_push(external_sprites,global.spr_ui_slider[a]);
 		}
 	for (var yy = 0; yy <= 25; yy++)
 		{
@@ -263,7 +319,7 @@ if global.use_external_assets
 	delete global.spr_ui;
 	
 	// FREE EXTERNAL SOUNDS
-	var external_sounds = [];
+	var external_sounds = global.snd_ui.beep;
 	for (var i=0;i<array_length(external_sounds);i++)
 		{
 		if audio_exists(external_sounds[i]) 

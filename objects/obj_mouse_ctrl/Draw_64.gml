@@ -3,7 +3,10 @@ event_inherited();
 var mx = device_mouse_x_to_gui(0);
 var my = device_mouse_y_to_gui(0);
 if global.use_external_assets
-draw_sprite_ext(global.spr_note2[note][0],0,mx-8,my-8,1,1,0,c_white,0.5)
+	{
+	//draw_sprite_ext(global.spr_note2[note][0],0,mx-8,my-8,1,1,0,c_white,0.5)
+	cursor_sprite = global.spr_ui.ctrl[note];
+	}
 else draw_sprite_ext(spr_note_ctrl,note-1,mx-8,my-8,1,1,0,c_white,0.5);
 if place_teleporter
 	{

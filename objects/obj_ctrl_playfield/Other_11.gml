@@ -29,7 +29,7 @@ camera_set_view_pos(cam,clamp(cx+xo,0,xform),clamp(cy+yo,0,yform));
 if keyboard_check_pressed(vk_space)
 	{
 	paused = !paused;
-	obj_bug.paused = !obj_bug.paused;
+	if instance_exists(obj_bug) obj_bug.paused = !obj_bug.paused;
 	}
 if keyboard_check_pressed(ord("U")) then if bug_yellow then bug_yellow.muted = !bug_yellow.muted;
 if keyboard_check_pressed(ord("I")) then if bug_green then bug_green.muted = !bug_green.muted;

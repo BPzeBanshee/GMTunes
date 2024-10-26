@@ -1,8 +1,10 @@
 // Variable init
 use_classic_gui = false;
-if global.use_external_assets use_classic_gui = true;
+//if global.use_external_assets use_classic_gui = true;
 loading_prompt = false;
 callmethod = function(){};
+play_index = 0;
+play_handle = -1;
 
 // Playfield defaults
 playfield_name = "";
@@ -58,24 +60,13 @@ else
 	{
 	// First, array list
 	txta = []; evt = [];
-	array_push(txta,"BUG Y");		array_push(evt,load_yellow);
-	array_push(txta,"BUG G");		array_push(evt,load_green);
-	array_push(txta,"BUG B");		array_push(evt,load_blue);
-	array_push(txta,"BUG R");		array_push(evt,load_red);
-	array_push(txta,".TUN");		array_push(evt,load_tun);
-	array_push(txta,".BKG");		array_push(evt,load_bkg);
 	array_push(txta,".STP");		array_push(evt,function(){mouse_create(obj_mouse_stamp);});
-	array_push(txta,"GRAB");		array_push(evt,function(){mouse_create(obj_mouse_grab);});
-	array_push(txta,"CTRL");		array_push(evt,function(){mouse_create(obj_mouse_ctrl);});
-	array_push(txta,"CLR");			array_push(evt,function(){mouse_create(obj_mouse_colour);});
 	array_push(txta,"RBW");			array_push(evt,function(){mouse_create(obj_mouse_rainbow);});
-	array_push(txta,"Z");			array_push(evt,function(){mouse_create(obj_mouse_zoom);});
-	array_push(txta,"X");			array_push(evt,back_to_main);
 
 	// Create buttons
 	for (var i=0; i<array_length(txta); i++)
 	    {
-	    button[i] = instance_create_depth(16+(i*48),480-16,-1,obj_button_dgui);
+	    button[i] = instance_create_depth(16+(i*48),480-16,depth-1,obj_button_dgui);
 	    button[i].txt = txta[i];
 	    }
 	}

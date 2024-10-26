@@ -5,7 +5,7 @@ var my = device_mouse_y_to_gui(0);
 
 if global.use_external_assets
 	{
-	if note != note_prev update_surf();
+	if note != note_prev or mbr != mbr_prev update_surf();
 	pal_swap_set(surf,1,true);
 	draw_sprite(global.spr_ui.tone,0,mx,my);
 	pal_swap_reset();

@@ -2,7 +2,128 @@
 // Feather disable GM2016
 event_inherited();
 
-load_stamp = function(file){
+copy = function(cx,cy,w,h){
+// convert to abs
+if w < 0 {cx += w; w = abs(w);}
+if h < 0 {cy += h; h = abs(h);}
+trace("load_stamp(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
+grid_note = ds_grid_create(w,h);
+grid_ctrl = ds_grid_create(w,h);
+for (var yy = 0; yy < h; yy++)
+    {
+    for (var xx = 0; xx < w; xx++)
+		{
+		var play_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
+		if play_note > 0 ds_grid_set(grid_note,xx,yy,play_note);
+		
+		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
+		if ctrl_note > 0 
+			{
+			if ctrl_note == 8
+				{
+				var dx = 0; var dy = 0;
+				for (var i=0;i<array_length(global.warp_list);i++)
+					{
+					if cx+xx == global.warp_list[i][0]
+					&& cy+yy == global.warp_list[i][1]
+						{
+						dx = global.warp_list[i][2];
+						dy = global.warp_list[i][3];
+						array_push(copy_warps,[xx,yy,dx-(cx+xx),dy-(cy+yy)]);
+						trace("copy_warps updated: {0}",copy_warps);
+						}
+					}
+				}
+			// block copying of flags
+			if ctrl_note == 34 ctrl_note = 0;
+			ds_grid_set(grid_ctrl,xx,yy,ctrl_note);
+			}
+		}
+	}
+	
+width = w;
+height = h;
+loaded = true;
+copy_x = -1;
+copy_y = -1;
+update_surf(width,height);
+}
+
+cut = function(cx,cy,w,h){
+// convert to abs
+if w < 0 {cx += w; w = abs(w);}
+if h < 0 {cy += h; h = abs(h);}
+trace("load_stamp(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
+grid_note = ds_grid_create(w,h);
+grid_ctrl = ds_grid_create(w,h);
+for (var yy = 0; yy < h; yy++)
+    {
+    for (var xx = 0; xx < w; xx++)
+		{
+		var data_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
+		if data_note > 0 
+			{
+			ds_grid_set(grid_note,xx,yy,data_note);
+			ds_grid_set(global.pixel_grid,cx+xx,cy+yy,0);
+			}
+		
+		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
+		if ctrl_note > 0 
+			{
+			trace("obj_mouse_stamp: ctrl_note {0} copied",ctrl_note);
+			if ctrl_note == 8
+				{
+				var dx = 0; var dy = 0;
+				for (var i=0;i<array_length(global.warp_list);i++)
+					{
+					if cx+xx == global.warp_list[i][0]
+					&& cy+yy == global.warp_list[i][1]
+						{
+						dx = global.warp_list[i][2];
+						dy = global.warp_list[i][3];
+						array_push(copy_warps,[xx,yy,dx,dy]);
+						global.warp_list[i] = [-1,-1,-1,-1];
+						trace("copy_warps updated: {0}",copy_warps);
+						}
+					}
+				}
+			if ctrl_note == 34
+				{
+				for (var i=0;i<4;i++)
+					{
+					if cx+xx == global.flag_list[i][0]
+					&& cy+yy == global.flag_list[i][1]
+						{
+						copy_flags[i][0] = xx;
+						copy_flags[i][1] = yy;
+						copy_flags[i][2] = global.flag_list[i][2];
+						trace("copy_flags updated: {0}",copy_flags[i]);
+						global.flag_list[i] = [-1,-1,-1];
+						}
+					}
+				}
+			ds_grid_set(grid_ctrl,xx,yy,ctrl_note);
+			ds_grid_set(global.ctrl_grid,cx+xx,cy+yy,0);
+			}
+		}
+	}
+
+width = w;
+height = h;
+loaded = true;
+copy_x = -1;
+copy_y = -1;
+update_surf(width,height);
+for (var yy = 0; yy < h; yy++)
+    {
+    for (var xx = 0; xx < w; xx++)
+		{
+		(parent.field).update_surf_partial(cx+xx,cy+yy);
+		}
+	}
+}
+
+load_stamp_from_file = function(file){
 ///@desc .STP "STP2" Format
 
 if file == "" or !file_exists(file)
@@ -115,10 +236,15 @@ unload_stamp = function(){
 if ds_exists(grid_note,ds_type_grid) then ds_grid_destroy(grid_note);
 if ds_exists(grid_ctrl,ds_type_grid) then ds_grid_destroy(grid_ctrl);
 if surface_exists(surf) then surface_free(surf);
-move_mode = false;
-copy_mode = false;
+loaded = false;
 width = -1;
 height = -1;
+copy_x = -1;
+copy_y = -1;
+copy_w = 0;
+copy_h = 0;
+copy_warps = [];
+copy_flags = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 }
 
 update_surf = function(ww=width,hh=height){
@@ -136,7 +262,7 @@ for (var yy = 0; yy < hh; yy++)
 		var data = ds_grid_get(grid_note,xx,yy);
 		if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
 		var data2 = ds_grid_get(grid_ctrl,xx,yy);
-		if data2 > 0 draw_rectangle_color(xx,yy,xx+1,yy+1,c_grey,c_grey,c_grey,c_grey,false);// draw_sprite(spr_note_ctrl,data2-1,xx,yy);
+		if data2 > 0 draw_point_color(xx,yy,c_grey);// draw_sprite(spr_note_ctrl,data2-1,xx,yy);
         }
     }
 surface_reset_target();

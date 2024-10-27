@@ -78,6 +78,7 @@ surface_reset_target();
 update_surf_partial = function(xx,yy){
 var data = ds_grid_get(global.pixel_grid,xx,yy);
 var data_ctrl = ds_grid_get(global.ctrl_grid,xx,yy);
+if data_ctrl == 34 data_ctrl = 0;
 if !surface_exists(pixel_surf) then update_surf();
 surface_set_target(pixel_surf);
 

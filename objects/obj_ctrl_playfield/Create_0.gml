@@ -1,6 +1,6 @@
 // Variable init
 use_classic_gui = false;
-//if global.use_external_assets use_classic_gui = true;
+if global.use_external_assets use_classic_gui = true;
 loading_prompt = false;
 callmethod = function(){};
 play_index = 0;

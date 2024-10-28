@@ -61,7 +61,11 @@ if use_classic_gui
 			}
 	
 		// *** EXPLORE ***
-		case 2: /*draw_sprite(gui.explore,0,0,by);*/ draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
+		case 2: 
+		draw_rectangle_color(0,416,640,480,0,0,0,0,false);
+		/*draw_sprite(gui.explore,0,0,by);*/ 
+		draw_text(bx,by+16,"FIELD/EXPLORE TBA"); 
+		break;
 		
 		// *** BUGZ ***
 		case 3: 

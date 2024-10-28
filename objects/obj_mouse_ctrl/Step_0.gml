@@ -80,6 +80,9 @@ if mouse_check_button(mb_right)
 	if place_teleporter
 		{
 		place_teleporter = false;
+		ds_grid_set(global.ctrl_grid,tele_obj[0],tele_obj[1],0);
+		(parent.field).update_surf_partial(tele_obj[0],tele_obj[1]);
+		tele_obj = [];
 		note = 8;
 		}
 	

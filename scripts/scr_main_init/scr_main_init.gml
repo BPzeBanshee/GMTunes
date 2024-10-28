@@ -297,9 +297,6 @@ if global.use_external_assets
 	for (var a=0;a<4;a++)
 		{
 		array_push(external_sprites,global.spr_flag2[a]);
-		//array_push(external_sprites,global.spr_ui_bug[a][0]);
-		//array_push(external_sprites,global.spr_ui_bug[a][1]);
-		//array_push(external_sprites,global.spr_ui_slider[a]);
 		}
 	for (var yy = 0; yy <= 25; yy++)
 		{

@@ -148,7 +148,7 @@ if use_classic_gui
 						mouse_create(obj_mouse_stamp); 
 						}
 					var f = get_open_filename("*.STP","");
-					if f != "" then m.load_stamp(f);
+					if f != "" then m.load_stamp_from_file(f);
 					}
 				}
 			break;

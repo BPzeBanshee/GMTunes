@@ -113,9 +113,9 @@ if show_desc
 	var anchor_x = 320-(dw/2);
 	var anchor_y = 240-(dh/2);
 	pal_swap_set(spr_shd_ui,1,false);
-	draw_sprite_stretched(global.spr_ui_txt,0,anchor_x,anchor_y,dw,dh*2);
+	draw_sprite_stretched(global.spr_ui.txt,0,anchor_x,anchor_y,dw,dh*2);
 	pal_swap_reset();
-	draw_sprite(global.spr_ui_desc,0,anchor_x+4,anchor_y+2);
+	draw_sprite(global.spr_ui.desc,0,anchor_x+4,anchor_y+2);
 	scr_draw_vars(global.fnt_bold,fa_left,c_white);
 	draw_text(anchor_x+56,anchor_y+8,bug[show_x][show_y].name);
 	draw_set_halign(fa_center);

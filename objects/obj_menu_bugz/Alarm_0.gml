@@ -12,7 +12,7 @@ if xx == 0 && yy == 0
 	{
 	prep();
 	
-	back = bmp_load_sprite(TUNERES+"Loadbugz.bmp");
+	if global.use_external_assets back = bmp_load_sprite(TUNERES+"Loadbugz.bmp");
 	populate_list(list_yellow,dir+"YELLOW*.bug");
 	populate_list(list_green,dir+"GREEN*.bug");
 	populate_list(list_blue,dir+"BLUE*.bug");

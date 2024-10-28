@@ -35,9 +35,14 @@ if mouse_check_button_pressed(mb_right)
 	{
 	for (var i=0; i<4;i++)
 		{
-		// could nuke the x/y values but SimTunes actually keeps them (cfr TRAVELIN.GAL)
+		// SimTunes actually keeps x/y values (cfr TRAVELIN.GAL), but do our proper dues
 		if xx == global.flag_list[i,0] 
 		&& yy == global.flag_list[i,1]
-		global.flag_list[i,2] = -1;
+			{
+			// flag array size is fixed to bug count (4) for now, just nuke values
+			global.flag_list[i,0] = -1;
+			global.flag_list[i,1] = -1;
+			global.flag_list[i,2] = -1;
+			}
 		}
 	}

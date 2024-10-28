@@ -15,6 +15,11 @@ copy_x = -1;
 copy_y = -1;
 copy_w = 0;
 copy_h = 0;
+
+warp_starts = [];
+warp_ends = [];
+
+
 copy_warps = [];
 copy_flags = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 px = floor(x/16);

@@ -19,23 +19,58 @@ for (var yy = 0; yy < h; yy++)
 		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
 		if ctrl_note > 0 
 			{
+			// special handling for teleport starts
 			if ctrl_note == 8
 				{
-				var dx = 0; var dy = 0;
+				var copy_note = false;
 				for (var i=0;i<array_length(global.warp_list);i++)
 					{
 					if cx+xx == global.warp_list[i][0]
 					&& cy+yy == global.warp_list[i][1]
 						{
-						dx = global.warp_list[i][2];
-						dy = global.warp_list[i][3];
-						array_push(copy_warps,[xx,yy,dx-(cx+xx),dy-(cy+yy)]);
-						trace("copy_warps updated: {0}",copy_warps);
+						// test if destination x/y will be in copy zone
+						var dx = global.warp_list[i][2]-cx;
+						var dy = global.warp_list[i][3]-cy;
+						if point_in_rectangle(dx,dy,0,0,w-1,h-1)
+							{
+							// add local x/y coords to warp_starts/ends array
+							array_push(warp_starts,[true,xx,yy]);
+							array_push(warp_ends,[true,dx,dy]);
+							copy_note = true;
+							}
 						}
 					}
+				if !copy_note ctrl_note = 0;
 				}
+				
+			// special handling for teleport exits
+			if ctrl_note == 9
+				{
+				var copy_note = false;
+				for (var i=0;i<array_length(global.warp_list);i++)
+					{
+					if cx+xx == global.warp_list[i][2]
+					&& cy+yy == global.warp_list[i][3]
+						{
+						// test if destination x/y will be in copy zone
+						var dx = global.warp_list[i][0]-cx;
+						var dy = global.warp_list[i][1]-cy;
+						if point_in_rectangle(dx,dy,0,0,w-1,h-1)
+							{
+							// add local x/y coords to warp_starts array
+							array_push(warp_starts,[true,dx,dy]);
+							array_push(warp_ends,[true,xx,yy]);
+							copy_note = true;
+							}
+						}
+					}
+				if !copy_note ctrl_note = 0;
+				}
+			
 			// block copying of flags
 			if ctrl_note == 34 ctrl_note = 0;
+			
+			// finally, set note
 			ds_grid_set(grid_ctrl,xx,yy,ctrl_note);
 			}
 		}
@@ -61,11 +96,7 @@ for (var yy = 0; yy < h; yy++)
     for (var xx = 0; xx < w; xx++)
 		{
 		var data_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
-		if data_note > 0 
-			{
-			ds_grid_set(grid_note,xx,yy,data_note);
-			ds_grid_set(global.pixel_grid,cx+xx,cy+yy,0);
-			}
+		if data_note > 0 ds_grid_set(grid_note,xx,yy,data_note);
 		
 		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
 		if ctrl_note > 0 
@@ -73,20 +104,58 @@ for (var yy = 0; yy < h; yy++)
 			trace("obj_mouse_stamp: ctrl_note {0} copied",ctrl_note);
 			if ctrl_note == 8
 				{
-				var dx = 0; var dy = 0;
 				for (var i=0;i<array_length(global.warp_list);i++)
 					{
 					if cx+xx == global.warp_list[i][0]
 					&& cy+yy == global.warp_list[i][1]
 						{
-						dx = global.warp_list[i][2];
-						dy = global.warp_list[i][3];
-						array_push(copy_warps,[xx,yy,dx,dy]);
-						global.warp_list[i] = [-1,-1,-1,-1];
-						trace("copy_warps updated: {0}",copy_warps);
+						// add local x/y coords to warp_starts array
+						array_push(warp_starts,[true,xx,yy]);
+						
+						// test if destination x/y will be in copy zone
+						var local = false;
+						var dx = global.warp_list[i][2];
+						var dy = global.warp_list[i][3];
+						if point_in_rectangle(dx-cx,dy-cy,0,0,w-1,h-1)
+							{
+							dx -= cx;
+							dy -= cy;
+							local = true;
+							}
+						array_push(warp_ends,[local,dx,dy]);
+						array_delete(global.warp_list,i,1);
+						trace("Updated warp list: {0}",global.warp_list);
 						}
 					}
 				}
+				
+			if ctrl_note == 9
+				{
+				for (var i=0;i<array_length(global.warp_list);i++)
+					{
+					if cx+xx == global.warp_list[i][2]
+					&& cy+yy == global.warp_list[i][3]
+						{
+						// add local x/y coords to warp_starts array
+						array_push(warp_ends,[true,xx,yy]);
+						
+						// test if destination x/y will be in copy zone
+						var local = false;
+						var dx = global.warp_list[i][0];
+						var dy = global.warp_list[i][1];
+						if point_in_rectangle(dx-cx,dy-cy,0,0,w-1,h-1)
+							{
+							dx -= cx;
+							dy -= cy;
+							local = true;
+							}
+						array_push(warp_starts,[local,dx,dy]);
+						array_delete(global.warp_list,i,1);
+						trace("Updated warp list: {0}",global.warp_list);
+						}
+					}
+				}
+				
 			if ctrl_note == 34
 				{
 				for (var i=0;i<4;i++)
@@ -103,23 +172,82 @@ for (var yy = 0; yy < h; yy++)
 					}
 				}
 			ds_grid_set(grid_ctrl,xx,yy,ctrl_note);
-			ds_grid_set(global.ctrl_grid,cx+xx,cy+yy,0);
 			}
 		}
 	}
-
+ds_grid_set_region(global.ctrl_grid,cx,cy,cx+w,cy+h,0);
+ds_grid_set_region(global.pixel_grid,cx,cy,cx+w,cy+h,0);
 width = w;
 height = h;
 loaded = true;
 copy_x = -1;
 copy_y = -1;
 update_surf(width,height);
-for (var yy = 0; yy < h; yy++)
-    {
-    for (var xx = 0; xx < w; xx++)
+(parent.field).update_surf_zone(cx,cy,w,h);
+}
+
+paste = function(xx,yy){
+var sx = xx - max(copy_w,0);// - floor(width / 2);
+var sy = yy - max(copy_h,0);// - floor(height / 2);
+for (var dx = 0; dx < width; dx++)
+	{
+	for (var dy = 0; dy < height; dy++)
 		{
-		(parent.field).update_surf_partial(cx+xx,cy+yy);
+		// Paint blocks
+		var data = ds_grid_get(grid_note,dx,dy);
+		if data > 0 || !clear_back ds_grid_set(global.pixel_grid,sx+dx,sy+dy,data);
+			
+		// Control blocks
+		var data2 = ds_grid_get(grid_ctrl,dx,dy);
+		if data2 > 0 || !clear_back
+			{
+			// flags
+			if data2 == 34
+				{
+				var nd = -1;
+				for (var i=0;i<4;i++)
+					{
+					if dx == copy_flags[i][0] 
+					&& dy == copy_flags[i][1]
+						{
+						copy_flags[i][0] = sx+dx;
+						copy_flags[i][1] = sy+dy;
+						nd = i;
+						}
+					}
+				if nd > -1
+					{
+					global.flag_list[nd] = copy_flags[nd];
+					trace("{0} added to global.flag_list",copy_flags[nd]);
+					}
+				}
+							
+			// finally, add to grid
+			ds_grid_set(global.ctrl_grid,sx+dx,sy+dy,data2);
+			}
+		(parent.field).update_surf_partial(sx+dx,sy+dy);
 		}
+	}
+			
+// Teleporter blocks
+for (var i=0;i<array_length(warp_starts);i++)
+	{
+	var data3 = [];
+	data3[0] = warp_starts[i][1] + (warp_starts[i][0] ? sx : 0);
+	data3[1] = warp_starts[i][2] + (warp_starts[i][0] ? sy : 0);
+	data3[2] = warp_ends[i][1] + (warp_ends[i][0] ? sx : 0);
+	data3[3] = warp_ends[i][2] + (warp_ends[i][0] ? sy : 0);
+	//ds_grid_set(global.ctrl_grid,data3[0],data3[1],8);
+	//ds_grid_set(global.ctrl_grid,data3[2],data3[3],9);
+	array_push(global.warp_list,data3);
+	trace("{0} added to global.warp_list",data3);
+	trace("Updated warp list: {0}",global.warp_list);
+	}
+			
+if move_mode
+	{
+	loaded = false;
+	unload_stamp();
 	}
 }
 
@@ -229,6 +357,12 @@ trace("Buffer position: {0}, Size: {1}",blankspace,size);
 buffer_delete(bu);
 
 copy_mode = true;
+move_mode = false;
+loaded = true;
+copy_x = floor(x/16);
+copy_y = floor(y/16);
+copy_w = width;
+copy_h = height;
 update_surf(width,height);
 }
 
@@ -243,6 +377,8 @@ copy_x = -1;
 copy_y = -1;
 copy_w = 0;
 copy_h = 0;
+warp_starts = [];
+warp_ends = [];
 copy_warps = [];
 copy_flags = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 }

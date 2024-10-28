@@ -102,13 +102,16 @@ else
 surface_reset_target();
 }
 
-/*update_surf_zone = function(xx,yy,w,h){
-for (var ny = yy - h; ny < yy + h; yy++)
-for (var nx = xx - w; nx < xx + w; nx++)
+// TODO: probably more efficient way to do this
+update_surf_zone = function(xx,yy,w,h){
+for (var ny=0; ny<h; ny++)
 	{
-	update_surf_partial(nx,ny);
+	for (var nx=0; nx<w; nx++)
+		{
+		update_surf_partial(xx+nx,yy+ny);
+		}
 	}
-}*/
+}
 
 draw_flags = function(){
 // Draw flags on top

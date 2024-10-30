@@ -1,12 +1,12 @@
 {
   "$GMRoom":"v1",
-  "%Name":"rm_garden",
-  "creationCodeFile":"rooms/rm_garden/RoomCreationCode.gml",
+  "%Name":"rm_playfield",
+  "creationCodeFile":"rooms/rm_playfield/RoomCreationCode.gml",
   "inheritCode":false,
   "inheritCreationOrder":false,
   "inheritLayers":false,
   "instanceCreationOrder":[
-    {"name":"inst_4C470077","path":"rooms/rm_garden/rm_garden.yy",},
+    {"name":"inst_4C470077","path":"rooms/rm_playfield/rm_playfield.yy",},
   ],
   "isDnd":false,
   "layers":[
@@ -15,7 +15,7 @@
       ],"layers":[],"name":"lay_obj","properties":[],"resourceType":"GMRInstanceLayer","resourceVersion":"2.0","userdefinedDepth":false,"visible":true,},
     {"$GMRBackgroundLayer":"","%Name":"lay_bkg","animationFPS":1.0,"animationSpeedType":1,"colour":4278190080,"depth":2147483600,"effectEnabled":true,"effectType":null,"gridX":32,"gridY":32,"hierarchyFrozen":false,"hspeed":0.0,"htiled":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"inheritSubLayers":true,"inheritVisibility":true,"layers":[],"name":"lay_bkg","properties":[],"resourceType":"GMRBackgroundLayer","resourceVersion":"2.0","spriteId":null,"stretch":false,"userdefinedAnimFPS":false,"userdefinedDepth":true,"visible":true,"vspeed":0.0,"vtiled":false,"x":0,"y":0,},
   ],
-  "name":"rm_garden",
+  "name":"rm_playfield",
   "parent":{
     "name":"Rooms",
     "path":"folders/Rooms.yy",

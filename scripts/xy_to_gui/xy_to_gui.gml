@@ -1,7 +1,7 @@
-///@desc Converts given x/y coordinates to Draw GUI-friendly x/y struct
+///@desc Converts given x/y coordinates to Draw GUI-friendly 'gx,gy' struct 
 ///@param {Real} xx x co-ordinate
 ///@param {Real} yy y co-ordinate
-///@returns {Struct}
+///@returns {Struct} gx,gy
 function xy_to_gui(xx,yy){
 /*
 credit to IndianaBones from GMC

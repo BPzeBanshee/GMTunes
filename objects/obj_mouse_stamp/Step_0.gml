@@ -2,48 +2,59 @@ if y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
 var xx = floor(x/16);
 var yy = floor(y/16);
 
+/*
+TODO: fucked something up here so it's not copying field data properly in some cases
+*/
+
+if mouse_check_button_pressed(mb_left)
+	{
+	if !loaded
+		{
+		// set start coord for copy/cut zone
+		if copy_x == -1 || copy_y == -1
+			{
+			copy_x = xx;
+			copy_y = yy;
+			}
+		}
+	}
+
 // Apply Stamp
 if mouse_check_button(mb_left)
 	{
 	if loaded
 		{
-		if point_in_rectangle(xx,yy,0,0,160,104) && (xx != px || yy != py)
+		// paste from copy/cut zone
+		if point_in_rectangle(xx,yy,0,0,160,104) 
+		&& (xx != px || yy != py)
 			{
 			paste(xx,yy);
 			px = xx;
 			py = yy;
 			}
 		}
-	else
+	else if (copy_x > -1 && copy_y > -1)
 		{
-		if copy_x == -1 || copy_y == -1
-			{
-			copy_x = xx;
-			copy_y = yy;
-			}
-		else
-			{
-			copy_w = xx - copy_x;
-			copy_h = yy - copy_y;
-			}
+		copy_w = floor(xx - copy_x);
+		copy_h = floor(yy - copy_y);
 		}
 	}
 	
 if mouse_check_button_released(mb_left)
 	{
-	if copy_x > -1 && copy_y > -1
+	if !loaded && copy_x > -1 && copy_y > -1
 		{
-		trace("copy x/y: {0},{1} copy_w/h: {2},{3}",copy_x,copy_y,copy_w,copy_h);
-		if copy_w != 0 && copy_h != 0 && !loaded
+		if copy_w != 0 && copy_h != 0
 			{
-			if copy_mode copy(copy_x,copy_y,copy_w,copy_h);
-			if move_mode cut(copy_x,copy_y,copy_w,copy_h);
+			trace("left button release copy x/y: {0},{1} copy_w/h: {2},{3}",copy_x,copy_y,copy_w,copy_h);
+			if move_mode 
+			cut(copy_x,copy_y,copy_w,copy_h)
+			else copy(copy_x,copy_y,copy_w,copy_h);
 			}
-		else
-			{
-			copy_x = -1;
-			copy_y = -1;
-			}
+		copy_x = -1;
+		copy_y = -1;
+		px = -1;
+		py = -1;
 		}
 	}
 	
@@ -69,14 +80,6 @@ if loaded
 	{
 	if keyboard_check_pressed(ord("Q")) rotate_left();
 	if keyboard_check_pressed(ord("E")) rotate_right();
-
-	// Scale stamp
-	switch global.zoom
-		{
-		case 0: scale = 4; break;
-		case 1: scale = 8; break;
-		case 2: scale = 16; break;
-		}
-	/*if mouse_wheel_up() scale_up();
-	if mouse_wheel_down() scale_down();*/
+	if mouse_wheel_up() scale_up();
+	if mouse_wheel_down() scale_down();
 	}

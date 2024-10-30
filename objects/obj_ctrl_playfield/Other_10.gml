@@ -181,3 +181,8 @@ if hard
 	}
 else field.update_surf();
 }
+
+flash = function(value){
+draw_flash = value;
+alarm[1] = 2;
+}

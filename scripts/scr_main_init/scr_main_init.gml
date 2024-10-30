@@ -8,26 +8,23 @@ function scr_main_init(){
 
 // Function calls
 surface_depth_disable(true);
-audio_master_gain(0.5);
 window_set_caption("GMTunes");
 pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
-global.use_external_assets = true;
-//if os_type == os_operagx global.use_external_assets = false;
 
+scr_config_load();
+audio_master_gain(round(global.music_volume)/100);
+instance_create_depth(x,y,-9999,obj_debug);
 
 // Controller objects and globalvars
 global.playfield = -1;
-global.debug = true;
-global.zoom = 0;
 global.pixel_grid = -1;
 global.ctrl_grid = -1;
-instance_create_depth(x,y,-9999,obj_debug);
+global.zoom = 0;
 
 // Establishing program directory etc
 if GM_build_type == "run"
 global.main_dir = working_directory+"/"
 else global.main_dir = program_directory+"/";
-
 if os_type == os_windows
 	{
 	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
@@ -83,6 +80,15 @@ else
 	}
 }
 
+function scr_config_load(){
+ini_open("GMTunes.ini");
+global.debug = ini_read_real("GMTunes","debug",true);
+global.use_external_assets = ini_read_real("GMTunes","use_external_assets",true);
+global.music_volume = ini_read_real("GMTunes","music_volume",50);
+//if os_type == os_operagx global.use_external_assets = false;
+ini_close();
+}
+
 function scr_font_init(){
 // TODO: work out the debug/small text fonts SimTunes uses
 global.fnt_default = fnt_internal_default;
@@ -112,6 +118,7 @@ if global.use_external_assets
 }
 
 function scr_snd_init(){
+if !global.use_external_assets exit;
 global.snd_ui = {};
 for (var i=0;i<25;i++)
 	{
@@ -122,6 +129,8 @@ for (var i=0;i<25;i++)
 }
 
 function scr_spr_init(){
+if !global.use_external_assets exit;
+
 // NOTE: sprite_add_from_surface not used due to performance bug
 global.spr_ui = {};
 global.spr_note2[0][0] = -1;
@@ -175,6 +184,7 @@ if surface_exists(ui_bug)
 		global.spr_ui.bug[i][0] = sprite_create_from_surface(ui_bug,50*i,0,50,34,false,false,0,0);
 		global.spr_ui.bug[i][1] = sprite_create_from_surface(ui_bug,50*i,34,50,34,false,false,0,0);
 		}
+	surface_free(ui_bug);
 	}
 else
 	{
@@ -200,6 +210,7 @@ if surface_exists(ui_slider)
 		{
 		global.spr_ui.slider[i] = sprite_create_from_surface(ui_slider,0,6*i,23,5,false,false,12,2);
 		}
+	surface_free(ui_slider);
 	}
 else
 	{
@@ -212,6 +223,7 @@ else
 		surface_reset_target();
 		global.spr_ui.slider[i] = sprite_create_from_surface(ui_slider,0,0,23,5,false,false,12,2);
 		}
+	surface_free(ui_slider);
 	}
 	
 // UI 'Highlights'
@@ -227,8 +239,22 @@ if surface_exists(temp3)
 		
 	global.spr_ui.chooser[0] = sprite_create_from_surface(temp3,90,160,20,20,false,false,0,0);
 	global.spr_ui.chooser[1] = sprite_create_from_surface(temp3,90,180,20,20,false,false,0,0);
+	
+	global.spr_ui.onclick_top = sprite_create_from_surface(temp3,0,0,90,36,true,false,0,0);
+	global.spr_ui.onclick_bottom = sprite_create_from_surface(temp3,0,37,90,28,true,false,0,0);
+	global.spr_ui.onclick_flagrestart = sprite_create_from_surface(temp3,0,64,73,28,true,false,0,0);
+	global.spr_ui.onclick_stopgo = sprite_create_from_surface(temp3,0,92,72,34,true,false,0,0);
+	global.spr_ui.onclick_okcancel = sprite_create_from_surface(temp3,0,126,116,34,true,false,0,0);
+	global.spr_ui.onclick_slider_left = sprite_create_from_surface(temp3,74,68,28,28,true,false,0,0);
+	global.spr_ui.onclick_slider_right = sprite_create_from_surface(temp3,74,96,28,28,true,false,0,0);
+	
+	global.spr_ui.stamp_clearback[0] = sprite_create_from_surface(temp3,94,245,29,25,false,false,0,0);
+	global.spr_ui.stamp_clearback[1] = sprite_create_from_surface(temp3,94,270,29,25,false,false,0,0);
+	global.spr_ui.stamp_tilemode[0] = sprite_create_from_surface(temp3,94,295,29,25,false,false,0,0);
+	global.spr_ui.stamp_tilemode[1] = sprite_create_from_surface(temp3,94,320,29,25,false,false,0,0);
+	
+	surface_free(temp3);
 	}
-surface_free(temp3);
 
 // Mouse cursors
 global.spr_ui.cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,,0,0);

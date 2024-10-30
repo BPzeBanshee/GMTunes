@@ -56,7 +56,7 @@ if use_classic_gui
 			var note_y = by;
 			for (var i=1;i<=25;i++)
 				{
-				var xx = note_x + (16*i);
+				var xx = note_x + (16*(i-1));
 				if point_in_rectangle(mx,my,xx,note_y,xx+16,note_y+16) && mb
 					{
 					if !instance_exists(obj_mouse_colour)
@@ -87,7 +87,7 @@ if use_classic_gui
 			for (var i=1;i<=14;i++)
 				{
 				if i == 9 then i++; // skip teleport destination note
-				var xx = bx+(16*i);
+				var xx = note_x + (16*(i-1));
 				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
 					{
 					if !instance_exists(obj_mouse_ctrl)
@@ -115,8 +115,9 @@ if use_classic_gui
 						instance_destroy(m);
 						mouse_create(obj_mouse_stamp); 
 						}
-					m.copy_mode = true;
 					m.move_mode = false;
+					m.clear_back = clear_back;
+					flash(1);
 					}
 				}
 		
@@ -131,8 +132,9 @@ if use_classic_gui
 						instance_destroy(m);
 						mouse_create(obj_mouse_stamp); 
 						}
-					m.copy_mode = false;
 					m.move_mode = true;
+					m.clear_back = clear_back;
+					flash(2);
 					}
 				}
 	
@@ -149,6 +151,97 @@ if use_classic_gui
 						}
 					var f = get_open_filename("*.STP","");
 					if f != "" then m.load_stamp_from_file(f);
+					flash(3);
+					}
+				}
+				
+			var save_stamp_x = 176;
+			var save_stamp_y = by+38;
+			if point_in_rectangle(mx,my,save_stamp_x,save_stamp_y,save_stamp_x+89,save_stamp_y+26)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp)
+					if m.loaded
+						{
+						var f = get_save_filename("*.STP","");
+						if f != "" then m.save_stamp_to_file(f);
+						}
+					flash(4);
+					}
+				}
+				
+			var rotate_right_x = 278;
+			var rotate_right_y = by+39;
+			if point_in_rectangle(mx,my,rotate_right_x,rotate_right_y,rotate_right_x+29,rotate_right_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.rotate_right();
+					}
+				}
+				
+			var rotate_left_x = 309;
+			var rotate_left_y = by+39;
+			if point_in_rectangle(mx,my,rotate_left_x,rotate_left_y,rotate_left_x+29,rotate_left_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.rotate_left();
+					}
+				}
+				
+			var flip_h_x = 346;
+			var flip_h_y = by+39;
+			if point_in_rectangle(mx,my,flip_h_x,flip_h_y,flip_h_x+29,flip_h_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.flip_horizontal();
+					}
+				}
+				
+			var flip_v_x = 377;
+			var flip_v_y = by+39;
+			if point_in_rectangle(mx,my,flip_v_x,flip_v_y,flip_v_x+29,flip_v_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.flip_vertical();
+					}
+				}
+				
+			var scale_up_x = 414;
+			var scale_up_y = by+39;
+			if point_in_rectangle(mx,my,scale_up_x,scale_up_y,scale_up_x+29,scale_up_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.scale_up();
+					}
+				}
+				
+			var scale_down_x = 445;
+			var scale_down_y = by+39;
+			if point_in_rectangle(mx,my,scale_down_x,scale_down_y,scale_down_x+29,scale_down_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.scale_down();
+					}
+				}
+				
+			var toggle_clear_x = 482;
+			var toggle_clear_y = by+39;
+			if point_in_rectangle(mx,my,toggle_clear_x,toggle_clear_y,toggle_clear_x+29,toggle_clear_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) 
+						{
+						clear_back = !clear_back;
+						m.toggle_clear();
+						}
 					}
 				}
 			break;
@@ -161,7 +254,11 @@ if use_classic_gui
 			var choose_y = by+1;
 			if point_in_rectangle(mx,my,choose_x,choose_y,choose_x+90,choose_y+34)
 				{
-				if mb menu_bugz();
+				if mb 
+					{
+					menu_bugz(); 
+					flash(1);
+					}
 				}
 				
 			var bug = [bug_yellow,bug_green,bug_blue,bug_red];
@@ -171,7 +268,11 @@ if use_classic_gui
 			var stop_y = by+1;
 			if point_in_rectangle(mx,my,stop_x,stop_y,stop_x+72,stop_y+34)
 				{
-				if mb for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = true;
+				if mb 
+					{
+					for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = true;
+					flash(2);
+					}
 				}
 				
 			// Bug Buttons
@@ -195,7 +296,89 @@ if use_classic_gui
 			var go_y = by+1;
 			if point_in_rectangle(mx,my,go_x,go_y,go_x+72,go_y+34)
 				{
-				if mb for (var i=0;i<4;i++) if instance_exists(bug[i]) bug[i].paused = false;
+				if mb 
+					{
+					for (var i=0;i<4;i++) if instance_exists(bug[i]) bug[i].paused = false;
+					flash(3);
+					}
+				}
+				
+			// Volume down
+			var vol_down_x = 84;
+			var vol_down_y = by+38;
+			if point_in_rectangle(mx,my,vol_down_x,vol_down_y,vol_down_x+26,vol_down_y+26)
+				{
+				if mb 
+					{
+					for (var i=0;i<4;i++)
+						{
+						if instance_exists(bug[i])
+							{
+							bug[i].volume -= 16;
+							if bug[i].volume < 0 bug[i].volume = 0;
+							}
+						}
+					flash(4);
+					}
+				}
+				
+			// Volume up
+			var vol_up_x = 208;
+			var vol_up_y = by+38;
+			if point_in_rectangle(mx,my,vol_up_x,vol_up_y,vol_up_x+26,vol_up_y+26)
+				{
+				if mb 
+					{
+					for (var i=0;i<4;i++)
+						{
+						if instance_exists(bug[i])
+							{
+							bug[i].volume += 16;
+							if bug[i].volume > 128 bug[i].volume = 128;
+							}
+						}
+					flash(5);
+					}
+				}
+			
+			// Speed/Gear down
+			var spd_down_x = 242;
+			var spd_down_y = by+38;
+			if point_in_rectangle(mx,my,spd_down_x,spd_down_y,spd_down_x+26,spd_down_y+26)
+				{
+				if mb 
+					{
+					for (var i=0;i<4;i++)
+						{
+						if instance_exists(bug[i])
+							{
+							bug[i].gear -= 1;
+							if bug[i].gear < 0 bug[i].gear = 0;
+							bug[i].calculate_timer();
+							}
+						}
+					flash(6);
+					}
+				}
+				
+			// Gear/speed up
+			var spd_up_x = 366;
+			var spd_up_y = by+38;
+			if point_in_rectangle(mx,my,spd_up_x,spd_up_y,spd_up_x+26,spd_up_y+26)
+				{
+				if mb 
+					{
+					for (var i=0;i<4;i++)
+						{
+						if instance_exists(bug[i])
+							{
+							bug[i].gear += 1;
+							if bug[i].gear > 8 bug[i].gear = 8;
+							bug[i].calculate_timer();
+							}
+						}
+					flash(7);
+					}
 				}
 				
 			// RESTART
@@ -207,7 +390,11 @@ if use_classic_gui
 				{
 				if point_in_rectangle(mx,my,restart_x,restart_y,restart_x+75,restart_y+26)
 					{
-					if mb rally_bugz_to_flags();
+					if mb 
+						{
+						rally_bugz_to_flags();
+						flash(8);
+						}
 					}
 				}
 				
@@ -225,86 +412,12 @@ if use_classic_gui
 						}
 					}
 				}
-			
-			// Volume down
-			var vol_down_x = 84;
-			var vol_down_y = by+38;
-			if point_in_rectangle(mx,my,vol_down_x,vol_down_y,vol_down_x+26,vol_down_y+26)
-				{
-				if mb for (var i=0;i<4;i++)
-					{
-					if instance_exists(bug[i])
-						{
-						bug[i].volume -= 16;
-						if bug[i].volume < 0 bug[i].volume = 0;
-						}
-					}
-				}
-				
-			// Volume up
-			var vol_up_x = 208;
-			var vol_up_y = by+38;
-			if point_in_rectangle(mx,my,vol_up_x,vol_up_y,vol_up_x+26,vol_up_y+26)
-				{
-				if mb for (var i=0;i<4;i++)
-					{
-					if instance_exists(bug[i])
-						{
-						bug[i].volume += 16;
-						if bug[i].volume > 128 bug[i].volume = 128;
-						}
-					}
-				}
-			
-			// Speed/Gear down
-			var spd_down_x = 242;
-			var spd_down_y = by+38;
-			if point_in_rectangle(mx,my,spd_down_x,spd_down_y,spd_down_x+26,spd_down_y+26)
-				{
-				if mb for (var i=0;i<4;i++)
-					{
-					if instance_exists(bug[i])
-						{
-						bug[i].gear -= 1;
-						if bug[i].gear < 0 bug[i].gear = 0;
-						bug[i].calculate_timer();
-						}
-					}
-				}
-				
-			// Gear/speed up
-			var spd_up_x = 366;
-			var spd_up_y = by+38;
-			if point_in_rectangle(mx,my,spd_up_x,spd_up_y,spd_up_x+26,spd_up_y+26)
-				{
-				if mb for (var i=0;i<4;i++)
-					{
-					if instance_exists(bug[i])
-						{
-						bug[i].gear += 1;
-						if bug[i].gear > 8 bug[i].gear = 8;
-						bug[i].calculate_timer();
-						}
-					}
-				}
 			break;
 			}
 			
 		// MENU
 		case 4: 
 			{
-			var backdrop_x = 89;
-			var backdrop_y = by+38;
-			if point_in_rectangle(mx,my,backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26)
-				{
-				if mb //load_bkg();
-					{
-					callmethod = load_bkg;
-					loading_prompt = true;
-					alarm[0] = 2;
-					}
-				}
-	
 			//+90,+34
 			var gal_x = 66;
 			var gal_y = by+1;
@@ -315,9 +428,10 @@ if use_classic_gui
 					callmethod = load_gal;
 					loading_prompt = true;
 					alarm[0] = 2;
+					flash(1);
 					}
 				}
-	
+			
 			//+90,+34
 			var load_x = 247;
 			var load_y = by+1;
@@ -325,6 +439,7 @@ if use_classic_gui
 				{
 				if mb//load_tun();
 					{
+					flash(3);
 					callmethod = load_tun;
 					loading_prompt = true;
 					alarm[0] = 2;
@@ -337,6 +452,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					flash(4);
 					callmethod = save_tun;
 					loading_prompt = true;
 					alarm[0] = 2;
@@ -347,7 +463,24 @@ if use_classic_gui
 			var quit_y = by+1;
 			if point_in_rectangle(mx,my,quit_x,quit_y,quit_x+90,quit_y+34)
 				{
-				if mb back_to_main();
+				if mb 
+					{
+					flash(5);
+					back_to_main();
+					}
+				}
+				
+			var backdrop_x = 89;
+			var backdrop_y = by+38;
+			if point_in_rectangle(mx,my,backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26)
+				{
+				if mb //load_bkg();
+					{
+					callmethod = load_bkg;
+					loading_prompt = true;
+					alarm[0] = 2;
+					flash(6);
+					}
 				}
 			break;
 			}

@@ -6,15 +6,20 @@ copy = function(cx,cy,w,h){
 // convert to abs
 if w < 0 {cx += w; w = abs(w);}
 if h < 0 {cy += h; h = abs(h);}
-trace("load_stamp(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
-grid_note = ds_grid_create(w,h);
-grid_ctrl = ds_grid_create(w,h);
+trace("copy(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
+ds_grid_resize(grid_note,w,h);
+ds_grid_resize(grid_ctrl,w,h);
+ds_grid_clear(grid_note,0);
+ds_grid_clear(grid_ctrl,0);
+
+ds_grid_set_grid_region(grid_note,global.pixel_grid,cx,cy,cx+w,cy+h,0,0);
+
 for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
-		var play_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
-		if play_note > 0 ds_grid_set(grid_note,xx,yy,play_note);
+		//var play_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
+		//if play_note > 0 ds_grid_set(grid_note,xx,yy,play_note);
 		
 		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
 		if ctrl_note > 0 
@@ -79,24 +84,25 @@ for (var yy = 0; yy < h; yy++)
 width = w;
 height = h;
 loaded = true;
-copy_x = -1;
-copy_y = -1;
 update_surf(width,height);
 }
 
 cut = function(cx,cy,w,h){
 // convert to abs
-if w < 0 {cx += w; w = abs(w);}
-if h < 0 {cy += h; h = abs(h);}
-trace("load_stamp(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
-grid_note = ds_grid_create(w,h);
-grid_ctrl = ds_grid_create(w,h);
+if w < 0 {w = abs(w); cx -= w;}
+if h < 0 {h = abs(h); cy -= h;}
+trace("cut(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
+ds_grid_resize(grid_note,w,h);
+ds_grid_resize(grid_ctrl,w,h);
+ds_grid_clear(grid_note,0);
+ds_grid_clear(grid_ctrl,0);
+ds_grid_set_grid_region(grid_note,global.pixel_grid,cx,cy,cx+w,cy+h,0,0);
 for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
-		var data_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
-		if data_note > 0 ds_grid_set(grid_note,xx,yy,data_note);
+		//var data_note = ds_grid_get(global.pixel_grid,cx+xx,cy+yy);
+		//if data_note > 0 ds_grid_set(grid_note,xx,yy,data_note);
 		
 		var ctrl_note = ds_grid_get(global.ctrl_grid,cx+xx,cy+yy);
 		if ctrl_note > 0 
@@ -175,20 +181,27 @@ for (var yy = 0; yy < h; yy++)
 			}
 		}
 	}
-ds_grid_set_region(global.ctrl_grid,cx,cy,cx+w,cy+h,0);
-ds_grid_set_region(global.pixel_grid,cx,cy,cx+w,cy+h,0);
+ds_grid_set_region(global.ctrl_grid,cx,cy,(cx+w)-1,(cy+h)-1,0);
+ds_grid_set_region(global.pixel_grid,cx,cy,(cx+w)-1,(cy+h)-1,0);
 width = w;
 height = h;
 loaded = true;
-copy_x = -1;
-copy_y = -1;
+// Scale stamp
+switch global.zoom
+	{
+	case 0: scale = 4; break;
+	case 1: scale = 8; break;
+	case 2: scale = 16; break;
+	}
 update_surf(width,height);
 (parent.field).update_surf_zone(cx,cy,w,h);
 }
 
 paste = function(xx,yy){
-var sx = xx - max(copy_w,0);// - floor(width / 2);
-var sy = yy - max(copy_h,0);// - floor(height / 2);
+var sx = xx - max(copy_w,0);
+var sy = yy - max(copy_h,0);
+
+//ds_grid_set_grid_region(global.pixel_grid,grid_note,0,0,width,height,sx,sy);
 for (var dx = 0; dx < width; dx++)
 	{
 	for (var dy = 0; dy < height; dy++)
@@ -221,13 +234,19 @@ for (var dx = 0; dx < width; dx++)
 					trace("{0} added to global.flag_list",copy_flags[nd]);
 					}
 				}
+				
+			// likely unfinished feature of SimTunes stamp file:
+			// YGRB flags saved as 252/253/254/255 (-4,-3,-2,-1) but NO direction data
+			// and while SimTunes shows control note in preview, does not paste any data
+			if data2 > 251 data2 = 0;
 							
 			// finally, add to grid
 			ds_grid_set(global.ctrl_grid,sx+dx,sy+dy,data2);
 			}
-		(parent.field).update_surf_partial(sx+dx,sy+dy);
+		//(parent.field).update_surf_partial(sx+dx,sy+dy);
 		}
 	}
+(parent.field).update_surf_zone(sx,sy,dx,dy);
 			
 // Teleporter blocks
 for (var i=0;i<array_length(warp_starts);i++)
@@ -244,21 +263,13 @@ for (var i=0;i<array_length(warp_starts);i++)
 	trace("Updated warp list: {0}",global.warp_list);
 	}
 			
-if move_mode
-	{
-	loaded = false;
-	unload_stamp();
-	}
+if move_mode unload_stamp();
 }
 
 load_stamp_from_file = function(file){
-///@desc .STP "STP2" Format
-
-if file == "" or !file_exists(file)
-	{
-	alarm[0] = 1; // kludge to avoid crash from obj_ctrl_playfield var management
-	return -1;
-	}
+// .STP "STP2" Format
+// File check
+if file == "" or !file_exists(file) return -1;
 
 // Load file into buffer, do some error checking
 var bu = buffer_create(256,buffer_grow,1);
@@ -338,25 +349,28 @@ for (var yy = 0; yy < height; yy++)
     }
 	
 // Load control data
+// (Flags in Stamps not supported by SimTunes)
 for (var yy = 0; yy < height; yy++)
     {
     for (var xx = 0; xx < width; xx++)
         {
 		var data = buffer_read(bu,buffer_u8);
-		if data > 0 ds_grid_add(grid_ctrl,xx,yy,data);
+		if data > 0 
+			{
+			if data == 8 array_push(warp_starts,[true,xx,yy]);
+			if data == 9 array_push(warp_ends,[true,xx,yy]);
+			ds_grid_add(grid_ctrl,xx,yy,data);
+			}
         }
     }
-//trace(string("time: {0}",get_timer() - t));
 
-// For reasons currently unclear, the stamp always take half of the remaining space after the string data
-// the other half is always empty and is exactly half - the form identifier bits (so -4).
-var blankspace = buffer_tell(bu);
-trace("Buffer position: {0}, Size: {1}",blankspace,size);
+// bonus 4 bytes of nothing at the end
+//var blankspace = buffer_tell(bu);
+//trace("Buffer position: {0}, Size: {1}",blankspace,size);
 	
 // Now that we're done, free buffer
 buffer_delete(bu);
 
-copy_mode = true;
 move_mode = false;
 loaded = true;
 copy_x = floor(x/16);
@@ -366,39 +380,111 @@ copy_h = height;
 update_surf(width,height);
 }
 
+save_stamp_to_file = function(file){
+// Feather disable GM1017
+if string_length(file)==0 return -1;
+var name = get_string("Stamp name: ","");
+var auth = get_string("Author name: ","");
+var desc = get_string("Description: ","");
+var w = width;
+var h = height;
+
+var buf_data = buffer_create(64,buffer_grow,1);
+
+// write fourcc
+buffer_write(buf_data,buffer_text,"STP2");
+
+// write height, then width
+buffer_write(buf_data,buffer_u32,h);
+buffer_write(buf_data,buffer_u32,w);
+
+// metadata
+buffer_write(buf_data,buffer_u8,string_byte_length(name));
+buffer_write(buf_data,buffer_text,name);
+buffer_write(buf_data,buffer_u8,string_byte_length(auth));
+buffer_write(buf_data,buffer_text,auth);
+buffer_write(buf_data,buffer_u8,string_byte_length(desc));
+buffer_write(buf_data,buffer_text,desc);
+
+// Save pixel data
+for (var yy = 0; yy < h; yy++)
+    {
+    for (var xx = 0; xx < w; xx++)
+        {
+		var data = ds_grid_get(grid_note,xx,yy);
+		buffer_write(buf_data,buffer_u8,data);
+        }
+    }
+	
+// Save control data
+for (var yy = 0; yy < h; yy++)
+    {
+    for (var xx = 0; xx < w; xx++)
+        {
+		var data = ds_grid_get(grid_ctrl,xx,yy);
+		
+		// (Flags in Stamps not supported by SimTunes, 
+		// but we're gonna match behaviour anyway)
+		if data == 34
+			{
+			for (var i=0;i<4;i++)
+				{
+				if copy_flags[i][0] == xx
+				&& copy_flags[i][1] == yy
+				data = 252+i;
+				}
+			}
+			
+		buffer_write(buf_data,buffer_u8,data);
+        }
+    }
+	
+// bonus 4 bytes of nothing at the end
+buffer_write(buf_data,buffer_u32,0);
+
+// finally, save to file, then cleanup
+buffer_save(buf_data,file);
+buffer_delete(buf_data);
+return 0;
+}
+
 unload_stamp = function(){
-if ds_exists(grid_note,ds_type_grid) then ds_grid_destroy(grid_note);
-if ds_exists(grid_ctrl,ds_type_grid) then ds_grid_destroy(grid_ctrl);
+ds_grid_resize(grid_note,0,0);
+ds_grid_resize(grid_ctrl,0,0);
+ds_grid_clear(grid_note,0);
+ds_grid_clear(grid_ctrl,0);
 if surface_exists(surf) then surface_free(surf);
 loaded = false;
 width = -1;
 height = -1;
 copy_x = -1;
 copy_y = -1;
+px = -1;
+py = -1;
 copy_w = 0;
 copy_h = 0;
 warp_starts = [];
 warp_ends = [];
-copy_warps = [];
 copy_flags = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 }
 
 update_surf = function(ww=width,hh=height){
+if (ww == 0 or hh == 0) return 0;
 // update surface
 if !surface_exists(surf) surf = surface_create(ww,hh);
 surface_set_target(surf);
 draw_clear_alpha(c_black,clear_back ? 0 : 1);
 
 // Draw 'stamp'
-//var t = get_timer();
 for (var yy = 0; yy < hh; yy++)
     {
     for (var xx = 0; xx < ww; xx++)
         {
-		var data = ds_grid_get(grid_note,xx,yy);
-		if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
+		// draw ctrl note grey first, but override with colors if present
 		var data2 = ds_grid_get(grid_ctrl,xx,yy);
 		if data2 > 0 draw_point_color(xx,yy,c_grey);// draw_sprite(spr_note_ctrl,data2-1,xx,yy);
+		var data = ds_grid_get(grid_note,xx,yy);
+		if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
         }
     }
 surface_reset_target();
@@ -407,21 +493,29 @@ surface_reset_target();
 rotate_left = function(){
 var ww = width;
 var hh = height;
-var grid2 = ds_grid_create(hh,ww);
+var grid_note_new = ds_grid_create(hh,ww);
+var grid_ctrl_new = ds_grid_create(hh,ww);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
 		var data = ds_grid_get(grid_note,xx,yy);
-		if data > 0 ds_grid_set(grid2,yy,width-xx,data);
+		ds_grid_set(grid_note_new,yy,(width-1)-xx,data);
+		
+		var data2 = ds_grid_get(grid_ctrl,xx,yy);
+		ds_grid_set(grid_ctrl_new,yy,(width-1)-xx,data2);
 		}
 	}
 	
-ds_grid_copy(grid_note,grid2);
+ds_grid_copy(grid_note,grid_note_new);
+ds_grid_copy(grid_ctrl,grid_ctrl_new);
 width = ds_grid_width(grid_note);
 height = ds_grid_height(grid_note);
-ds_grid_destroy(grid2);
+copy_w = width;
+copy_h = height;
+ds_grid_destroy(grid_note_new);
+ds_grid_destroy(grid_ctrl_new);
 
 // update surface
 surface_resize(surf,hh,ww);
@@ -431,21 +525,29 @@ update_surf(hh,ww);
 rotate_right = function(){
 var ww = width;
 var hh = height;
-var grid2 = ds_grid_create(hh,ww);
+var grid_note_new = ds_grid_create(hh,ww);
+var grid_ctrl_new = ds_grid_create(hh,ww);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
 		var data = ds_grid_get(grid_note,xx,yy);
-		if data > 0 ds_grid_set(grid2,height-yy,xx,data);
+		ds_grid_set(grid_note_new,(height-1)-yy,xx,data);
+		
+		var data2 = ds_grid_get(grid_ctrl,xx,yy);
+		ds_grid_set(grid_ctrl_new,(height-1)-yy,xx,data2);
 		}
 	}
 
-ds_grid_copy(grid_note,grid2);
+ds_grid_copy(grid_note,grid_note_new);
+ds_grid_copy(grid_ctrl,grid_ctrl_new);
 width = ds_grid_width(grid_note);
 height = ds_grid_height(grid_note);
-ds_grid_destroy(grid2);
+copy_w = width;
+copy_h = height;
+ds_grid_destroy(grid_note_new);
+ds_grid_destroy(grid_ctrl_new);
 
 // update surface
 surface_resize(surf,hh,ww);
@@ -455,19 +557,25 @@ update_surf(hh,ww);
 flip_vertical = function(){
 var ww = width;
 var hh = height;
-var grid2 = ds_grid_create(ww,hh);
+var grid_note_new = ds_grid_create(ww,hh);
+var grid_ctrl_new = ds_grid_create(ww,hh);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
 		var data = ds_grid_get(grid_note,xx,yy);
-		if data > 0 ds_grid_set(grid2,xx,height-yy,data);
+		ds_grid_set(grid_note_new,xx,height-yy,data);
+		
+		var data2 = ds_grid_get(grid_ctrl,xx,yy);
+		ds_grid_set(grid_ctrl_new,xx,height-yy,data);
 		}
 	}
 
-ds_grid_copy(grid_note,grid2);
-ds_grid_destroy(grid2);
+ds_grid_copy(grid_note,grid_note_new);
+ds_grid_copy(grid_ctrl,grid_ctrl_new);
+ds_grid_destroy(grid_note_new);
+ds_grid_destroy(grid_ctrl_new);
 
 // update surface
 update_surf(ww,hh);
@@ -476,77 +584,110 @@ update_surf(ww,hh);
 flip_horizontal = function(){
 var ww = width;
 var hh = height;
-var grid2 = ds_grid_create(ww,hh);
+var grid_note_new = ds_grid_create(ww,hh);
+var grid_ctrl_new = ds_grid_create(ww,hh);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
 		var data = ds_grid_get(grid_note,xx,yy);
-		if data > 0 ds_grid_set(grid2,width-xx,yy,data);
+		ds_grid_set(grid_note_new,width-xx,yy,data);
+		
+		var data2 = ds_grid_get(grid_ctrl,xx,yy);
+		ds_grid_set(grid_ctrl_new,width-xx,yy,data);
 		}
 	}
 
-ds_grid_copy(grid_note,grid2);
-ds_grid_destroy(grid2);
+ds_grid_copy(grid_note,grid_note_new);
+ds_grid_copy(grid_ctrl,grid_ctrl_new);
+ds_grid_destroy(grid_note_new);
+ds_grid_destroy(grid_ctrl_new);
 
 // update surface
 update_surf(ww,hh);
 }
 
 scale_up = function(){
-if scale < 32 
+if size < 5
 	{
+	size++;
 	scale *= 2;
-
 	var ww = width*2;
 	var hh = height*2;
-	var grid2 = ds_grid_create(ww,hh);
+	var grid_note_new = ds_grid_create(ww,hh);
+	var grid_ctrl_new = ds_grid_create(ww,hh);
 
-	for (var xx=0; xx<ww; xx++)
+	for (var xx=0; xx<width; xx++)
 		{
-		for (var yy=0; yy<hh; yy++)
+		for (var yy=0; yy<height; yy++)
 			{
-			var data = ds_grid_get(grid_note,xx/2,yy/2);
-			if data > 0 ds_grid_set(grid2,xx,yy,data);
+			var sx = xx*2;
+			var sy = yy*2;
+			
+			var data = ds_grid_get(grid_note,xx,yy);
+			ds_grid_set_region(grid_note_new,sx,sy,sx+1,sy+1,data);
+			
+			var data2 = ds_grid_get(grid_ctrl,xx,yy);
+			if data2 == 8 or data2 == 9
+				{
+				ds_grid_set_region(grid_ctrl_new,sx,sy,sx+1,sy+1,0);
+				ds_grid_set(grid_ctrl_new,sx+1,sy+1,data2);
+				}
+			else ds_grid_set_region(grid_ctrl_new,sx,sy,sx+1,sy+1,data2);
 			}
 		}
 	
-	ds_grid_resize(grid_note,width,height);
-	ds_grid_copy(grid_note,grid2);
+	ds_grid_resize(grid_note,ww,hh);
+	ds_grid_resize(grid_ctrl,ww,hh);
+	ds_grid_copy(grid_note,grid_note_new);
+	ds_grid_copy(grid_ctrl,grid_ctrl_new);
 	width = ds_grid_width(grid_note);
 	height = ds_grid_height(grid_note);
-	ds_grid_destroy(grid2);
+	copy_w = width;
+	copy_h = height;
+	ds_grid_destroy(grid_note_new);
+	ds_grid_destroy(grid_ctrl_new);
 	}
 }
 
 scale_down = function(){
-if scale > 1 
+if width/2 < 2 or height/2 < 2 return 0;
+if size > 1 size--;
+scale /= 2;
+
+var ww = width/2;
+var hh = height/2;
+var grid_note_new = ds_grid_create(ww,hh);
+var grid_ctrl_new = ds_grid_create(ww,hh);
+
+// TODO: probably not accurate formula given how
+// it operates with teleporter positions
+for (var xx=0; xx<ww; xx++)
 	{
-	scale /= 2;
-
-	var ww = width/2;
-	var hh = height/2;
-	var grid2 = ds_grid_create(ww,hh);
-
-	for (var xx=0; xx<ww; xx++)
+	for (var yy=0; yy<hh; yy++)
 		{
-		for (var yy=0; yy<hh; yy++)
-			{
-			var data = ds_grid_get(grid_note,xx*2,yy*2);
-			if data > 0 ds_grid_set(grid2,xx,yy,data);
-			}
+		var data = ds_grid_get(grid_note,xx*2,yy*2);
+		ds_grid_set(grid_note_new,xx,yy,data);
+			
+		var data2 = ds_grid_get(grid_ctrl,xx*2,yy*2);
+		ds_grid_set(grid_ctrl_new,xx,yy,data2);
 		}
-	
-	ds_grid_resize(grid_note,width,height);
-	ds_grid_copy(grid_note,grid2);
-	width = ds_grid_width(grid_note);
-	height = ds_grid_height(grid_note);
-	ds_grid_destroy(grid2);
 	}
+	
+ds_grid_resize(grid_note,width,height);
+ds_grid_resize(grid_ctrl,width,height);
+ds_grid_copy(grid_note,grid_note_new);
+ds_grid_copy(grid_ctrl,grid_ctrl_new);
+width = ds_grid_width(grid_note);
+height = ds_grid_height(grid_note);
+copy_w = width;
+copy_h = height;
+ds_grid_destroy(grid_note_new);
+ds_grid_destroy(grid_ctrl_new);
 }
 
 toggle_clear = function(){
-clear_back = !clear_back;
-update_surf();
+clear_back = parent.clear_back;
+if loaded update_surf();
 }

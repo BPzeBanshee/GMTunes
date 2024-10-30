@@ -13,7 +13,7 @@ if loading_prompt
 var mx = device_mouse_x_to_gui(0);
 var my = device_mouse_y_to_gui(0);
 var mb = mouse_check_button_pressed(mb_left);
-var bx = 64;
+var bx = 63;
 var by = 416;
 if use_classic_gui 
 	{
@@ -23,6 +23,7 @@ if use_classic_gui
 		case 0:
 			{
 			draw_sprite(gui.paint,0,0,by); 
+			draw_rectangle_color(0,by,533,by+64,0,0,0,0,false);
 			
 			// musical selector (55,14)
 			var music_x = bx-9;
@@ -34,7 +35,7 @@ if use_classic_gui
 			var note_y = by;
 			for (var i=1;i<=25;i++)
 				{
-				var xx = note_x + (16*i);
+				var xx = note_x + (16*(i-1));
 				if global.use_external_assets
 				draw_sprite(global.spr_note2[0][i],0,xx,note_y)
 				else draw_sprite(spr_note,i-1,xx,note_y);
@@ -44,7 +45,7 @@ if use_classic_gui
 			for (var i=1;i<=14;i++)
 				{
 				if i == 9 then i++;
-				var xx = bx+(16*i);
+				var xx = note_x + (16*(i-1));
 				if global.use_external_assets
 				draw_sprite(global.spr_note2[i][0],0,xx,by+16)
 				else draw_sprite(spr_note_ctrl,i-1,xx,by+16);
@@ -57,26 +58,85 @@ if use_classic_gui
 			{
 			draw_sprite(gui.stamp,0,0,by);
 			//draw_text(bx,by+16,"STAMP TBA"); 
+			
+			// Copy
+			var copy_x = 65;
+			var copy_y = by;
+			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,copy_x,copy_y);
+			
+			// Move
+			var move_x = 155;
+			var move_y = by;
+			if draw_flash == 2 draw_sprite(global.spr_ui.onclick_top,0,move_x,move_y);
+			
+			// Load
+			var load_stamp_x = 83;
+			var load_stamp_y = by+38;
+			if draw_flash == 3 draw_sprite(global.spr_ui.onclick_bottom,0,load_stamp_x,load_stamp_y);
+			
+			// Save
+			var save_stamp_x = 174;
+			var save_stamp_y = by+38;
+			if draw_flash == 4 draw_sprite(global.spr_ui.onclick_bottom,0,save_stamp_x,save_stamp_y);
+			
+			// Greyed area
+			var not_ready_x = 176;
+			var not_ready_y = by+38;
+			var e = instance_exists(obj_mouse_stamp);
+			if !e or (e && !m.loaded)
+				{
+				draw_set_alpha(0.5);
+				draw_set_color(c_black);
+				draw_rectangle(not_ready_x,not_ready_y,not_ready_x+298,not_ready_y+26,false);
+				draw_set_alpha(1);
+				}
+			else
+				{
+				var scale_up_x = 414;
+				var scale_up_y = by+39;
+				if m.size == 5
+					{
+					draw_set_alpha(0.5);
+					draw_set_color(c_black);
+					draw_rectangle(scale_up_x,scale_up_y,scale_up_x+29,scale_up_y+25,false);
+					draw_set_alpha(1);
+					}
+				
+				var toggle_clear_x = 482;
+				var toggle_clear_y = by+39;
+				draw_sprite(global.spr_ui.stamp_clearback[!clear_back],0,toggle_clear_x,toggle_clear_y);
+				}
 			break;
 			}
 	
 		// *** EXPLORE ***
 		case 2: 
-		draw_rectangle_color(0,416,640,480,0,0,0,0,false);
-		/*draw_sprite(gui.explore,0,0,by);*/ 
-		draw_text(bx,by+16,"FIELD/EXPLORE TBA"); 
-		break;
+			{
+			draw_rectangle_color(0,416,640,480,0,0,0,0,false);
+			/*draw_sprite(gui.explore,0,0,by);*/ 
+			draw_text(bx,by+16,"FIELD/EXPLORE TBA"); 
+			break;
+			}
 		
 		// *** BUGZ ***
 		case 3: 
 			{
 			draw_sprite(gui.bugz,0,0,by);
 			
-			var bug = [bug_yellow,bug_green,bug_blue,bug_red];
+			// CHOOSE!
+			var choose_x = 66;
+			var choose_y = by+1;
+			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,choose_x,choose_y);
+			
+			// STOP!
+			var stop_x = 174;
+			var stop_y = by+1;
+			if draw_flash == 2 draw_sprite(global.spr_ui.onclick_stopgo,0,stop_x,stop_y);
 			
 			// Bug Buttons
 			var bugpic_x = 246;
 			var bugpic_y = by+1;
+			var bug = [bug_yellow,bug_green,bug_blue,bug_red];
 			for (var i=0;i<4;i++)
 				{
 				if instance_exists(bug[i])
@@ -89,20 +149,46 @@ if use_classic_gui
 					draw_sprite_ext(bug[i].spr_up[1,round(bug[i].spr_subimg)],0,bo+30,by+19,1,1,bug[i].direction-90,c_white,1)
 					}
 				}
+				
+			// GO!
+			var go_x = 446;
+			var go_y = by+1;
+			if draw_flash == 3 draw_sprite(global.spr_ui.onclick_stopgo,0,go_x,go_y);
+			
+			// Volume Increment Down
+			var vol_down_x = 83;
+			var vol_down_y = by+37;
+			if draw_flash == 4 draw_sprite(global.spr_ui.onclick_slider_left,0,vol_down_x,vol_down_y);
+			
+			// Volume Increment Up
+			var vol_up_x = 207;
+			var vol_up_y = by+37;
+			if draw_flash == 5 draw_sprite(global.spr_ui.onclick_slider_right,0,vol_up_x,vol_up_y);
+			
+			// Speed Increment Down
+			var spd_down_x = 241;
+			var spd_down_y = by+37;
+			if draw_flash == 6 draw_sprite(global.spr_ui.onclick_slider_left,0,spd_down_x,spd_down_y);
+			
+			// Speed Increment Up
+			var spd_up_x = 365;
+			var spd_up_y = by+37;
+			if draw_flash == 7 draw_sprite(global.spr_ui.onclick_slider_right,0,spd_up_x,spd_up_y);
 			
 			// RESTART
-			var restart_x = 400;
-			var restart_y = by+38;
+			var restart_x = 402;
+			var restart_y = by+37;
 			var flags = global.flag_list[0,2] + global.flag_list[1,2] 
 			+ global.flag_list[2,2] + global.flag_list[3,2];
 			if flags == -4
 				{
 				draw_set_alpha(0.5);
-				draw_rectangle_color(restart_x,restart_y,restart_x+75,restart_y+26,c_black,c_black,c_black,c_black,false);
+				draw_rectangle_color(restart_x,restart_y,restart_x+75,restart_y+26,0,0,0,0,false);
 				draw_set_alpha(1);
 				}
+			if draw_flash == 8 draw_sprite(global.spr_ui.onclick_flagrestart,0,restart_x,restart_y);
 			
-			// Volume slider
+			// Volume sliders
 			var volume_x = 122;
 			var volume_y = by+38;
 			for (var i=0;i<4;i++)
@@ -129,7 +215,7 @@ if use_classic_gui
 					}
 				}
 			
-			// Speed/gear slider
+			// Speed/gear sliders
 			var spd_x = 280;
 			var spd_y = by+38;
 			for (var i=0;i<4;i++)
@@ -162,6 +248,28 @@ if use_classic_gui
 		case 4: 
 		draw_sprite(gui.file,0,0,by); 
 		//draw_text(bx,by+16,"CONFIG/FILE TBA"); 
+		
+		var gal_x = 65;
+		var gal_y = by;
+		if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,gal_x,gal_y);
+		
+		var load_x = 246;
+		var load_y = by;
+		if draw_flash == 3 draw_sprite(global.spr_ui.onclick_top,0,load_x,load_y);
+		
+		var save_x = 337;
+		var save_y = by;
+		if draw_flash == 4 draw_sprite(global.spr_ui.onclick_top,0,save_x,save_y);
+		
+		var quit_x = 428;
+		var quit_y = by;
+		if draw_flash == 5 draw_sprite(global.spr_ui.onclick_top,0,quit_x,quit_y);
+		
+		var backdrop_x = 88;
+		var backdrop_y = by+37;
+		if draw_flash == 6 draw_sprite(global.spr_ui.onclick_bottom,0,backdrop_x,backdrop_y);
+		
+		
 		break;
 		}
 	}

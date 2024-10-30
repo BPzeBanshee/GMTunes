@@ -17,6 +17,7 @@ if mouse_check_button_pressed(mb_left) && !done
 		done = true;
 		loading_obj = instance_create_depth(0,0,depth-1,obj_loading);
 		alarm[3] = 2;
+		flash(1);
 		}
 		
 	// cancel button
@@ -26,12 +27,14 @@ if mouse_check_button_pressed(mb_left) && !done
 		done = true;
 		loading_obj = instance_create_depth(0,0,depth-1,obj_loading);
 		alarm[4] = 2;
+		flash(2);
 		//instance_destroy();
 		}
 		
 	// reset bugz
 	if point_in_rectangle(mx,my,reset_x,button_y,reset_x+110,button_y+32)
 		{
+		flash(3);
 		for (var i=0;i<4;i++)
 			{
 			bug_index[i] = 0;

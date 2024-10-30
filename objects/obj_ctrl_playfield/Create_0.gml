@@ -1,6 +1,7 @@
 // Variable init
 use_classic_gui = false;
 if global.use_external_assets use_classic_gui = true;
+draw_flash = false;
 loading_prompt = false;
 callmethod = function(){};
 play_index = 0;
@@ -45,6 +46,7 @@ event_user(0);
 m = noone;
 m_prev = noone;
 mouse_create(obj_mouse_colour); 
+clear_back = true;
 
 // Load GUI images
 if use_classic_gui

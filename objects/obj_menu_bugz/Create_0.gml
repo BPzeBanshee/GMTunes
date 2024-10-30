@@ -86,6 +86,7 @@ var name = bug_load_text(bu);
 
 // "INFO" (animation on note hit sprite)
 var desc = bug_load_desc(bu);
+draw_set_font(global.fnt_bold);
 desc = string_wordwrap_width(desc,400);
 
 // SHOW
@@ -110,10 +111,15 @@ buffer_delete(bu);
 return {name,desc,show,spr,sounds};
 }
 
+flash = function(value){
+draw_flash = value;
+alarm[5] = 2;
+}
 // variable init
 if global.use_external_assets cursor_sprite = global.spr_ui.cursor;
 done = false;
 ready = false;
+draw_flash = 0;
 anim_index = 0; 
 snd_index_x = 0;
 snd_index_y = 0;

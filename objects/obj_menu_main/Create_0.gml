@@ -2,15 +2,21 @@
 #region methods
 start_game = function(){
 global.playfield = new default_playfield();
-scr_trans(rm_garden);
+scr_trans(rm_playfield);
 enabled = false;
 }
 
 start_gallery = function(){
-global.playfield = tun_load_tun(global.main_dir+"GALLERY/WATCHING.GAL");
-scr_trans(rm_garden);
-enabled = false;
-//room_goto(rm_garden);
+var f = get_open_filename_ext("SimTunes .GAL file|*.GAL","",global.main_dir+"GALLERY/","Open Gallery File...");
+if string_length(f) > 0
+&& file_exists(f)
+global.playfield = tun_load_tun(f);
+if is_struct(global.playfield)
+	{
+	//global.playfield = tun_load_tun(global.main_dir+"GALLERY/WATCHING.GAL");
+	scr_trans(rm_playfield);
+	enabled = false;
+	}
 }
 
 start_debug = function(){

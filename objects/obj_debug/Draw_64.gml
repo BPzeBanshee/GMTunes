@@ -10,7 +10,6 @@ if global.debug
     // Display debug data
     var str = "";
     str += string(rfps_txt)+" RFPS\n";
-    str += "S:"+string(global.step)+", I:"+string(instance_count)+"\n";
-    str += string(fps)+" FPS";
+    str += "I:"+string(instance_count)+", "+string(fps)+" FPS";
     draw_text(640,480-string_height(str),str);
     }

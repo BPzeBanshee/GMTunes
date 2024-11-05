@@ -1,7 +1,7 @@
-///@desc ev0, take 2
+///@desc Load .BUG RIFF data
 
 // Get file to rip sounds from
-var f = get_open_filename_ext("*.BUG","",@"C:/SimTunes/SIMTUNES/BUGZ/","Load SimTunes .BUG...");
+var f = get_open_filename_ext("*.BUG","",global.main_dir+"/BUGZ","Load SimTunes .BUG...");
 trace("f: "+string(f));
 
 if string_length(f) == 0

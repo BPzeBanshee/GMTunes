@@ -11,8 +11,8 @@ newchunk = buffer_create(1,buffer_grow,1);
 newchunk_enc = -1;
 surf_scale = 1;
 
-global.pixel_grid = ds_grid_create(160,104);
-global.ctrl_grid = ds_grid_create(160,104);
+global.pixel_grid = [];
+global.ctrl_grid = [];
 
 event_user(0);
 image_xscale = string_width(str_desc)/2;

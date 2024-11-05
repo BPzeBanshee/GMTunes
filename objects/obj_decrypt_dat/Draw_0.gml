@@ -12,5 +12,4 @@ for (var i=0;i<array_length(filenames);i++)
 image_xscale = string_width(str)/2;
 image_yscale = (string_height(str) * array_length(filenames))/2;
 
-//if surface_exists(surf) then draw_surface_ext(surf,bbox_left,bbox_top+32+string_height(str_desc),surf_scale,surf_scale,0,c_white,1);
 event_inherited();

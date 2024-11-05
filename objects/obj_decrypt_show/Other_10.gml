@@ -17,13 +17,10 @@ if buffer_word(bu,0) != "FORM"
     instance_destroy();
 	exit;//return -2;
     }
-
-var offset = 0;
-//var s = buffer_peek_be32(bu,4); // Big Endian record of filesize according to FORM metadata
-var s2 = buffer_get_size(bu); // actual size of file loaded into buffer, s + 8 usually
-
-// Search until "SHOW" is found
-do offset += 1 until buffer_word(bu,offset) == "SHOW" || offset >= s2;
-buffer_seek(bu,buffer_seek_start,offset);
+	
+while buffer_word(bu,buffer_tell(bu)) != "SHOW"
+	{
+	form_skip(bu);
+	}
 spr = bitmap_load_from_buffer(bu);
 buffer_delete(bu);

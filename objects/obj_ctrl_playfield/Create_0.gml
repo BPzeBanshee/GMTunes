@@ -24,8 +24,8 @@ bug_green = noone;
 bug_blue = noone;
 bug_red = noone;
 
-global.pixel_grid = ds_grid_create(160,104);
-global.ctrl_grid = ds_grid_create(160,104);
+global.pixel_grid = Array2(160,104);
+global.ctrl_grid = Array2(160,104);
 global.warp_list = [];
 global.flag_list = [];
 global.zoom = 0;

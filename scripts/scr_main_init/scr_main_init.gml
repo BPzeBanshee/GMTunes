@@ -13,12 +13,15 @@ pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 
 scr_config_load();
 audio_master_gain(round(global.music_volume)/100);
+gpu_set_texfilter(global.use_texfilter);
 instance_create_depth(x,y,-9999,obj_debug);
 
 // Controller objects and globalvars
-global.playfield = -1;
-global.pixel_grid = -1;
-global.ctrl_grid = -1;
+global.playfield = {}; // struct
+global.pixel_grid = [];
+global.ctrl_grid = [];
+global.warp_list = [];
+global.flag_list = [];
 global.zoom = 0;
 
 // Establishing program directory etc
@@ -85,8 +88,19 @@ ini_open("GMTunes.ini");
 global.debug = ini_read_real("GMTunes","debug",true);
 global.use_external_assets = ini_read_real("GMTunes","use_external_assets",true);
 global.music_volume = ini_read_real("GMTunes","music_volume",50);
+global.use_texfilter = ini_read_real("GMTunes","use_texture_filtering",false);
 //if os_type == os_operagx global.use_external_assets = false;
 ini_close();
+}
+
+function scr_config_save(){
+ini_open("GMTunes.ini");
+ini_write_real("GMTunes","debug",global.debug);
+ini_write_real("GMTunes","use_external_assets",global.use_external_assets);
+ini_write_real("GMTunes","music_volume",global.music_volume);
+ini_write_real("GMTunes","use_texture_filtering",global.use_texfilter);
+ini_close();
+return 0;
 }
 
 function scr_font_init(){

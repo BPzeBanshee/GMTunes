@@ -15,38 +15,6 @@ if copy_x > -1 && copy_y > -1 && !loaded
 	draw_rectangle(r.gx,r.gy,r2.gx,r2.gy,true);
 	}
 	
-if surface_exists(surf) 
-    {
-	draw_set_alpha(1);
-	draw_set_color(c_white);
-	
-	var sw,sh,dx,dy,w,h;
-	if yy < 416
-		{
-		w = copy_w * rs;
-		h = copy_h * rs;
-		var r = xy_to_gui(floor(x/16)*16,floor(y/16)*16);
-		dx = r.gx;
-		dy = r.gy;
-		sw = r.gx - max(w,0);
-		sh = r.gy - max(h,0);
-		}
-	else
-		{
-		var ssw = ((surface_get_width(surf)/2) * scale);
-		var ssh = ((surface_get_height(surf)/2) * scale);
-		sw = (window_get_width()/2) - ssw;
-		sh = (window_get_height()/2) - ssh;
-		dx = sw;
-		dy = sh;
-		w = -ssw*2; 
-		h = -ssh*2;
-		}
-	
-	draw_rectangle(dx,dy,dx - w,dy - h,true);
-	draw_surface_ext(surf,sw,sh,scale,scale,0,c_white,1);
-    }
-	
 if global.use_external_assets
 draw_sprite(move_mode ? global.spr_ui.move : global.spr_ui.copy,0,xx,yy)
 else 

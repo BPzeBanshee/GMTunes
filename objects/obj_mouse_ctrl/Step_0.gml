@@ -24,11 +24,11 @@ if mouse_check_button(mb_left)
 		if (note == 8 or note == 9) && !mouse_check_button_pressed(mb_left) then exit;
 	
 		// existing control note check
-		var c = ds_grid_get(global.ctrl_grid,xx,yy);
+		var c = global.ctrl_grid[xx][yy];
 		if c > 0
 			{
 			// wipe grid position
-			ds_grid_set(global.ctrl_grid,xx,yy,0);
+			global.ctrl_grid[xx][yy] = 0;
 		
 			// teleport block handling
 			if c == 8 or c == 9
@@ -41,7 +41,7 @@ if mouse_check_button(mb_left)
 		delete_flag(xx,yy);
 		
 		// Set note
-		ds_grid_set(global.ctrl_grid,xx,yy,note);
+		global.ctrl_grid[xx][yy] = note;
 		(parent.field).update_surf_partial(xx,yy);//ctrl
 	
 		// Teleporter block handling
@@ -68,8 +68,8 @@ if mouse_check_button(mb_right)
 	{
 	if xx >= 0 && xx < 160 && yy >= 0 && yy < 104
 		{
-		var data = ds_grid_get(global.ctrl_grid,xx,yy);
-		if data > 0 then ds_grid_set(global.ctrl_grid,xx,yy,0);
+		var data = global.ctrl_grid[xx][yy];
+		if data > 0 global.ctrl_grid[xx][yy] = 0;
 		(parent.field).update_surf_partial(xx,yy);//ctrl
 	
 		if data == 8 or data == 9
@@ -80,7 +80,7 @@ if mouse_check_button(mb_right)
 	if place_teleporter
 		{
 		place_teleporter = false;
-		ds_grid_set(global.ctrl_grid,tele_obj[0],tele_obj[1],0);
+		global.ctrl_grid[tele_obj[0]][tele_obj[1]]  = 0;
 		(parent.field).update_surf_partial(tele_obj[0],tele_obj[1]);
 		tele_obj = [];
 		note = 8;

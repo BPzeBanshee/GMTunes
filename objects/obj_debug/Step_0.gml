@@ -6,11 +6,11 @@ if rfps_timer == 60
     rfps_avg = 0;
     rfps_timer = 0;
     }
-global.step += 1;
 
 if keyboard_check_pressed(vk_f1)
 	{
-	gpu_set_texfilter(!gpu_get_texfilter());
+	global.use_texfilter = !global.use_texfilter;
+	gpu_set_texfilter(global.use_texfilter);
 	}
 if keyboard_check_pressed(vk_f2)
 	{

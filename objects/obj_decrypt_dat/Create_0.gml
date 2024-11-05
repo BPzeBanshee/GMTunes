@@ -1,10 +1,8 @@
 event_inherited();
+
 filenames = [];
 sizes = [];
 offsets = [];
-
-surf = -1;
-surf_scale = 1;
 
 event_user(1);
 //image_xscale = string_width(filenames)+string/2;

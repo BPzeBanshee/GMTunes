@@ -5,8 +5,8 @@ trace("Loading playfield from "+string(file)+"...");
 
 // Clear playfield first
 with obj_bug instance_destroy();
-ds_grid_clear(global.pixel_grid,0);
-ds_grid_clear(global.ctrl_grid,0);
+global.pixel_grid = Array2(160,104);
+global.ctrl_grid = Array2(160,104);
 global.warp_list = [];
 global.flag_list = [];
 
@@ -275,32 +275,38 @@ trace("Flag list: "+string(flag_list));
 mystruct.flag_list = flag_list;
 
 // finally, the actual note position data
-var note_grid = ds_grid_create(160,104);
-var ctrl_grid = ds_grid_create(160,104);
+var note_grid = Array2(160,104);
+var ctrl_grid = Array2(160,104);
 
 var chunk_size = buffer_read(bu,buffer_u32);
-trace("Size of note table size: "+string(chunk_size));
+trace("Size of music note table size: {0}",chunk_size);
+buffer_save_ext(bu,"chunk_og.dat",buffer_tell(bu),chunk_size);
+
 var newbuf = scr_decrypt_chunk(bu,chunk_size);
-var minibuf = newbuf.buf;
+var minibuf = newbuf.buffer_new;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
-trace("buffer decoded, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
+trace("buffer decoded, size: {0} ({1})",minibuf_size,buffer_get_size(minibuf));
+buffer_save(minibuf,"chunk_dec.dat");
+
+var test = scr_encrypt_chunk(minibuf,buffer_get_size(minibuf));
+buffer_save(test,"chunk_enc.dat");
 
 for (var yy = 0; yy < 104; yy++)
 	{
 	for (var xx = 0; xx < 160; xx++)
 		{
 		var data = buffer_read(minibuf,buffer_u8);
-		ds_grid_add(note_grid,xx,yy,data);
+		note_grid[xx][yy] = data;
 		}
 	}
 buffer_delete(minibuf);
 
 // ...then the control bit position data
 chunk_size = buffer_read(bu,buffer_u32);
-trace("Size of note table size: "+string(chunk_size));
+trace("Size of control note table size: "+string(chunk_size));
 newbuf = scr_decrypt_chunk(bu,chunk_size);
-minibuf = newbuf.buf;
+minibuf = newbuf.buffer_new;
 minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
@@ -318,7 +324,7 @@ for (var yy = 0; yy < 104; yy++)
 				{
 				trace("control pos ({0},{1}) returned erroneous value {2}",xx,yy,data);
 				}
-			else ds_grid_add(ctrl_grid,xx,yy,data);
+			else ctrl_grid[xx][yy] = data;
 			}
 		}
 	}
@@ -326,10 +332,8 @@ trace("Starting positions in control bit buffer: "+string(startpos));
 buffer_delete(minibuf);
 
 // write grids to string
-mystruct.note_list = ds_grid_write(note_grid);
-mystruct.ctrl_list = ds_grid_write(ctrl_grid);
-ds_grid_destroy(note_grid);
-ds_grid_destroy(ctrl_grid);
+mystruct.note_list = note_grid;
+mystruct.ctrl_list = ctrl_grid;
 
 // Random Bullshit #4
 /*
@@ -464,8 +468,11 @@ if tun_filename == "" exit;
 var f = buffer_load(tun_filename);
 var mystruct = json_parse(buffer_read(f,buffer_text));
 buffer_delete(f);
+
+//mystruct.note_list = json_parse(mystruct.note_list);
+//mystruct.ctrl_list = json_parse(mystruct.ctrl_list);
+
 trace(tun_filename+" loaded!");
-trace(mystruct);
 return mystruct;
 }
 
@@ -525,12 +532,11 @@ camera_set_view_size(cam,ww,hh);
 camera_set_view_pos(cam,x,y);
 
 // Flags
-var flag_list = tun_struct.flag_list;
-global.flag_list = flag_list;
+global.flag_list = tun_struct.flag_list;
 
 // Pixel/Control grids
-if tun_struct.note_list != "" ds_grid_read(global.pixel_grid,tun_struct.note_list);
-if tun_struct.ctrl_list != "" ds_grid_read(global.ctrl_grid,tun_struct.ctrl_list);
+global.pixel_grid = tun_struct.note_list;
+global.ctrl_grid = tun_struct.ctrl_list;
 global.warp_list = tun_struct.warp_list;
 
 // finally, actually create the bugz

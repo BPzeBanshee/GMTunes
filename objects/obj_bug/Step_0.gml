@@ -6,7 +6,7 @@ if !paused
 	if round(spr_subimg) > 7 then spr_subimg = 0;
 	}
 
-if grabbed or paused then exit;
+if grabbed || paused exit;
 timer -= 1;
 if timer < 1
 	{
@@ -37,13 +37,13 @@ if (hit_lastx != xx or hit_lasty != yy)
 	{
 	hit_lastx = xx;
 	hit_lasty = yy;
-	var c = ds_grid_get(global.pixel_grid,xx,yy);
+	var c = global.pixel_grid[xx][yy];
 	if c > 0
 		{
 		note = c;
 		if !muted
 			{
-			if audio_is_playing(snd_last) then audio_stop_sound(snd_last);
+			if audio_is_playing(snd_last) audio_stop_sound(snd_last);
 			var vol = (volume/128); //power(volume/128,2);
 			//trace(string("bug {0} playing sound at calculated volume {1}",bugzid,vol));
 			snd_last = audio_play_sound(snd_struct.snd[note-1],0,false,vol);
@@ -52,7 +52,7 @@ if (hit_lastx != xx or hit_lasty != yy)
 		anim_playing = true;
 		anim_index = 0;
 		}
-	var c2 = ds_grid_get(global.ctrl_grid,xx,yy);
+	var c2 = global.ctrl_grid[xx][yy];
 	if c2 > 0 then controlnote_hit(c2);
 	}
 

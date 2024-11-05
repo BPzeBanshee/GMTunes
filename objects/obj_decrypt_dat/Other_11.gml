@@ -45,6 +45,8 @@ var outfile = sandbox+"/"+filename_name(f)+"_ext/";
 if !directory_exists(infile) then directory_create(infile);
 if !directory_exists(outfile) then directory_create(outfile);
 
+if !variable_global_exists("dll_gmlzari_version") gmlzari_init();
+
 var k;
 for (var i=0;i<array_length(filenames);i++)
 	{
@@ -59,3 +61,4 @@ for (var i=0;i<array_length(filenames);i++)
 
 // clear buffer
 buffer_delete(bu);
+if variable_global_exists("dll_gmlzari_version") gmlzari_free();

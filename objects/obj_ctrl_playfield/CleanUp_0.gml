@@ -1,6 +1,6 @@
-ds_grid_destroy(global.pixel_grid);
-ds_grid_destroy(global.ctrl_grid);
-delete global.playfield;
+global.pixel_grid = [];
+global.ctrl_grid = [];
+global.playfield = {};
 window_set_caption("GMTunes"); 
 
 if use_classic_gui

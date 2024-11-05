@@ -117,6 +117,7 @@ if use_classic_gui
 						}
 					m.move_mode = false;
 					m.clear_back = clear_back;
+					m.unload_stamp();
 					flash(1);
 					}
 				}
@@ -134,6 +135,7 @@ if use_classic_gui
 						}
 					m.move_mode = true;
 					m.clear_back = clear_back;
+					m.unload_stamp();
 					flash(2);
 					}
 				}

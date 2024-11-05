@@ -1,4 +1,4 @@
-/// @description  CONSOLE TEXT FORMATTING
+/// @desc CONSOLE TEXT FORMATTING
 txt = global.debug_text;
 while string_height((txt)) > window_get_height()
     {

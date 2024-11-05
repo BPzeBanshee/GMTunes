@@ -63,6 +63,7 @@
     {"name":"rm_debug_tools","order":2,"path":"rooms/rm_debug_tools/rm_debug_tools.yy",},
     {"name":"rm_main","order":1,"path":"rooms/rm_main/rm_main.yy",},
     {"name":"rm_playfield","order":3,"path":"rooms/rm_playfield/rm_playfield.yy",},
+    {"name":"array_x","order":12,"path":"scripts/array_x/array_x.yy",},
     {"name":"bac_load","order":1,"path":"scripts/bac_load/bac_load.yy",},
     {"name":"bitmap_load","order":3,"path":"scripts/bitmap_load/bitmap_load.yy",},
     {"name":"bmp_load","order":4,"path":"scripts/bmp_load/bmp_load.yy",},

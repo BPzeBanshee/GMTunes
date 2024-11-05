@@ -70,7 +70,7 @@ if mouse_check_button(mb_right)
 		{
 		var dx = xx-floor(width/2);
 		var dy = yy-floor(height/2);
-		ds_grid_set_region(global.pixel_grid,dx,dy,xx+floor(width/2),yy+floor(height/2),0);
+		array_clear(global.pixel_grid,dx,dy,xx+floor(width/2),yy+floor(height/2),0);
 		(parent.field).update_surf();
 		}*/
 	}

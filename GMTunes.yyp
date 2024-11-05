@@ -102,6 +102,7 @@
     {"id":{"name":"rm_init","path":"rooms/rm_init/rm_init.yy",},},
     {"id":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},},
     {"id":{"name":"rm_playfield","path":"rooms/rm_playfield/rm_playfield.yy",},},
+    {"id":{"name":"array_x","path":"scripts/array_x/array_x.yy",},},
     {"id":{"name":"bac_load","path":"scripts/bac_load/bac_load.yy",},},
     {"id":{"name":"bitmap_load","path":"scripts/bitmap_load/bitmap_load.yy",},},
     {"id":{"name":"bmp_load","path":"scripts/bmp_load/bmp_load.yy",},},

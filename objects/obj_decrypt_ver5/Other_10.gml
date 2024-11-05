@@ -240,7 +240,7 @@ for (var yy = 0; yy < 104; yy++)
 	for (var xx = 0; xx < 160; xx++)
 		{
 		var data = buffer_read(minibuf,buffer_u8);
-		ds_grid_add(global.pixel_grid,xx,yy,data);
+		global.pixel_grid[xx][yy] = data;
 		}
 	}
 buffer_delete(minibuf);
@@ -264,7 +264,7 @@ for (var yy = 0; yy < 104; yy++)
 			{
 			if data == 34
 			then array_push(startpos,[xx,yy])
-			else ds_grid_add(global.ctrl_grid,xx,yy,data);
+			else global.ctrl_grid[xx][yy] = data;
 			}
 		}
 	}

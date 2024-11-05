@@ -168,8 +168,8 @@ instance_create_depth(x,y,depth,obj_menu_bugz);//-1
 }
 
 reset_playfield = function(hard=false){
-ds_grid_clear(global.pixel_grid,0);
-ds_grid_clear(global.ctrl_grid,0);
+global.pixel_grid = [];
+global.ctrl_grid = [];
 global.warp_list = [];
 global.flag_list = [];
 

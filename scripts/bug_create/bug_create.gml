@@ -4,10 +4,10 @@ export bug info in it's entirety to easily-GM-loadable files?
 */
 
 function form_skip(buffer){
-//trace("Skip form: {0}",buffer_word(buffer,buffer_tell(buffer)));
+trace("Skip form: {0}",buffer_word(buffer,buffer_tell(buffer)));
 buffer_read(buffer,buffer_u32);
 var skip = buffer_read_be32(buffer);
-//trace("Skip value: {0}",skip);
+trace("Skip value: {0}",skip);
 buffer_seek(buffer,buffer_seek_relative,skip);
 if frac(buffer_tell(buffer)/2) != 0 then buffer_read(buffer,buffer_u8);
 }

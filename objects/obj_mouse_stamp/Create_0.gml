@@ -1,8 +1,8 @@
 // Inherit the parent event
 event_inherited();
 surf = -1;
-grid_note = ds_grid_create(0,0);
-grid_ctrl = ds_grid_create(0,0);
+grid_note = [];
+grid_ctrl = [];
 width = 0;
 height = 0;
 scale = 4;

@@ -13,7 +13,7 @@ delete_teleporter_block = function(xx,yy,data)
 
 	var ox = global.warp_list[ind][order[2]];
 	var oy = global.warp_list[ind][order[3]];
-	ds_grid_set(global.ctrl_grid,ox,oy,0);
+	global.ctrl_grid[ox][oy] = 0;
 	(parent.field).update_surf_partial(ox,oy);//ctrl
 	array_delete(global.warp_list,ind,1);
 		

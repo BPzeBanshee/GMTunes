@@ -7,9 +7,9 @@ surface_set_target(pixel_surf);
 draw_clear_alpha(c_black,0);
 
 // Draw notes
-for (var xx = 0; xx < ww; xx++)
+for (var yy = 0; yy < hh; yy++)
 	{
-	for (var yy = 0; yy < hh; yy++)
+	for (var xx = 0; xx < ww; xx++)
 		{
 		var data = global.pixel_grid[xx][yy];
 		var data_ctrl = global.ctrl_grid[xx][yy];

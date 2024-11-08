@@ -122,6 +122,7 @@
     {"id":{"name":"scr_note_blend","path":"scripts/scr_note_blend/scr_note_blend.yy",},},
     {"id":{"name":"scr_retro_pal_swapper_utilities","path":"scripts/scr_retro_pal_swapper_utilities/scr_retro_pal_swapper_utilities.yy",},},
     {"id":{"name":"scr_retro_pal_swapper","path":"scripts/scr_retro_pal_swapper/scr_retro_pal_swapper.yy",},},
+    {"id":{"name":"scr_rle_x","path":"scripts/scr_rle_x/scr_rle_x.yy",},},
     {"id":{"name":"scr_structs","path":"scripts/scr_structs/scr_structs.yy",},},
     {"id":{"name":"scr_trans","path":"scripts/scr_trans/scr_trans.yy",},},
     {"id":{"name":"string_wordwrap_width","path":"scripts/string_wordwrap_width/string_wordwrap_width.yy",},},

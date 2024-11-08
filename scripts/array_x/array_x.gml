@@ -18,15 +18,21 @@ return 0;
 /// @desc thanks to FrostyCat
 /// (https://github.com/dicksonlaw583/gmsugar/blob/master/Array2.gml)
 /// 
-/// Array2(height, length, ...)
+/// Array2(width,height, ...)
 // Row-major interpretation of 2D array contents
-function Array2(height,length,init=int64(0)){
+function Array2(width,height,init=int64(0)){
 
 var array2;
-for (var i = height-1; i >= 0; i--) {
-	for (var j = length-1; j >= 0; j--) {
-		array2[i, j] = init;
+for (var yy = height-1; yy >= 0; yy--) {
+	for (var xx = width-1; xx >= 0; xx--) {
+		array2[xx,yy] = init;
 	}
 }
 return array2;
+}
+
+function Array1(length,init=int64(0)){
+var array;
+for (var i=length-1;i>=0;i--) array[i] = init;
+return array;
 }

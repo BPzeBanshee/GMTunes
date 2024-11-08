@@ -201,21 +201,23 @@ mystruct.background = bkg_file;
 // Camera/Zoom positions
 var cam_x = buffer_read(bu,buffer_u32);
 var cam_y = buffer_read(bu,buffer_u32);
-var pixelsize = buffer_read(bu,buffer_u32);
+var pixelsize = buffer_read(bu,buffer_u32); // 4,8, or 16
+var camera_zoom = buffer_read(bu,buffer_u32); // 0, 1 or 2
 trace("cam: [{0},{1}]",cam_x,cam_y);
 trace("pixelsize: {0}",pixelsize);
 mystruct.camera_pos = [cam_x,cam_y];
-switch pixelsize
+mystruct.pixelsize = camera_zoom;
+/*switch pixelsize
 	{
 	case 8: mystruct.pixelsize = 1; break;
 	case 16: mystruct.pixelsize = 2; break;
 	case 4:
 	default: mystruct.pixelsize = 0; break;
-	}
+	}*/
 
 // Random BS #3
 unk = [];
-repeat 5 array_push(unk,buffer_read(bu,buffer_s32));
+repeat 4 array_push(unk,buffer_read(bu,buffer_s32));
 //repeat 20 array_push(unk,buffer_read(bu,buffer_u8));
 trace("Unknown BS #3: {0}",unk);
 
@@ -287,10 +289,10 @@ var minibuf = newbuf.buffer_new;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer decoded, size: {0} ({1})",minibuf_size,buffer_get_size(minibuf));
-buffer_save(minibuf,"chunk_dec.dat");
+//buffer_save(minibuf,"chunk_dec.dat");
 
-var test = scr_encrypt_chunk(minibuf,buffer_get_size(minibuf));
-buffer_save(test,"chunk_enc.dat");
+//var test = scr_encrypt_chunk(minibuf);
+//buffer_save(test,"chunk_enc.dat");
 
 for (var yy = 0; yy < 104; yy++)
 	{
@@ -301,6 +303,9 @@ for (var yy = 0; yy < 104; yy++)
 		}
 	}
 buffer_delete(minibuf);
+
+//var test2 = scr_rle_encode(note_grid);
+//clipboard_set_text(string("{0}",test2));
 
 // ...then the control bit position data
 chunk_size = buffer_read(bu,buffer_u32);
@@ -425,16 +430,16 @@ for (var i=0; i<4; i++)
 		trace("WARNING: Bugz Codes: {0},{1}",error1,error2);
 		
 		if (error1 == 0 && error2 == 1) // WATCHING.GAL GREEN02.BUG, CITYTALK.GAL YELLOW
-		tun_bugz_code_01(bu)
+		tun_read_bugz_code_01(bu)
 		
 		else if (error1 == 1 && error2 == 0) // RAINSONG.GAL YELLOW02.BUG, yellow test.tun
-		tele = tun_bugz_code_10(bu)
+		tele = tun_read_bugz_code_10(bu)
 		
 		else if (error1 == 8 && error2 == 0) // WATCHING.GAL YELLOW02.BUG, user projects mid-teleport
-		tele = tun_bugz_code_80(bu)
+		tele = tun_read_bugz_code_80(bu)
 			
 		else if (error1 == 34 && error2 == 0) // RANDOMFU.GAL all Bugz
-		tun_bugz_code_34(bu);
+		tun_read_bugz_code_34(bu);
 		}
 	
 	/*
@@ -571,7 +576,7 @@ for (var i=0;i<4;i++)
 	}
 }
 
-function tun_bugz_code_01(bu){
+function tun_read_bugz_code_01(bu){
 var pair1 = [];
 var count = 1;
 repeat 4
@@ -584,7 +589,7 @@ buffer_read(bu,buffer_u8);
 return 0;
 }
 
-function tun_bugz_code_10(bu){
+function tun_read_bugz_code_10(bu){
 /*
 Current testing suggests this operates similar to code 80,
 but is used when saved mid-transit for arrow control blocks.
@@ -648,7 +653,7 @@ else buffer_seek(bu,buffer_seek_relative,8);//buffer_read(bu,buffer_u32);
 return [ctrl_x * 16,ctrl_y * 16];
 }
 
-function tun_bugz_code_34(bu){
+function tun_read_bugz_code_34(bu){
 /*
 Research and testing with other codes, and the inability
 to be able to get this thing to appear on user-generated
@@ -702,7 +707,7 @@ else buffer_seek(bu,buffer_seek_relative,8);
 return [ctrl_x*16,ctrl_y*16];
 }
 
-function tun_bugz_code_80(bu){
+function tun_read_bugz_code_80(bu){
 // Deal with the 0x40__ lines and their gaps first
 var pair1 = [];
 var pair2 = [];

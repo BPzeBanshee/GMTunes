@@ -77,6 +77,7 @@
     {"name":"scr_gmlibsmacker","order":1,"path":"scripts/scr_gmlibsmacker/scr_gmlibsmacker.yy",},
     {"name":"scr_note_blend","order":2,"path":"scripts/scr_note_blend/scr_note_blend.yy",},
     {"name":"scr_retro_pal_swapper_utilities","order":1,"path":"scripts/scr_retro_pal_swapper_utilities/scr_retro_pal_swapper_utilities.yy",},
+    {"name":"scr_rle_x","order":13,"path":"scripts/scr_rle_x/scr_rle_x.yy",},
     {"name":"scr_structs","order":10,"path":"scripts/scr_structs/scr_structs.yy",},
     {"name":"scr_trans","order":6,"path":"scripts/scr_trans/scr_trans.yy",},
     {"name":"string_wordwrap_width","order":1,"path":"scripts/string_wordwrap_width/string_wordwrap_width.yy",},

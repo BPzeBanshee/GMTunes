@@ -29,8 +29,8 @@ if timer < 1
 // Map position wrap
 move_wrap(true,true,0);
 
-var xx = floor((x+8)/16);
-var yy = floor((y+8)/16);
+var xx = clamp(floor((x+8)/16),0,159);
+var yy = clamp(floor((y+8)/16),0,103);
 	
 // Play note
 if (hit_lastx != xx or hit_lasty != yy)

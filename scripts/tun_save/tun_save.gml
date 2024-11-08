@@ -11,7 +11,7 @@ for (var i=0;i<4;i++)
 	if global.flag_list[i,2] != -1
 		{
 		var flag_dir = global.flag_list[i,2];
-		myflags[i] = [round(global.flag_list[i,0]/16), round(global.flag_list[i,1]/16), flag_dir];
+		myflags[i] = [round(global.flag_list[i,0]), round(global.flag_list[i,1]), flag_dir];
 		}
 	else myflags[i] = [-1, -1, -1];
 	}
@@ -94,12 +94,12 @@ if !is_struct(mystruct) return -1;
 
 // First, some data manipulation due to how SimTunes decided on these things
 // Camera
-var myzoom = 4;
-switch global.zoom
+var pixelsize = 4;
+switch mystruct.pixelsize
 	{
 	case 0: break;
-	case 1: myzoom = 8; break;
-	case 2: myzoom = 16; break;
+	case 1: pixelsize = 8; break;
+	case 2: pixelsize = 16; break;
 	}
 	
 // Flag data
@@ -117,12 +117,70 @@ for (var i=0;i<4;i++)
 	mystruct.flag_list[i][2] = flag_dir;
 	}
 	
-// TODO: obvs we can't just write arrays and expect SimTunes to know it,
-// we gotta do the hard yards and reverse the command block BS
+// Preview picture data
+var colortable = [0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4A,0x4B,0x4C,0x4D,0x4E,0x4F,0x80,0x81,0x82,0x83,0x84,0x20,0x19,0x26,0x2F];
+var preview_arr = Array2(160,104);
+array_copy(preview_arr,0,mystruct.note_list,0,array_length(mystruct.note_list));
+//preview_arr[(160*yy)+xx]
+var preview_arr_enc = scr_rle_encode(preview_arr);
+for (var i=0;i<array_length(preview_arr_enc);i++)
+	{
+	var data = preview_arr_enc[i];
+	if data[1] > 0 preview_arr_enc[i][1] = colortable[data[1]-1];
+	}
 
-// TODO: same thing for preview picture
+var preview_buf = buffer_create(8,buffer_grow,1);
+for (var i=0;i<array_length(preview_arr_enc);i++)
+	{
+	var data = preview_arr_enc[i];
+	buffer_write(preview_buf,buffer_u8,data[0]);
+	buffer_write(preview_buf,buffer_u8,data[1]);
+	// sequence
+	/*if is_array(data[1])
+		{
+		buffer_write(preview_buf,buffer_u8,data[0]);
+		for (var j=0;j<array_length(data[1]);j++)
+			{
+			buffer_write(preview_buf,buffer_u8,data[1][j]);
+			}
+		}
+	// repeat
+	else
+		{
+		buffer_write(preview_buf,buffer_u8,0x7F+data[0]);
+		buffer_write(preview_buf,buffer_u8,data[1]);
+		}*/
+	}
+buffer_set_used_size(preview_buf,buffer_tell(preview_buf));
 
-// End data manipulation
+// Note table data
+var note_arr = [];
+array_copy(note_arr,0,mystruct.note_list,0,array_length(mystruct.note_list));
+var note_arr_enc = scr_rle_encode(note_arr);
+var note_buf = buffer_create(8,buffer_grow,1);
+for (var i=0;i<array_length(note_arr_enc);i++)
+	{
+	var data = note_arr_enc[i];
+	buffer_write(note_buf,buffer_u8,data[0]);
+	buffer_write(note_buf,buffer_u8,data[1]);
+	}
+var note_buf_size = buffer_tell(note_buf);
+buffer_set_used_size(note_buf,note_buf_size);
+
+// Control note data
+var ctrl_arr = mystruct.ctrl_list;
+var ctrl_arr_enc = scr_rle_encode(ctrl_arr);
+var ctrl_buf = buffer_create(8,buffer_grow,1);
+for (var i=0;i<array_length(ctrl_arr_enc);i++)
+	{
+	var data = ctrl_arr_enc[i];
+	buffer_write(ctrl_buf,buffer_u8,data[0]);
+	buffer_write(ctrl_buf,buffer_u8,data[1]);
+	}
+var ctrl_buf_size = buffer_tell(ctrl_buf);
+buffer_set_used_size(ctrl_buf,ctrl_buf_size);
+
+// ========= End data manipulation ============
 
 // create our buffer to write data to
 var bu = buffer_create(8,buffer_grow,1);
@@ -137,30 +195,18 @@ buffer_write(bu,buffer_text,mystruct.name);
 buffer_write(bu,buffer_u8,0);
 
 // garbage data #1
-buffer_write(bu,buffer_u32,0xFFFFFFFF);
+buffer_write(bu,buffer_u32,0);
 
 // preview picture data
-var colortable = [0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4A,0x4B,0x4C,0x4D,0x4E,0x4F,0x80,0x81,0x82,0x83,0x84,0x20,0x19,0x26,0x2F];
-var preview_buf = buffer_create(160*104,buffer_fixed,1);
-for (var xx=0;xx<160;xx++)
-	{
-	for (var yy=0;yy<104;yy++)
-		{
-		var data = global.pixel_grid[xx][yy] > 0 ? colortable[global.pixel_grid[xx][yy]-1] : 0;
-		buffer_write(preview_buf,buffer_u8,data);
-		}
-	}
-var preview_buf_enc = scr_encrypt_chunk(preview_buf);
-var preview_buf_size = buffer_get_size(preview_buf_enc);
+var preview_buf_size = buffer_tell(preview_buf);
 trace("preview buf size: {0}",preview_buf_size);
-buffer_write(bu,buffer_u32,preview_buf_size-4);
-var t = buffer_tell(bu);
-trace("tell: {0}",t);
-//buffer_save(preview_buf_enc,"preview_buf.dat");
-buffer_copy(preview_buf_enc,0,preview_buf_size,bu,t);
-buffer_seek(bu,buffer_seek_relative,preview_buf_size);
+
+buffer_write(bu,buffer_u32,preview_buf_size);
+buffer_copy(preview_buf,0,preview_buf_size,bu,buffer_tell(bu));
 buffer_delete(preview_buf);
-buffer_delete(preview_buf_enc);
+
+buffer_seek(bu,buffer_seek_relative,preview_buf_size);
+//if frac(buffer_tell(bu)/2)!=0 buffer_write(bu,buffer_u8,0);
 
 // Author string
 var author_str = mystruct.author;
@@ -181,20 +227,25 @@ repeat 7 buffer_write(bu,buffer_u32,0);
 
 // background filename (taken from obj_ctrl_playfield background vars)
 var back_str = mystruct.background;//"03GP4BT.BAC";
-var bss = string_length(back_str);
+var bss = string_length(back_str)+1;
+buffer_write(bu,buffer_u32,bss);
 buffer_write(bu,buffer_text,back_str);
 buffer_write(bu,buffer_u8,0);
 
 // Camera/zoom positions
 buffer_write(bu,buffer_u32,round(x));
 buffer_write(bu,buffer_u32,round(y));
-buffer_write(bu,buffer_u32,myzoom);
+buffer_write(bu,buffer_u32,pixelsize);
+buffer_write(bu,buffer_u32,mystruct.pixelsize);
 
-// garbage data #3
-repeat 5 buffer_write(bu,buffer_u32,0);
+// Mystery data
+repeat 4 buffer_write(bu,buffer_u32,0);
 
 // teleporter warp list
-var num_warps = 61; // TODO: actually get warp count
+// SimTunes writes a fixed count of 61 with empty entries written as -1,
+// but it DOES correctly read less
+var num_warps = array_length(mystruct.warp_list);
+buffer_write(bu,buffer_u32,num_warps);
 if num_warps > 0 
 for (var i=0; i<num_warps;i++)
 	{
@@ -214,46 +265,22 @@ for (var i=0;i<4;i++)
 	}
 	
 // Note position data
-var note_buf = buffer_create(160*104,buffer_grow,1);
-for (var xx=0;xx<160;xx++)
-	{
-	for (var yy=0;yy<104;yy++)
-		{
-		var data = global.pixel_grid[xx][yy];
-		buffer_write(note_buf,buffer_u8,data);
-		}
-	}
-var note_buf_enc = scr_encrypt_chunk(note_buf);
-var note_buf_size = buffer_get_size(note_buf_enc);
-buffer_write(bu,buffer_u32,note_buf_size-4);
-buffer_copy(note_buf_enc,0,note_buf_size,bu,buffer_tell(bu));
+buffer_write(bu,buffer_u32,note_buf_size);
+buffer_copy(note_buf,0,buffer_tell(note_buf),bu,buffer_tell(bu));
 buffer_seek(bu,buffer_seek_relative,note_buf_size);
 buffer_delete(note_buf);
-buffer_delete(note_buf_enc);
 
 // Control Note position data
-var ctrl_buf = buffer_create(160*104,buffer_grow,1);
-for (var xx=0;xx<160;xx++)
-	{
-	for (var yy=0;yy<104;yy++)
-		{
-		var data = global.ctrl_grid[xx][yy];
-		buffer_write(ctrl_buf,buffer_u8,data);
-		}
-	}
-var ctrl_buf_enc = scr_encrypt_chunk(ctrl_buf);
-var ctrl_buf_size = buffer_get_size(ctrl_buf_enc);
-buffer_write(bu,buffer_u32,ctrl_buf_size-4);
-buffer_copy(ctrl_buf_enc,0,ctrl_buf_size,bu,buffer_tell(bu));
+buffer_write(bu,buffer_u32,ctrl_buf_size);
+buffer_copy(ctrl_buf,0,buffer_tell(ctrl_buf),bu,buffer_tell(bu));
 buffer_seek(bu,buffer_seek_relative,ctrl_buf_size);
 buffer_delete(ctrl_buf);
-buffer_delete(ctrl_buf_enc);
 
-// garbage data #4
-repeat 2 buffer_write(bu,buffer_u32,0);
+// Global bug scale value
+buffer_write(bu,buffer_u32,mystruct.pixelsize);
 
-// mystery number + skip
-repeat 2 buffer_write(bu,buffer_u32,0);
+// mystery numbers + skip
+repeat 3 buffer_write(bu,buffer_u32,0);
 
 // Bugz metadata
 var bugz = [mystruct.bugz.yellow,
@@ -264,20 +291,20 @@ var bugzname_size = 0;
 
 for (var i=0;i<4;i++)
 	{
-	bugzname_size = string_length(bugz[i].filename);
+	bugzname_size = string_length(bugz[i].filename)+1;
 	buffer_write(bu,buffer_u32,bugzname_size);
 	buffer_write(bu,buffer_text,bugz[i].filename);
 	buffer_write(bu,buffer_u8,0);
 	
 	// Camera scale / Absolute X/Y
 	// Kludge this to just extrapolate from note x/y for now
-	repeat 2 buffer_write(bu,buffer_u32,global.zoom);
-	buffer_write(bu,buffer_u32,round(bugz[i].pos[0]*16));
-	buffer_write(bu,buffer_u32,round(bugz[i].pos[1]*16));
+	repeat 2 buffer_write(bu,buffer_u32,mystruct.pixelsize);
+	buffer_write(bu,buffer_s32,round(bugz[i].pos[0]));
+	buffer_write(bu,buffer_s32,round(bugz[i].pos[1]));
 	
 	// Note x/y positions
-	buffer_write(bu,buffer_u32,round(bugz[i].pos[0]));
-	buffer_write(bu,buffer_u32,round(bugz[i].pos[1]));
+	buffer_write(bu,buffer_u32,round(bugz[i].pos[0]/16));
+	buffer_write(bu,buffer_u32,round(bugz[i].pos[1]/16));
 	var value = 0;
 	switch bugz[i].dir
 		{
@@ -288,13 +315,9 @@ for (var i=0;i<4;i++)
 		}
 	buffer_write(bu,buffer_u32,value);
 	
-	// unknown bugz data #2
-	repeat 2 buffer_write(bu,buffer_u32,0);
-	
 	// error code (lets not make this more difficult than it needs to be)
 	// TODO: mid-teleport code has stuff here
-	buffer_write(bu,buffer_u32,0);
-	buffer_write(bu,buffer_u32,0);
+	repeat 4 buffer_write(bu,buffer_u32,0);
 	
 	// unknown bugz data #3, possibly tweezer related again?
 	repeat 4 buffer_write(bu,buffer_u8,0);
@@ -306,6 +329,9 @@ for (var i=0;i<4;i++)
 	buffer_write(bu,buffer_u32,bugz[i].paused);
 	buffer_write(bu,buffer_u32,bugz[i].volume);
 	}
+	
+buffer_write(bu,buffer_u32,0);
+buffer_write(bu,buffer_u32,1); // ALIENEXP.GAL has 2 here but stuff in /TUNES is always 1?
 
 // finally, save our buffer to file
 buffer_save(bu,file);

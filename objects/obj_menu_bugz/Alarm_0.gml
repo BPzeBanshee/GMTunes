@@ -4,7 +4,7 @@
 if loading_obj.alpha < 1
 	{
 	alarm[0] = 1;
-	exit;
+	return;
 	}
 
 // Once faded in, start doing stuff

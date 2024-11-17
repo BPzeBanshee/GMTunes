@@ -5,7 +5,7 @@ trace("Loading playfield from "+string(file)+"...");
 
 // Clear playfield first
 with obj_bug instance_destroy();
-global.pixel_grid = Array2(160,104);
+global.note_grid = Array2(160,104);
 global.ctrl_grid = Array2(160,104);
 global.warp_list = [];
 global.flag_list = [];
@@ -206,14 +206,8 @@ var camera_zoom = buffer_read(bu,buffer_u32); // 0, 1 or 2
 trace("cam: [{0},{1}]",cam_x,cam_y);
 trace("pixelsize: {0}",pixelsize);
 mystruct.camera_pos = [cam_x,cam_y];
-mystruct.pixelsize = camera_zoom;
-/*switch pixelsize
-	{
-	case 8: mystruct.pixelsize = 1; break;
-	case 16: mystruct.pixelsize = 2; break;
-	case 4:
-	default: mystruct.pixelsize = 0; break;
-	}*/
+mystruct.pixelsize = pixelsize;
+mystruct.camera_zoom = camera_zoom;
 
 // Random BS #3
 unk = [];
@@ -289,10 +283,6 @@ var minibuf = newbuf.buffer_new;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer decoded, size: {0} ({1})",minibuf_size,buffer_get_size(minibuf));
-//buffer_save(minibuf,"chunk_dec.dat");
-
-//var test = scr_encrypt_chunk(minibuf);
-//buffer_save(test,"chunk_enc.dat");
 
 for (var yy = 0; yy < 104; yy++)
 	{
@@ -303,9 +293,6 @@ for (var yy = 0; yy < 104; yy++)
 		}
 	}
 buffer_delete(minibuf);
-
-//var test2 = scr_rle_encode(note_grid);
-//clipboard_set_text(string("{0}",test2));
 
 // ...then the control bit position data
 chunk_size = buffer_read(bu,buffer_u32);
@@ -340,9 +327,22 @@ buffer_delete(minibuf);
 mystruct.note_list = note_grid;
 mystruct.ctrl_list = ctrl_grid;
 
+// Bugz scale value
+/*
+Recent successes in creating SimTunes-loadable .tuns revealed
+that the first u32 after the grid data is a scale value that
+decides which sprite sets the Bugz use. This should always
+match the camera zoom value, but SimTunes will accept non-matching
+values and set the Bugz sizes on load, which lasts until you use
+the zoom tool to change zoom levels.
+*/
+var bugz_scale = buffer_read(bu,buffer_u32);
+if bugz_scale != camera_zoom
+trace("WARNING: Camera zoom and Bugz scale value don't match!");
+
 // Random Bullshit #4
 /*
-Third value seems to be some kind of timer that changes
+Second value seems to be some kind of timer that changes
 from save to save, but is usually a low number.
 
 Could it be metadata versioning, or something else?
@@ -350,8 +350,8 @@ REVERB.GAL: 0x0D/13, BIRDINTH.GAL: 0x13/19, ALIENEXP.GAL: 0x1F/31
 CITYTALK.GAL: 0x00/0
 */
 unk = [];
-repeat 4 array_push(unk,buffer_read(bu,buffer_u32));
-//repeat 16 array_push(unkd,buffer_read(bu,buffer_u8));
+repeat 3 array_push(unk,buffer_read(bu,buffer_u32));
+//repeat 12 array_push(unkd,buffer_read(bu,buffer_u8));
 trace("Random Bullshit #4: {0}",unk);
 
 // Bugz metadata
@@ -419,7 +419,7 @@ for (var i=0; i<4; i++)
 	*/
 	var error1 = buffer_read(bu,buffer_u32);
 	var error2 = buffer_read(bu,buffer_u32);
-	var tele = [];
+	var tele = [-1,-1];
 	
 	if error1 == 0 && error2 == 0
 		{
@@ -521,7 +521,7 @@ else
 	}
 	
 // Camera settings
-global.zoom = tun_struct.pixelsize;
+global.zoom = tun_struct.camera_zoom;
 var ww = 640*4; // 1920
 var hh = 480*4; // 1856
 x = clamp(tun_struct.camera_pos[0],0,ww);
@@ -540,9 +540,10 @@ camera_set_view_pos(cam,x,y);
 global.flag_list = tun_struct.flag_list;
 
 // Pixel/Control grids
-global.pixel_grid = tun_struct.note_list;
+global.note_grid = tun_struct.note_list;
 global.ctrl_grid = tun_struct.ctrl_list;
 global.warp_list = tun_struct.warp_list;
+trace("warp_list: {0}",global.warp_list);
 
 // finally, actually create the bugz
 var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
@@ -556,12 +557,9 @@ for (var i=0;i<4;i++)
 		bug.paused = bugz[i].paused;
 		bug.volume = bugz[i].volume;
 		bug.direction = bugz[i].dir;
-		if array_length(bugz[i].ctrl) > 0
-			{
-			bug.ctrl_x = bugz[i].ctrl[0];
-			bug.ctrl_y = bugz[i].ctrl[1];
-			bug.warp = true;
-			}
+		bug.ctrl_x = bugz[i].ctrl[0];
+		bug.ctrl_y = bugz[i].ctrl[1];
+		if bug.ctrl_x > -1 || bug.ctrl_y > -1 bug.warp = true;
 		bug.calculate_timer();
 	
 		// apply the bugz to obj_ctrl_playfield's local bug tracking

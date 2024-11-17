@@ -17,16 +17,24 @@ var bx = 63;
 var by = 416;
 if use_classic_gui 
 	{
+	var undo_x = 579;
+	var undo_y = by+36;
+	if draw_flash == 101 draw_sprite(global.spr_ui.onclick_top,0,undo_x,undo_y);
+	
+	var reset_x = 610;
+	var reset_y = by+36;
+	if draw_flash == 102 draw_sprite(global.spr_ui.onclick_top,0,reset_x,reset_y);
+	
 	switch menu
 		{
 		// paint
 		case 0:
 			{
 			draw_sprite(gui.paint,0,0,by); 
-			draw_rectangle_color(0,by,533,by+64,0,0,0,0,false);
+			draw_rectangle_color(bx,by,533,by+64,0,0,0,0,false);
 			
 			// musical selector (55,14)
-			var music_x = bx-9;
+			var music_x = bx-8;
 			var music_y = by+14;
 			draw_sprite(global.spr_ui.playnote[play_index],0,music_x,music_y);
 		
@@ -50,6 +58,11 @@ if use_classic_gui
 				draw_sprite(global.spr_note2[i][0],0,xx,by+16)
 				else draw_sprite(spr_note_ctrl,i-1,xx,by+16);
 				}
+				
+			// Rainbow option
+			var rainbow_x = bx+400; //463
+			var rainbow_y = by;
+			draw_sprite(spr_note_rainbow,0,rainbow_x,rainbow_y);
 			break;
 			}
 		
@@ -189,29 +202,29 @@ if use_classic_gui
 			if draw_flash == 8 draw_sprite(global.spr_ui.onclick_flagrestart,0,restart_x,restart_y);
 			
 			// Volume sliders
-			var volume_x = 122;
-			var volume_y = by+38;
+			var vol_x = 122;
+			var vol_y = by+38;
 			for (var i=0;i<4;i++)
 				{
 				if instance_exists(bug[i]) 
 					{
 					var current_percent = clamp(75 * (bug[i].volume/128),0,75);
 				
-					if point_in_rectangle(mx,my,volume_x,volume_y+(6*i),volume_x+75,volume_y+(6*i)+6)
+					if point_in_rectangle(mx,my,vol_x,vol_y+(6*i),vol_x+75,vol_y+(6*i)+6) && !show_menu
 						{
 						if mouse_check_button(mb_left)
 							{
-							current_percent = clamp(75 * ((mx-volume_x)/75),0,76);
+							current_percent = clamp(75 * ((mx-vol_x)/75),0,76);
 							}
 						if mouse_check_button_released(mb_left)
 							{
-							var mouse_percent = clamp(128 * ((mx-volume_x)/75),0,128);
+							var mouse_percent = clamp(128 * ((mx-vol_x)/75),0,128);
 							bug[i].volume = mouse_percent;
 							trace("bug {0} volume set to {1}",i,mouse_percent);
 							}
 						}
 					
-					draw_sprite(global.spr_ui.slider[i],0,volume_x+current_percent,volume_y+3+(6*i));
+					draw_sprite(global.spr_ui.slider[i],0,vol_x+current_percent,vol_y+3+(6*i));
 					}
 				}
 			
@@ -224,7 +237,7 @@ if use_classic_gui
 					{
 					var current_percent = clamp(75 * (bug[i].gear/8),0,75);
 				
-					if point_in_rectangle(mx,my,spd_x,spd_y+(6*i),spd_x+75,spd_y+(6*i)+6)
+					if point_in_rectangle(mx,my,spd_x,spd_y+(6*i),spd_x+75,spd_y+(6*i)+6) && !show_menu
 						{
 						if mouse_check_button(mb_left)
 							{
@@ -246,31 +259,51 @@ if use_classic_gui
 		
 		// config/file
 		case 4: 
-		draw_sprite(gui.file,0,0,by); 
-		//draw_text(bx,by+16,"CONFIG/FILE TBA"); 
+			{
+			draw_sprite(gui.file,0,0,by); 
+			//draw_text(bx,by+16,"CONFIG/FILE TBA"); 
 		
-		var gal_x = 65;
-		var gal_y = by;
-		if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,gal_x,gal_y);
+			var gal_x = 65;
+			var gal_y = by;
+			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,gal_x,gal_y);
 		
-		var load_x = 246;
-		var load_y = by;
-		if draw_flash == 3 draw_sprite(global.spr_ui.onclick_top,0,load_x,load_y);
+			var load_x = 246;
+			var load_y = by;
+			if draw_flash == 3 draw_sprite(global.spr_ui.onclick_top,0,load_x,load_y);
 		
-		var save_x = 337;
-		var save_y = by;
-		if draw_flash == 4 draw_sprite(global.spr_ui.onclick_top,0,save_x,save_y);
+			var save_x = 337;
+			var save_y = by;
+			if draw_flash == 4 draw_sprite(global.spr_ui.onclick_top,0,save_x,save_y);
 		
-		var quit_x = 428;
-		var quit_y = by;
-		if draw_flash == 5 draw_sprite(global.spr_ui.onclick_top,0,quit_x,quit_y);
+			var quit_x = 428;
+			var quit_y = by;
+			if draw_flash == 5 draw_sprite(global.spr_ui.onclick_top,0,quit_x,quit_y);
 		
-		var backdrop_x = 88;
-		var backdrop_y = by+37;
-		if draw_flash == 6 draw_sprite(global.spr_ui.onclick_bottom,0,backdrop_x,backdrop_y);
+			var backdrop_x = 88;
+			var backdrop_y = by+37;
+			if draw_flash == 6 draw_sprite(global.spr_ui.onclick_bottom,0,backdrop_x,backdrop_y);
+			break;
+			}
+		}
+	
+	var chooser_x = bx-20;
+	var chooser_y = by+40;
+	draw_sprite(global.spr_ui.chooser[show_menu],0,chooser_x,chooser_y);
+	if point_in_rectangle(mx,my,chooser_x,chooser_y,chooser_x+20,chooser_y+20) && mb
+		{
+		show_menu = !show_menu;
+		audio_play_sound(global.snd_ui.menu[show_menu],0,false);
+		}
 		
-		
-		break;
+	var mmy = 480 - round(menu_y);
+	var mmx = bx+7;
+	if menu_y>0 draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
+	for (var i=0;i<5;i++)
+		{
+		if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
+			{
+			menu = i;
+			}
 		}
 	}
 else
@@ -326,11 +359,89 @@ else
 					m.note = i;
 					}
 				}
+				
+			// Rainbow option
+			var rainbow_x = bx+400; //463
+			var rainbow_y = by;
+			draw_sprite(spr_note_rainbow,0,rainbow_x,rainbow_y);
 			break;
 			}
 		
 		// stamps
-		case 1: draw_text(bx,by+16,"STAMP TBA"); break;
+		case 1: 
+			{
+			draw_set_color(c_white);
+			draw_set_halign(fa_center);
+			//draw_text(bx,by+16,"STAMP TBA"); 
+			// Copy
+			var copy_x = 65;
+			var copy_y = by;
+			draw_rectangle(copy_x,copy_y,copy_x+89,copy_y+32,true);
+			draw_text(copy_x+44,copy_y+16,"COPY");
+			if draw_flash == 1 draw_rectangle(copy_x,copy_y,copy_x+89,copy_y+32,false);
+			
+			// Move
+			var move_x = 155;
+			var move_y = by;
+			draw_rectangle(move_x,move_y,move_x+89,move_y+32,true);
+			draw_text(move_x+44,move_y+16,"MOVE");
+			if draw_flash == 2 draw_rectangle(move_x,move_y,move_x+89,move_y+32,false);
+			
+			// Load
+			var load_stamp_x = 83;
+			var load_stamp_y = by+38;
+			draw_rectangle(load_stamp_x,load_stamp_y,load_stamp_x+89,load_stamp_y+24,true);
+			draw_text(load_stamp_x+44,load_stamp_y+12,"LOAD STP");
+			if draw_flash == 3 draw_rectangle(load_stamp_x,load_stamp_y,load_stamp_x+89,load_stamp_y+24,false);
+			
+			// Save
+			var save_stamp_x = 174;
+			var save_stamp_y = by+38;
+			draw_rectangle(save_stamp_x,save_stamp_y,save_stamp_x+89,save_stamp_y+24,true);
+			draw_text(save_stamp_x+44,save_stamp_y+12,"SAVE STP");
+			if draw_flash == 4 draw_rectangle(save_stamp_x,save_stamp_y,save_stamp_x+89,save_stamp_y+24,false);
+			
+			var scale_up_x = 414;
+			var scale_up_y = by+39;
+			draw_rectangle(scale_up_x,scale_up_y,scale_up_x+29,scale_up_y+25,true);
+			draw_text(scale_up_x+14,scale_up_y+12,"SC+");
+			
+					
+			var scale_down_x = 445;
+			var scale_down_y = by+39;
+			draw_rectangle(scale_down_x,scale_down_y,scale_down_x+29,scale_down_y+25,true);
+			draw_text(scale_down_x+14,scale_down_y+12,"SC-");
+				
+			var toggle_clear_x = 482;
+			var toggle_clear_y = by+39;
+			draw_rectangle(toggle_clear_x,toggle_clear_y,toggle_clear_x+29,toggle_clear_y+25,true);
+			draw_text(toggle_clear_x+14,toggle_clear_y+12,clear_back ? "CLR" : "OPQ");
+			//draw_sprite(global.spr_ui.stamp_clearback[!clear_back],0,toggle_clear_x,toggle_clear_y);
+			
+			// Greyed area
+			var not_ready_x = 174;//176
+			var not_ready_y = by+38;
+			var e = instance_exists(obj_mouse_stamp);
+			
+			if !e or (e && !m.loaded)
+				{
+				draw_set_alpha(0.5);
+				draw_set_color(c_black);
+				draw_rectangle(not_ready_x,not_ready_y,not_ready_x+298,not_ready_y+26,false);
+				draw_set_alpha(1);
+				}
+			else
+				{
+				if m.size == 5
+					{
+					draw_set_alpha(0.5);
+					draw_set_color(c_black);
+					draw_rectangle(scale_up_x,scale_up_y,scale_up_x+29,scale_up_y+25,false);
+					draw_set_alpha(1);
+					}
+				}
+			break;
+			}
 	
 		// field/explore
 		case 2: draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;

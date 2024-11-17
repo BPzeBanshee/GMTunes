@@ -1,3 +1,4 @@
+///@desc Draw cursor + stamp
 if surface_exists(surf)
     {
 	draw_set_alpha(1);
@@ -28,8 +29,10 @@ if surface_exists(surf)
 		}
 	
 	gpu_set_texfilter(false);
+	draw_set_color(c_white);
 	draw_rectangle(dx,dy,dx - w,dy - h,true);
 	draw_surface_ext(surf,sw,sh,16,16,0,c_white,1);
 	gpu_set_texfilter(global.use_texfilter);
     }
 else if loaded update_surf();
+

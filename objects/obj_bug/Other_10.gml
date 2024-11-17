@@ -77,6 +77,7 @@ draw_sprite_ext(spr,0,xx,yy,image_xscale,image_yscale,direction-90,image_blend,i
 draw_anim = function(xx,yy){
 if anim_playing
 	{
+	draw_set_alpha(1);
 	// pull from LTCC data
 	var b = ltcc_blend;
 	

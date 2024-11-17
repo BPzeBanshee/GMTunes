@@ -25,9 +25,3 @@ while buffer_tell(buffer) < offset+size
 //trace("buffer written, size: "+string(buffer_get_size(minibuf)));
 return {buffer_new,size_final};
 }
-
-function scr_encrypt_chunk_zlib(buffer){
-var newbuf = buffer_compress(buffer,0,buffer_get_size(buffer));
-if buffer_exists(newbuf) return newbuf;
-return -1;
-}

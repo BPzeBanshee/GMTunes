@@ -3,15 +3,6 @@ TODO:
 export bug info in it's entirety to easily-GM-loadable files?
 */
 
-function form_skip(buffer){
-trace("Skip form: {0}",buffer_word(buffer,buffer_tell(buffer)));
-buffer_read(buffer,buffer_u32);
-var skip = buffer_read_be32(buffer);
-trace("Skip value: {0}",skip);
-buffer_seek(buffer,buffer_seek_relative,skip);
-if frac(buffer_tell(buffer)/2) != 0 then buffer_read(buffer,buffer_u8);
-}
-
 function bug_create(xx,yy,filehandle){
 if !file_exists(filehandle) then return -1;
 // Name for debug/metadata purposes
@@ -78,14 +69,14 @@ var ltcc = bug_load_ltcc(bu);
 // MIDI Data (we have no means for using this)
 trace("bug_create({0}): loading MIDI...",name);
 var midi = bug_load_midi(bu);
-//trace("MIDI: {0}",midi);
+trace("MIDI: {0}",midi);
 
 // WAVE (form container for RIFF WAVE sounds)
 trace("bug_create({0}): loading WAVE...",name);
 var snd_struct = bug_load_wave(bu); 
 buffer_delete(bu);
 
-var bug = instance_create_depth(xx,yy,0,obj_bug);
+var bug = instance_create_layer(xx,yy,"lay_bugz",obj_bug);
 bug.bugzname = name;
 bug.bugztype = bugztype;
 bug.bugzid = real(string_digits(name)); //instance_number(obj_bug);
@@ -465,17 +456,18 @@ if buffer_word(bu,offset) != "MIDI"
 	return 1;
 	}
 	
-var count = 0;
-var midi_data = [[]];
+var midi_data = [];
 while (buffer_word(bu,offset) == "MIDI")
 	{
 	buffer_read(bu,buffer_u32); // skip form header
 	var size = buffer_read_be32(bu);
+	var content = [];
 	for (var i=0;i<size;i+=2)
 		{
-		array_push(midi_data[count],buffer_read_be16(bu));
+		array_push(content,buffer_read_be16(bu));
 		}
 	offset = buffer_tell(bu);
+	array_push(midi_data,content);
 	}
 	
 return midi_data;

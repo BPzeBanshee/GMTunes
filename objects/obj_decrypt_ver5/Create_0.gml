@@ -11,7 +11,7 @@ newchunk = buffer_create(1,buffer_grow,1);
 newchunk_enc = -1;
 surf_scale = 1;
 
-global.pixel_grid = [];
+global.note_grid = [];
 global.ctrl_grid = [];
 
 event_user(0);

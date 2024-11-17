@@ -1,3 +1,3 @@
-///@desc Declare methods in ev0
 parent = noone;
-event_user(0);
+image_speed = 0;
+sprite_index = global.use_external_assets ? global.spr_ui.cursor : spr_cursor;

@@ -1,3 +1,3 @@
 ///@desc Reload
-if sprite_exists(spr) then sprite_delete(spr);
+event_perform(ev_cleanup,0);
 event_user(0);

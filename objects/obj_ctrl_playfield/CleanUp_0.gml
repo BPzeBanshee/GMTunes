@@ -1,4 +1,4 @@
-global.pixel_grid = [];
+global.note_grid = [];
 global.ctrl_grid = [];
 global.playfield = {};
 window_set_caption("GMTunes"); 

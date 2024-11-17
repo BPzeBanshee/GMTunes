@@ -1,13 +1,13 @@
 if y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
 var xx = floor(x/16);
 var yy = floor(y/16);
-
-/*
-TODO: fucked something up here so it's not copying field data properly in some cases
-*/
-
+if global.use_external_assets
+	{
+	sprite_index = move_mode ? global.spr_ui.move : global.spr_ui.copy;
+	}
 if mouse_check_button_pressed(mb_left)
 	{
+	parent.record();
 	if !loaded
 		{
 		// set start coord for copy/cut zone
@@ -28,6 +28,7 @@ if mouse_check_button(mb_left)
 		if point_in_rectangle(xx,yy,0,0,160,104) 
 		&& (xx != px || yy != py)
 			{
+			//if !move_mode parent.record();
 			paste(xx,yy);
 			px = xx;
 			py = yy;
@@ -46,6 +47,7 @@ if mouse_check_button_released(mb_left)
 		{
 		if copy_w != 0 && copy_h != 0
 			{
+			parent.record();
 			trace("left button release copy x/y: {0},{1} copy_w/h: {2},{3}",copy_x,copy_y,copy_w,copy_h);
 			if move_mode 
 			cut(copy_x,copy_y,copy_w,copy_h)
@@ -70,7 +72,7 @@ if mouse_check_button(mb_right)
 		{
 		var dx = xx-floor(width/2);
 		var dy = yy-floor(height/2);
-		array_clear(global.pixel_grid,dx,dy,xx+floor(width/2),yy+floor(height/2),0);
+		array_clear(global.note_grid,dx,dy,xx+floor(width/2),yy+floor(height/2),0);
 		(parent.field).update_surf();
 		}*/
 	}

@@ -1,5 +1,6 @@
 ///@desc Create buttons/array list
 // First, array list
+instance_create_depth(0,0,depth-1,obj_mouse_parent);
 txta = []; obj = [];
 array_push(txta,"TEXT/INFO (.BUG)");		array_push(obj,obj_decrypt_info);
 array_push(txta,"RIFF (.BUG)");				array_push(obj,obj_decrypt_riff);

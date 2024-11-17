@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"bitmap_load",
   "parent":{
-    "name":"Scripts",
-    "path":"folders/Scripts.yy",
+    "name":"Resource Functions",
+    "path":"folders/Scripts/Resource Functions.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

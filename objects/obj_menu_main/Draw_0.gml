@@ -20,13 +20,19 @@ if sprite_exists(spr)
 	
 	pal_swap_reset();
 	}
+else
+	{
+	draw_sprite(spr_logo,0,320,sprite_get_yoffset(spr_logo));
+	}
 	
-scr_draw_vars(global.fnt_bolditalic,fa_left,c_white);
+scr_draw_vars(global.fnt_bold,fa_left,c_white);
 draw_set_valign(fa_top);
 draw_set_alpha(1);
-draw_text(0,0,"GMTUNES: SIMTUNES-RELATED TOOLS");
+draw_text(0,0,"GMTunes Build "+string(GAME_VERSION));
+draw_set_font(global.fnt_bolditalic);
+draw_text(0,12,"Special thanks:");
 draw_set_font(global.fnt_default);
-draw_text(0,12,"by BPze\nSpecial thanks:\nlucasvb & Yellow\nSimTunes Community");
+draw_text(0,24,"lucasvb & Yellow\nSimTunes Community");
 
 /*draw_rectangle(206,21,206+227,21+244,true);
 draw_rectangle(46,270,46+157,270+138,true);

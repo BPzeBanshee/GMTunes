@@ -11,5 +11,6 @@ if global.debug
     var str = "";
     str += string(rfps_txt)+" RFPS\n";
     str += "I:"+string(instance_count)+", "+string(fps)+" FPS";
-    draw_text(640,480-string_height(str),str);
+	var o = instance_exists(obj_ctrl_playfield) ? 36 : 0;
+    draw_text(640,480-string_height(str)-o,str);
     }

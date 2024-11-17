@@ -27,8 +27,8 @@ if timer < 1
 	}
 		
 // Map position wrap
-move_wrap(true,true,0);
-
+if x+8>room_width x -= room_width; if x+8<-8 x += room_width;
+if y+8>room_height y -= room_height; if y+8<-8 y += room_height;
 var xx = clamp(floor((x+8)/16),0,159);
 var yy = clamp(floor((y+8)/16),0,103);
 	
@@ -37,7 +37,7 @@ if (hit_lastx != xx or hit_lasty != yy)
 	{
 	hit_lastx = xx;
 	hit_lasty = yy;
-	var c = global.pixel_grid[xx][yy];
+	var c = global.note_grid[xx][yy];
 	if c > 0
 		{
 		note = c;
@@ -78,7 +78,8 @@ if anim_playing == true
 	
 	// Playback
 	var play = 30/game_get_speed(gamespeed_fps);
-	if anim_index < array_length(ltxy_data[section])-1 then anim_index += play else
+	if anim_index < array_length(ltxy_data[section])-1
+	anim_index += play else
 		{
 		anim_playing = false;
 		anim_index = 0;

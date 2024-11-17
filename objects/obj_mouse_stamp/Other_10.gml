@@ -1,6 +1,4 @@
-// Inherit the parent event
 // Feather disable GM2016
-event_inherited();
 
 copy = function(cx,cy,w,h){
 // convert to abs
@@ -13,7 +11,7 @@ for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
-		var play_note = global.pixel_grid[cx+xx][cy+yy];
+		var play_note = global.note_grid[cx+xx][cy+yy];
 		if play_note > 0 grid_note_new[xx][yy] = play_note;
 		
 		var ctrl_note = global.ctrl_grid[cx+xx][cy+yy];
@@ -35,7 +33,7 @@ for (var yy = 0; yy < h; yy++)
 							{
 							// add local x/y coords to warp_starts/ends array
 							array_push(warp_starts,[true,xx,yy]);
-							array_push(warp_ends,[true,dx,dy]);
+							//array_push(warp_ends,[true,dx,dy]);
 							copy_note = true;
 							}
 						}
@@ -52,13 +50,13 @@ for (var yy = 0; yy < h; yy++)
 					if cx+xx == global.warp_list[i][2]
 					&& cy+yy == global.warp_list[i][3]
 						{
-						// test if destination x/y will be in copy zone
+						// test if start x/y will be in copy zone
 						var dx = global.warp_list[i][0]-cx;
 						var dy = global.warp_list[i][1]-cy;
 						if point_in_rectangle(dx,dy,0,0,w-1,h-1)
 							{
 							// add local x/y coords to warp_starts array
-							array_push(warp_starts,[true,dx,dy]);
+							//array_push(warp_starts,[true,dx,dy]);
 							array_push(warp_ends,[true,xx,yy]);
 							copy_note = true;
 							}
@@ -94,7 +92,7 @@ for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
-		var data_note = global.pixel_grid[cx+xx,cy+yy];
+		var data_note = global.note_grid[cx+xx,cy+yy];
 		if data_note > 0 grid_note_new[xx][yy] = data_note;
 		
 		var ctrl_note = global.ctrl_grid[cx+xx][cy+yy];
@@ -175,8 +173,8 @@ for (var yy = 0; yy < h; yy++)
 			}
 		}
 	}
-array_clear(global.ctrl_grid,cx,cy,(cx+w)-1,(cy+h)-1,0);
-array_clear(global.pixel_grid,cx,cy,(cx+w)-1,(cy+h)-1,0);
+array_clear(global.ctrl_grid,cx,cy,w,h,0);
+array_clear(global.note_grid,cx,cy,w,h,0);
 grid_note = grid_note_new;
 grid_ctrl = grid_ctrl_new;
 width = w;
@@ -195,7 +193,7 @@ for (var dx = 0; dx < width; dx++)
 		{
 		// Paint blocks
 		var data = grid_note[dx][dy];
-		if data > 0 || !clear_back global.pixel_grid[sx+dx][sy+dy] = data;
+		if data > 0 || !clear_back global.note_grid[sx+dx][sy+dy] = data;
 			
 		// Control blocks
 		var data2 = grid_ctrl[dx][dy];

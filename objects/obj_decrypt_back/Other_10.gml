@@ -5,5 +5,5 @@ if string_length(f) == 0
 	instance_destroy();
 	exit;
 	}
-
-spr = bac_load(f);
+mystruct = bac_load(f,true);
+trace(mystruct);

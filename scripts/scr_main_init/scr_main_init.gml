@@ -3,8 +3,11 @@ function scr_main_init(){
 // Macros
 #macro trace show_debug_message
 #macro msg show_message
+#macro GAME_VERSION string("({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
 #macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
 #macro Web:TUNERES "/TUNERES.DAT_ext/"
+
+trace("GMTunes Build {0}",GAME_VERSION);
 
 // Function calls
 surface_depth_disable(true);
@@ -18,16 +21,16 @@ instance_create_depth(x,y,-9999,obj_debug);
 
 // Controller objects and globalvars
 global.playfield = {}; // struct
-global.pixel_grid = [];
+global.note_grid = [];
 global.ctrl_grid = [];
 global.warp_list = [];
 global.flag_list = [];
 global.zoom = 0;
 
 // Establishing program directory etc
-if GM_build_type == "run"
+//if GM_build_type == "run"
 global.main_dir = working_directory+"/"
-else global.main_dir = program_directory+"/";
+//else global.main_dir = program_directory+"/";
 if os_type == os_windows
 	{
 	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
@@ -64,8 +67,7 @@ if os_type == os_windows && global.use_external_assets
 		if file_exists(global.main_dir+"TUNERES.DAT")
 			{
 			var result = extract_dat(global.main_dir+"TUNERES.DAT");
-			if result < 0
-			then show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+			if result < 0 show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
 			}
 		else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(TUNERES));
 		}
@@ -84,13 +86,14 @@ else
 }
 
 function scr_config_load(){
-ini_open("GMTunes.ini");
+ini_open(working_directory+"/GMTunes.ini");
 global.debug = ini_read_real("GMTunes","debug",true);
 global.use_external_assets = ini_read_real("GMTunes","use_external_assets",true);
 global.music_volume = ini_read_real("GMTunes","music_volume",50);
 global.use_texfilter = ini_read_real("GMTunes","use_texture_filtering",false);
 //if os_type == os_operagx global.use_external_assets = false;
 ini_close();
+return 0;
 }
 
 function scr_config_save(){
@@ -140,6 +143,10 @@ for (var i=0;i<25;i++)
 	//trace(fname);
 	global.snd_ui.beep[i] = wav_load(TUNERES+fname);
 	}
+global.snd_ui.zap = wav_load(TUNERES+"ZAP.WAV");
+global.snd_ui.undo = wav_load(TUNERES+"UNDO.WAV");
+global.snd_ui.menu[0] = wav_load(TUNERES+"POPDOWN.WAV");
+global.snd_ui.menu[1] = wav_load(TUNERES+"POPUP.WAV");
 }
 
 function scr_spr_init(){
@@ -148,8 +155,9 @@ if !global.use_external_assets exit;
 // NOTE: sprite_add_from_surface not used due to performance bug
 global.spr_ui = {};
 global.spr_note2[0][0] = -1;
-global.spr_flag2[0] = -1;
+global.spr_flag2[0][0][0] = -1;
 
+// Color/Control Note blocks
 var temp = bmp_load(TUNERES+"TILES16.BMP");
 if surface_exists(temp) 
 	{
@@ -164,15 +172,30 @@ if surface_exists(temp)
 	surface_free(temp);
 	}
 
-var temp2 = bmp_load(TUNERES+"RESTART2.BMP");
-if surface_exists(temp2) 
+// Restart Flags
+for (var i=0;i<=2;i++)
 	{
-	for (var c = 0;c < 4; c++)
+	var temp2 = bmp_load(TUNERES+"RESTART"+string(i)+".BMP");
+	var ww = surface_get_width(temp2) / 4;
+	if surface_exists(temp2) 
 		{
-		global.spr_flag2[c] = sprite_create_from_surface(temp2,48,48*c,48,48,true,false,24,24);
+		for (var j = 0; j < 4; j++)
+		for (var k = 0; k < 4; k++)
+			{
+			global.spr_flag2[i][j][k] = sprite_create_from_surface(temp2,ww*k,ww*j,ww,ww,true,false,ww/2,ww/2);
+			}
+		surface_free(temp2);
 		}
-	surface_free(temp2);
 	}
+	
+// Restart Flags (Cursor edition)
+var temp3 = bmp_load(TUNERES+"RESTART.BMP");
+for (var yy=0;yy<4;yy++)
+for (var xx=0;xx<4;xx++)
+	{
+	global.spr_ui.flags[yy][xx] = sprite_create_from_surface(temp3,14*xx,14*yy,14,14,true,false,7,7);
+	}
+surface_free(temp3);
 
 // Loading Bar assets
 global.spr_ui.txt = bmp_load_sprite(TUNERES+"edot4mc.bmp");
@@ -187,6 +210,12 @@ _nineslice.bottom = 2;
 if sprite_exists(global.spr_ui.txt) sprite_set_nineslice(global.spr_ui.txt,_nineslice);
 
 global.spr_ui.desc = bmp_load_sprite(TUNERES+"Info.bmp",,,,,,,0,0);
+
+// Playfield menu box
+for (var i=0;i<5;i++)
+	{
+	global.spr_ui.menu[i] = bmp_load_sprite(TUNERES+"menu"+string(i+1)+".bmp",,,,,,,0,0);
+	}
 
 // UI Bug Boxes
 global.spr_ui.bug = [[]];
@@ -242,38 +271,37 @@ else
 	
 // UI 'Highlights'
 global.spr_ui.playnote = [];
-global.spr_ui.chooser = [];
-var temp3 = bmp_load(TUNERES+"hilights.bmp");
-if surface_exists(temp3)
+var temp4 = bmp_load(TUNERES+"hilights.bmp");
+if surface_exists(temp4)
 	{
 	for (var i=0;i<5;i++) 
 		{
-		global.spr_ui.playnote[i] = sprite_create_from_surface(temp3,91+(5*i),202,5,9,false,false,0,0);
+		global.spr_ui.playnote[i] = sprite_create_from_surface(temp4,91+(5*i),202,5,9,false,false,0,0);
 		}
 		
-	global.spr_ui.chooser[0] = sprite_create_from_surface(temp3,90,160,20,20,false,false,0,0);
-	global.spr_ui.chooser[1] = sprite_create_from_surface(temp3,90,180,20,20,false,false,0,0);
+	global.spr_ui.chooser[0] = sprite_create_from_surface(temp4,90,160,20,20,false,false,0,0);
+	global.spr_ui.chooser[1] = sprite_create_from_surface(temp4,90,180,20,20,false,false,0,0);
 	
-	global.spr_ui.onclick_top = sprite_create_from_surface(temp3,0,0,90,36,true,false,0,0);
-	global.spr_ui.onclick_bottom = sprite_create_from_surface(temp3,0,37,90,28,true,false,0,0);
-	global.spr_ui.onclick_flagrestart = sprite_create_from_surface(temp3,0,64,73,28,true,false,0,0);
-	global.spr_ui.onclick_stopgo = sprite_create_from_surface(temp3,0,92,72,34,true,false,0,0);
-	global.spr_ui.onclick_okcancel = sprite_create_from_surface(temp3,0,126,116,34,true,false,0,0);
-	global.spr_ui.onclick_slider_left = sprite_create_from_surface(temp3,74,68,28,28,true,false,0,0);
-	global.spr_ui.onclick_slider_right = sprite_create_from_surface(temp3,74,96,28,28,true,false,0,0);
+	global.spr_ui.onclick_top = sprite_create_from_surface(temp4,0,0,90,36,true,false,0,0);
+	global.spr_ui.onclick_bottom = sprite_create_from_surface(temp4,0,37,90,28,true,false,0,0);
+	global.spr_ui.onclick_flagrestart = sprite_create_from_surface(temp4,0,64,73,28,true,false,0,0);
+	global.spr_ui.onclick_stopgo = sprite_create_from_surface(temp4,0,92,72,34,true,false,0,0);
+	global.spr_ui.onclick_okcancel = sprite_create_from_surface(temp4,0,126,116,34,true,false,0,0);
+	global.spr_ui.onclick_slider_left = sprite_create_from_surface(temp4,74,68,28,28,true,false,0,0);
+	global.spr_ui.onclick_slider_right = sprite_create_from_surface(temp4,74,96,28,28,true,false,0,0);
 	
-	global.spr_ui.stamp_clearback[0] = sprite_create_from_surface(temp3,94,245,29,25,false,false,0,0);
-	global.spr_ui.stamp_clearback[1] = sprite_create_from_surface(temp3,94,270,29,25,false,false,0,0);
-	global.spr_ui.stamp_tilemode[0] = sprite_create_from_surface(temp3,94,295,29,25,false,false,0,0);
-	global.spr_ui.stamp_tilemode[1] = sprite_create_from_surface(temp3,94,320,29,25,false,false,0,0);
+	global.spr_ui.stamp_clearback[0] = sprite_create_from_surface(temp4,94,245,29,25,false,false,0,0);
+	global.spr_ui.stamp_clearback[1] = sprite_create_from_surface(temp4,94,270,29,25,false,false,0,0);
+	global.spr_ui.stamp_tilemode[0] = sprite_create_from_surface(temp4,94,295,29,25,false,false,0,0);
+	global.spr_ui.stamp_tilemode[1] = sprite_create_from_surface(temp4,94,320,29,25,false,false,0,0);
 	
-	surface_free(temp3);
+	surface_free(temp4);
 	}
 
 // Mouse cursors
 global.spr_ui.cursor = bmp_load_sprite(TUNERES+"SELECTOR.BMP",,,,,true,,0,0);
-global.spr_ui.tweezer = bmp_load_sprite(TUNERES+"TWEEZER0.BMP",,,,,true,,0,0);
-global.spr_ui.tweezer2 = bmp_load_sprite(TUNERES+"TWEEZER1.BMP",,,,,true,,0,0);
+global.spr_ui.tweezer[0] = bmp_load_sprite(TUNERES+"TWEEZER0.BMP",,,,,true,,0,0);
+global.spr_ui.tweezer[1] = bmp_load_sprite(TUNERES+"TWEEZER1.BMP",,,,,true,,0,0);
 global.spr_ui.magnify = bmp_load_sprite(TUNERES+"MAGNIFY.BMP",,,,,true,,8,8);
 global.spr_ui.move = bmp_load_sprite(TUNERES+"MOVE.BMP",,,,,true);
 global.spr_ui.copy = bmp_load_sprite(TUNERES+"COPY.BMP",,,,,true);
@@ -285,8 +313,6 @@ for (var i=0;i<array_length(ctrl_files);i++)
 	{
 	global.spr_ui.ctrl[i] = bmp_load_sprite(TUNERES+ctrl_files[i],,,,,true,,0,0);
 	}
-
-cursor_sprite = global.spr_ui.cursor;
 window_set_cursor(cr_none);
 }
 
@@ -334,9 +360,13 @@ if global.use_external_assets
 		}
 
 	// add the playfield assets and hardcoded ui stuff
-	for (var a=0;a<4;a++)
+	for (var z=0;z<=2;z++)
 		{
-		array_push(external_sprites,global.spr_flag2[a]);
+		for (var c=0;c<4;c++)
+		for (var d=0;d<4;d++)
+			{
+			array_push(external_sprites,global.spr_flag2[z][c][d]);
+			}
 		}
 	for (var yy = 0; yy <= 25; yy++)
 		{
@@ -356,15 +386,24 @@ if global.use_external_assets
 	delete global.spr_ui;
 	
 	// FREE EXTERNAL SOUNDS
-	var external_sounds = global.snd_ui.beep;
+	var external_sounds = [global.snd_ui.beep,global.snd_ui.zap,global.snd_ui.undo,global.snd_ui.menu];
 	for (var i=0;i<array_length(external_sounds);i++)
 		{
-		if audio_exists(external_sounds[i]) 
+		if is_array(external_sounds[i])
 			{
-			audio_free_buffer_sound(external_sounds[i]);//.snd);
-			//buffer_delete(external_sprites[i].buf);
+			for (var j=0;j<array_length(external_sounds[i]);j++)
+				{
+				if audio_exists(external_sounds[i][j]) audio_free_buffer_sound(external_sounds[i][j]);
+				}
+			}
+		else 
+			{
+			if audio_exists(external_sounds[i]) audio_free_buffer_sound(external_sounds[i]);
 			}
 		}
+		
+	// and flag struct gone just in case
+	delete global.snd_ui;
 	
 	// FREE EXTENSIONS
 	gmlzari_free();

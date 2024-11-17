@@ -3,27 +3,7 @@
 // Failing that we comment out until features are implemented
 
 // Camera movement
-var xo = 0;
-var yo = 0;
-if keyboard_check(vk_left) or keyboard_check(ord("A")) then xo = -global.zoom*4;
-if keyboard_check(vk_right) or keyboard_check(ord("D")) then xo = global.zoom*4;
-if keyboard_check(vk_up) or keyboard_check(ord("W")) then yo = -global.zoom*4;
-if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
-var cam = view_camera[0];
-var cx = camera_get_view_x(cam);
-var cy = camera_get_view_y(cam);
-
-var xform = room_width - camera_get_view_width(cam);
-var yform = 0;
-switch global.zoom
-	{
-	case 2: yform = 1664 - 416; break;
-	case 1: yform = 1664 - (416*2); break;
-	case 0: break;
-	}
-// (64 * global.zoom);// (64 * (global.zoom/2));
-//room_height+(256/(global.zoom+1))-ch;
-camera_set_view_pos(cam,clamp(cx+xo,0,xform),clamp(cy+yo,0,yform));
+update_camera();
 
 // Bugz
 if keyboard_check_pressed(vk_space)

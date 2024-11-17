@@ -1,7 +1,5 @@
 # GMTunes
-**GMTunes** is a GameMaker project that aims to eventually serve as a replacement engine for **SimTunes**. 
-
-It does not provide any copyrighted assets, so while the basic program will *technically* run on placeholder graphics for debugging purposes, you will need a SimTunes installation to load the resources associated with their savegames and use the program effectively.
+**GMTunes** is a GameMaker project that aims to eventually serve as a replacement engine for **SimTunes**. A SimTunes installation is required to use the program effectively (and for legal reasons is **not** provided here), but will fallback to placeholder graphics where possible.
 
 **SimTunes** is the product of Maxis and was primarily designed by Toshio Iwai. It is based on "Music Insects", an interactive audio-visual exhibit which was designed and created by Toshio Iwai and featured at the Exploratorium in San Franciso, 1992.
 
@@ -22,26 +20,28 @@ Simply extract the compiled project ZIP over an existing SimTunes installation. 
 - +/-: zoom in/out
 
 # Current Status
-GMTunes has been in the works on and off for some years but still remains in a very early state. A list of supported and unsupported features lies below. Most excrutiating at this time is a timing bug that prevents accurate playback of the Gallery example 'Reverb'.
+GMTunes has been in the works on and off for some years but still remains in a very early state. A list of supported and unsupported features lies below. Most excrutiating at this time is inaccurate playback of the Gallery example 'Reverb'. Reasons uncertain but suspected to be a timing issue.
 
 ## Things GMTunes supports
-- Intro movie loading
+- Intro movie support (utilises gmlibsmacker extension)
+- 60 FPS gameplay (game originally ran at 30, original FPS option planned)
+- WIP loading/reconstruction of the original SimTunes GUI, and an optional fallback GUI
+- 'empty' no-Bugz playfield state, can load SimTunes `.bug` files and pick from WIP selection menu
+- Level loading of JSON-based `.gmtun` format, SimTunes `.gal` "Gallery" files and `.tun` save files
+- Placement of notes and control notes via UI
+- Saving games in JSON-based `.gmtun` format and experimental support for SimTunes `.tun` format
+- Stamp features (except stamp tiling mode)
 - Background loading (.BAC files)
 - Bugz loading (.BUG files), currently does not need Bugz loaded for the initial playfield
-- Level loading (.GAL "Gallery" files as well as .TUN save files)
-- Placement of notes and control notes via UI, flag placement via number keys 1-4
-- Stamps (use .STP button to load file, Q/E to rotate)
-- 60 FPS (game originally ran at 30)
-- extraction of TUNERES.DAT assets to %LOCALAPPDATA%\GMTunes
-
-The file explorer is accessible using the button in left corner of the navigation bar. You can create a new file by clicking the **New file** button in the file explorer. You can also create folders by clicking the **New folder** button.
+- Undo button
 
 ## Things GMTunes DOES NOT support at this time
-- Saving games in original SimTunes format
-- UI is completely placeholder, intent is to have original playfield UI and optional 'modern' UI that's less clunky
-- MIDI support (GM has no native support: requires an extension to be written)
+- Help dialog
+- 'Explore' (AKA 'Field') tab features
+- Tutorial room not implemented, instead leads to a debug room for testing/research
+- Some menus and buttons in UI aren't yet hooked up, most file explorer features using Windows `get_open_filename_ext`
+- MIDI support (GM has no native support: requires an extension to be written, MIDI data needs further understanding)
 - Configuration menu (planned, but a lot of original menu options are obsolete)
-- Internal folder browser (planned, uses Windows `get_open_filename_ext` for now)
 
 # Special Thanks
 This project would likely never have gotten off the ground without the help of the SimTunes Community Discord server, and particularly the efforts of users 'Yellow' and 'lucasvb'.

@@ -5,3 +5,4 @@ instance_activate_object(obj_ctrl_playfield);
 instance_activate_object(obj_draw_playfield);
 instance_activate_object(mouse_old);
 with obj_button_dgui alarm[2] = 5;
+instance_destroy(mymouse);

@@ -240,7 +240,7 @@ for (var yy = 0; yy < 104; yy++)
 	for (var xx = 0; xx < 160; xx++)
 		{
 		var data = buffer_read(minibuf,buffer_u8);
-		global.pixel_grid[xx][yy] = data;
+		global.note_grid[xx][yy] = data;
 		}
 	}
 buffer_delete(minibuf);

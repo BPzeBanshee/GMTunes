@@ -1,6 +1,5 @@
 ///@desc Event Functions
 // Feather disable GM2016
-
 mouse_create = function(obj){
 if instance_exists(m)
 	{
@@ -10,7 +9,6 @@ if instance_exists(m)
 m = instance_create_depth(mouse_x,mouse_y,depth-1,obj);
 m.parent = id;
 }
-
 back_to_main = function(){
 scr_trans(rm_main);
 }
@@ -58,7 +56,6 @@ if filename != ""
 	}
 return -2;
 }
-
 load_yellow = function(filename=""){
 var mybug = load_bug(0,filename);
 if instance_exists(mybug)
@@ -95,8 +92,6 @@ if instance_exists(mybug)
 	return 0;
 	}
 }
-
-
 place_flag = function(flag_id){
 if mouse_y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
 var xx = floor(mouse_x/16);
@@ -110,7 +105,6 @@ else global.flag_list[flag_id,2] = 0;
 global.flag_list[flag_id,0] = xx;
 global.flag_list[flag_id,1] = yy;
 }
-
 rally_bugz_to_flags = function(){
 var bugz = [bug_yellow,bug_green,bug_blue,bug_red];
 for (var i=0;i<4;i++)
@@ -130,7 +124,6 @@ for (var i=0;i<4;i++)
 		}
 	}
 }
-
 load_tun = function(){
 var f = get_open_filename_ext("SimTunes .tun File (.tun)|*.TUN|SimTunes Gallery File (.gal)|*.GAL|GMTunes file (.gmtun)|*.GMTUN","",global.main_dir+"/TUNES","Load Savefile");
 if string_length(f)>0
@@ -162,16 +155,15 @@ if string_length(f)>0
 	tun_save(f);
 	}
 }
-
 menu_bugz = function(){
 instance_create_depth(x,y,depth,obj_menu_bugz);//-1
 }
-
 reset_playfield = function(hard=false){
-global.pixel_grid = [];
-global.ctrl_grid = [];
+record();
+array_clear(global.note_grid,0,0,160,104,0);
+array_clear(global.ctrl_grid,0,0,160,104,0);
 global.warp_list = [];
-global.flag_list = [];
+global.flag_list = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 
 if hard
 	{
@@ -180,9 +172,49 @@ if hard
 	tun_apply_data(playfield);
 	}
 else field.update_surf();
+audio_play_sound(global.snd_ui.zap,0,false);
 }
-
 flash = function(value){
 draw_flash = value;
 alarm[1] = 2;
+}
+undo = function(){
+note_grid_prev2 = variable_clone(global.note_grid);
+ctrl_grid_prev2 = variable_clone(global.ctrl_grid);
+global.note_grid = variable_clone(note_grid_prev1);
+global.ctrl_grid = variable_clone(ctrl_grid_prev1);
+note_grid_prev1	= variable_clone(note_grid_prev2);
+ctrl_grid_prev1	= variable_clone(ctrl_grid_prev2);
+field.update_surf();
+trace("Undo button pressed");
+audio_play_sound(global.snd_ui.undo,0,false);
+}
+record = function(){
+note_grid_prev1 = variable_clone(global.note_grid);
+ctrl_grid_prev1 = variable_clone(global.ctrl_grid);
+note_grid_prev2	= variable_clone(note_grid_prev1);
+ctrl_grid_prev2	= variable_clone(ctrl_grid_prev1);
+}
+update_camera = function(){
+var xo = 0;
+var yo = 0;
+if keyboard_check(vk_left) or keyboard_check(ord("A")) then xo = -global.zoom*4;
+if keyboard_check(vk_right) or keyboard_check(ord("D")) then xo = global.zoom*4;
+if keyboard_check(vk_up) or keyboard_check(ord("W")) then yo = -global.zoom*4;
+if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
+var cam = view_camera[0];
+var cx = camera_get_view_x(cam);
+var cy = camera_get_view_y(cam);
+
+var xform = room_width - camera_get_view_width(cam);
+var yform = 0;
+switch global.zoom
+	{
+	case 2: yform = 1664 - 416; break;
+	case 1: yform = 1664 - (416*2); break;
+	case 0: break;
+	}
+// (64 * global.zoom);// (64 * (global.zoom/2));
+//room_height+(256/(global.zoom+1))-ch;
+camera_set_view_pos(cam,clamp(cx+xo,0,xform),clamp(cy+yo,0,yform));
 }

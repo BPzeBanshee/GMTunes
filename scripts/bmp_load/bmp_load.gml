@@ -1,3 +1,10 @@
+/*
+Thorough BMP parsing for dedicated .bmp files
+
+TODO: see if parts of bitmap_load could be useful
+to reduce duplicated code here.
+*/
+
 /// @desc Loads a .bmp onto a surface and returns the surface ID.
 /// @param {String} file Name of .bmp file
 /// @returns {Id.Surface,Real}

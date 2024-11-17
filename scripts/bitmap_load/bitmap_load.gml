@@ -1,3 +1,11 @@
+/*
+Parsing of buffers for 'bitmap' images in SimTunes files
+using a bmp-like (but not exact) format
+
+TODO: see if parts of bitmap_load could be useful
+to reduce duplicated code in bmp_load here.
+*/
+
 function bitmap_load_from_buffer(buffer){
 if !buffer_exists(buffer) then return -1;
 

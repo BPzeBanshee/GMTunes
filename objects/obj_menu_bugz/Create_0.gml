@@ -28,7 +28,11 @@ for (var i=0;i<4;i++)
 	
 	if instance_exists(bug_list[i]) 
 		{
-		if bug_list[i].bugzid > 0 bug_index[i] = bug_list[i].bugzid - 1;
+		if bug_list[i].bugzid > 0 
+			{
+			bug_index[i] = bug_list[i].bugzid - 1;
+			bug_pos[i] = clamp(bug_index[i],0,9);
+			}
 		bug_x[i] = bug_list[i].x;
 		bug_y[i] = bug_list[i].y;
 		bug_ctrl_x[i] = bug_list[i].ctrl_x;
@@ -45,6 +49,7 @@ for (var i=0;i<4;i++)
 with obj_button_dgui enabled = false;	
 
 instance_deactivate_object(mouse_old);
+mymouse = instance_create_depth(0,0,depth-1,obj_mouse_parent);
 instance_deactivate_object(o);
 instance_deactivate_object(obj_bug);
 instance_deactivate_object(obj_draw_playfield);
@@ -116,7 +121,6 @@ draw_flash = value;
 alarm[5] = 2;
 }
 // variable init
-if global.use_external_assets cursor_sprite = global.spr_ui.cursor;
 done = false;
 ready = false;
 draw_flash = 0;

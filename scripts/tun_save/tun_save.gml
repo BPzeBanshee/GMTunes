@@ -25,6 +25,7 @@ for (var i=0;i<4;i++)
 	if mybugz[i] != noone
 		{
 		str[i].filename =	mybugz[i].bugzname;
+		str[i].bugztype =	mybugz[i].bugztype;
 		str[i].dir =		mybugz[i].direction;
 		str[i].pos =		[mybugz[i].x,mybugz[i].y];
 		str[i].ctrl =		[mybugz[i].ctrl_x,mybugz[i].ctrl_y];
@@ -32,6 +33,15 @@ for (var i=0;i<4;i++)
 		str[i].paused =		mybugz[i].paused;
 		str[i].volume =		mybugz[i].volume;
 		}
+	}
+	
+// "Pixel size": currently unused
+var pixel_size = 4;
+switch global.zoom
+	{
+	default: break;
+	case 1: pixel_size = 8; break;
+	case 2: pixel_size = 16; break;
 	}
 
 // Generate the JSON file
@@ -41,13 +51,14 @@ var mystruct = {
 	author: playfield_author,
 	desc: playfield_desc,
 	preview_image: "",
-	background: mybackname,//"",
+	background: mybackname,
 	
 	camera_pos: [round(x),round(y)],
-	pixelsize: global.zoom, // SimTunes uses pixelsize 4,8,16, simplify here to 0-2
+	camera_zoom: global.zoom,
+	pixelsize: pixel_size, // SimTunes uses pixelsize 4,8,16
 	warp_list: global.warp_list, //[xfrom,yfrom,xto,yto]
 	flag_list: myflags, //[x,y,dir]
-	note_list: global.pixel_grid, //[note,x,y]
+	note_list: global.note_grid, //[note,x,y]
 	ctrl_list: global.ctrl_grid,
 	bugz: {
 		yellow: str[0],
@@ -92,16 +103,9 @@ function tun_save_tun(mystruct,file)
 {
 if !is_struct(mystruct) return -1;
 
-// First, some data manipulation due to how SimTunes decided on these things
-// Camera
-var pixelsize = 4;
-switch mystruct.pixelsize
-	{
-	case 0: break;
-	case 1: pixelsize = 8; break;
-	case 2: pixelsize = 16; break;
-	}
-	
+// ========= Start data processing ============
+// Done in order to ensure data is how SimTunes wants it
+
 // Flag data
 for (var i=0;i<4;i++)
 	{
@@ -135,21 +139,6 @@ for (var i=0;i<array_length(preview_arr_enc);i++)
 	var data = preview_arr_enc[i];
 	buffer_write(preview_buf,buffer_u8,data[0]);
 	buffer_write(preview_buf,buffer_u8,data[1]);
-	// sequence
-	/*if is_array(data[1])
-		{
-		buffer_write(preview_buf,buffer_u8,data[0]);
-		for (var j=0;j<array_length(data[1]);j++)
-			{
-			buffer_write(preview_buf,buffer_u8,data[1][j]);
-			}
-		}
-	// repeat
-	else
-		{
-		buffer_write(preview_buf,buffer_u8,0x7F+data[0]);
-		buffer_write(preview_buf,buffer_u8,data[1]);
-		}*/
 	}
 buffer_set_used_size(preview_buf,buffer_tell(preview_buf));
 
@@ -168,7 +157,8 @@ var note_buf_size = buffer_tell(note_buf);
 buffer_set_used_size(note_buf,note_buf_size);
 
 // Control note data
-var ctrl_arr = mystruct.ctrl_list;
+var ctrl_arr = [];
+array_copy(ctrl_arr,0,mystruct.ctrl_list,0,array_length(mystruct.ctrl_list));
 var ctrl_arr_enc = scr_rle_encode(ctrl_arr);
 var ctrl_buf = buffer_create(8,buffer_grow,1);
 for (var i=0;i<array_length(ctrl_arr_enc);i++)
@@ -180,7 +170,7 @@ for (var i=0;i<array_length(ctrl_arr_enc);i++)
 var ctrl_buf_size = buffer_tell(ctrl_buf);
 buffer_set_used_size(ctrl_buf,ctrl_buf_size);
 
-// ========= End data manipulation ============
+// ========= End data processing ============
 
 // create our buffer to write data to
 var bu = buffer_create(8,buffer_grow,1);
@@ -235,8 +225,8 @@ buffer_write(bu,buffer_u8,0);
 // Camera/zoom positions
 buffer_write(bu,buffer_u32,round(x));
 buffer_write(bu,buffer_u32,round(y));
-buffer_write(bu,buffer_u32,pixelsize);
 buffer_write(bu,buffer_u32,mystruct.pixelsize);
+buffer_write(bu,buffer_u32,mystruct.camera_zoom);
 
 // Mystery data
 repeat 4 buffer_write(bu,buffer_u32,0);
@@ -250,7 +240,6 @@ if num_warps > 0
 for (var i=0; i<num_warps;i++)
 	{
 	// xfrom, yfrom, xto, yto
-	// TODO: actually get warp positions from ctrl_grid
 	var warp = [-1,-1,-1,-1];
 	if i < array_length(mystruct.warp_list) warp = mystruct.warp_list[i];
 	for (var j=0;j<4;j++) buffer_write(bu,buffer_s32,warp[j]);
@@ -277,7 +266,7 @@ buffer_seek(bu,buffer_seek_relative,ctrl_buf_size);
 buffer_delete(ctrl_buf);
 
 // Global bug scale value
-buffer_write(bu,buffer_u32,mystruct.pixelsize);
+buffer_write(bu,buffer_u32,mystruct.camera_zoom);
 
 // mystery numbers + skip
 repeat 3 buffer_write(bu,buffer_u32,0);
@@ -298,7 +287,7 @@ for (var i=0;i<4;i++)
 	
 	// Camera scale / Absolute X/Y
 	// Kludge this to just extrapolate from note x/y for now
-	repeat 2 buffer_write(bu,buffer_u32,mystruct.pixelsize);
+	repeat 2 buffer_write(bu,buffer_u32,mystruct.camera_zoom);
 	buffer_write(bu,buffer_s32,round(bugz[i].pos[0]));
 	buffer_write(bu,buffer_s32,round(bugz[i].pos[1]));
 	
@@ -315,12 +304,18 @@ for (var i=0;i<4;i++)
 		}
 	buffer_write(bu,buffer_u32,value);
 	
-	// error code (lets not make this more difficult than it needs to be)
-	// TODO: mid-teleport code has stuff here
-	repeat 4 buffer_write(bu,buffer_u32,0);
+	// Special condition codes (ie. saved mid-warp)
+	// TODO: Unclear what values before 0x40 represent, possibly float x/y percentages?
+	// Unknown if SimTunes even reads those
+	if bugz[i].ctrl[0] > -1 || bugz[i].ctrl[1] > -1
+		{
+		tun_write_bugz_code_80(bu,bugz[i]);
+		}
+	else repeat 4 buffer_write(bu,buffer_u32,0);
 	
 	// unknown bugz data #3, possibly tweezer related again?
-	repeat 4 buffer_write(bu,buffer_u8,0);
+	buffer_write(bu,buffer_u32,0);
+	//repeat 2 buffer_write(bu,buffer_u8,0);
 	//buffer_write(bu,buffer_u8,16);
 	//buffer_write(bu,buffer_u8,64);
 	
@@ -339,4 +334,48 @@ buffer_save(bu,file);
 // clean up data
 buffer_delete(bu);
 return 0;
+}
+
+function tun_write_bugz_code_80(bu,bug){
+// First, write the error code in question
+buffer_write(bu,buffer_u32,8);
+buffer_write(bu,buffer_u32,0);
+
+// Deal with the 0x40__ lines and their gaps first
+repeat 2
+	{
+	buffer_write(bu,buffer_u32,0x40000000);
+	buffer_write(bu,buffer_u32,0);
+	}
+buffer_write(bu,buffer_u32,0xC0000000);
+buffer_write(bu,buffer_u32,0);
+buffer_write(bu,buffer_u32,0xC0000000);
+buffer_write(bu,buffer_u32,0x55555554);
+
+// Spray Test 8 shows these are teleport note destination points
+var ctrl_x = bug.ctrl[0]/16;
+var ctrl_y = bug.ctrl[1]/16;
+trace("* Writing teleport destination values: {0},{1}",ctrl_x,ctrl_y);
+buffer_write(bu,buffer_s32,ctrl_x);
+buffer_write(bu,buffer_s32,ctrl_y);
+
+// Process exit code
+/*
+Known example codes:
+WATCHING.GAL
+[1,2,0,0xF0]: YELLOW02.BUG
+[1,2,0,0xF1]: GREEN02.BUG
+[1,2,0,0xF2]: BLUE02.BUG
+[1,2,0,0xF3]: RED02.BUG
+*/
+var arr = [1,2,0,0xF0+bug.bugztype];
+trace("* Writing Mystery Exit(?) code: {0} (Hex: {1})",arr,hex_array(arr));
+repeat 4 buffer_write(bu,buffer_u32,array_shift(arr));
+
+// research shows an additional 5 bytes is always slapped 
+// on at the end before the Tweezer values
+buffer_write(bu,buffer_u32,0);
+buffer_write(bu,buffer_u8,0);
+
+return 0; //[ctrl_x * 16,ctrl_y * 16];
 }

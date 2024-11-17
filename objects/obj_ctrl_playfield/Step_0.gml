@@ -1,12 +1,5 @@
 // Button events
 if instance_exists(obj_trans) exit;
-if !use_classic_gui
-	{
-	for (var i=0;i<array_length(txta);i++)
-	    {
-	    if button[i].pressed then method_call(evt[i],[]);
-	    }
-	}
 
 // Keyboard events
 event_user(1);
@@ -17,6 +10,11 @@ var my = device_mouse_y_to_gui(0);
 var mb = mouse_check_button_pressed(mb_left);
 var bx = 64;
 var by = 416;
+if show_menu 
+	{
+	if menu_y < 28 menu_y += 4;
+	}
+else if menu_y > 0 menu_y -= 4;
 
 // Constant items that are at the same place no matter which menu is present
 var zoom_x = 534;
@@ -31,6 +29,20 @@ var tweezer_y = by+1;
 if point_in_rectangle(mx,my,tweezer_x,tweezer_y,tweezer_x+20,tweezer_y+33)
 	{
 	if mb mouse_create(obj_mouse_grab);
+	}
+	
+var undo_x = 579;
+var undo_y = by+36;
+if point_in_rectangle(mx,my,undo_x,undo_y,undo_x+28,undo_y+28)
+	{
+	if mb {undo(); flash(101);}
+	}
+	
+var reset_x = 610;
+var reset_y = by+36;
+if point_in_rectangle(mx,my,reset_x,reset_y,reset_x+28,reset_y+28)
+	{
+	if mb {reset_playfield(false); flash(102);}
 	}
 
 if use_classic_gui
@@ -98,9 +110,20 @@ if use_classic_gui
 					m.note = i;
 					}
 				}
+				
+			// Rainbow option
+			var rainbow_x = bx+400; //463
+			var rainbow_y = by;
+			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+16,rainbow_y+16) && mb
+				{
+				if !instance_exists(obj_mouse_rainbow)
+					{
+					instance_destroy(m);
+					mouse_create(obj_mouse_rainbow); 
+					}
+				}
 			break;
 			}
-			
 		// STAMP
 		case 1: 
 			{
@@ -139,6 +162,8 @@ if use_classic_gui
 					flash(2);
 					}
 				}
+				
+			if show_menu exit;
 	
 			var load_stamp_x = 85;
 			var load_stamp_y = by+38;
@@ -305,6 +330,8 @@ if use_classic_gui
 					}
 				}
 				
+			if show_menu break;
+				
 			// Volume down
 			var vol_down_x = 84;
 			var vol_down_y = by+38;
@@ -415,8 +442,7 @@ if use_classic_gui
 					}
 				}
 			break;
-			}
-			
+			}		
 		// MENU
 		case 4: 
 			{
@@ -472,6 +498,8 @@ if use_classic_gui
 					}
 				}
 				
+			if show_menu break;
+				
 			var backdrop_x = 89;
 			var backdrop_y = by+38;
 			if point_in_rectangle(mx,my,backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26)
@@ -492,25 +520,176 @@ else
 	{
 	switch menu
 		{
-		case 3:
+		case 0: // PAINT
 			{
-			
-			break;
-			}
-		case 4:
-			{
-			var backdrop_x = 89;
-			var backdrop_y = by+38;
-			if point_in_rectangle(mx,my,backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26)
+			// Rainbow option
+			var rainbow_x = bx+400; //463
+			var rainbow_y = by;
+			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+16,rainbow_y+16) && mb
 				{
-				if mb //load_bkg();
+				if !instance_exists(obj_mouse_rainbow)
 					{
-					callmethod = load_bkg;
-					loading_prompt = true;
-					alarm[0] = 2;
+					instance_destroy(m);
+					mouse_create(obj_mouse_rainbow); 
 					}
 				}
+			break;
+			}
+		case 1: // STAMP
+			{
+			var copy_x = 66;
+			var copy_y = by+1;
+			if point_in_rectangle(mx,my,copy_x,copy_y,copy_x+90,copy_y+34)
+				{
+				if mb
+					{
+					if !instance_exists(obj_mouse_stamp)
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_stamp); 
+						}
+					m.move_mode = false;
+					m.clear_back = clear_back;
+					m.unload_stamp();
+					flash(1);
+					}
+				}
+		
+			var move_x = 156;
+			var move_y = by+1;
+			if point_in_rectangle(mx,my,move_x,move_y,move_x+90,copy_y+34)
+				{
+				if mb
+					{
+					if !instance_exists(obj_mouse_stamp)
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_stamp); 
+						}
+					m.move_mode = true;
+					m.clear_back = clear_back;
+					m.unload_stamp();
+					flash(2);
+					}
+				}
+				
+			if show_menu break;
 	
+			var load_stamp_x = 85;
+			var load_stamp_y = by+38;
+			if point_in_rectangle(mx,my,load_stamp_x,load_stamp_y,load_stamp_x+89,load_stamp_y+26)
+				{
+				if mb
+					{
+					if !instance_exists(obj_mouse_stamp)
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_stamp); 
+						}
+					var f = get_open_filename("*.STP","");
+					if f != "" then m.load_stamp_from_file(f);
+					flash(3);
+					}
+				}
+				
+			var save_stamp_x = 176;
+			var save_stamp_y = by+38;
+			if point_in_rectangle(mx,my,save_stamp_x,save_stamp_y,save_stamp_x+89,save_stamp_y+26)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp)
+					if m.loaded
+						{
+						var f = get_save_filename("*.STP","");
+						if f != "" then m.save_stamp_to_file(f);
+						}
+					flash(4);
+					}
+				}
+				
+			var rotate_right_x = 278;
+			var rotate_right_y = by+39;
+			if point_in_rectangle(mx,my,rotate_right_x,rotate_right_y,rotate_right_x+29,rotate_right_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.rotate_right();
+					}
+				}
+				
+			var rotate_left_x = 309;
+			var rotate_left_y = by+39;
+			if point_in_rectangle(mx,my,rotate_left_x,rotate_left_y,rotate_left_x+29,rotate_left_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.rotate_left();
+					}
+				}
+				
+			var flip_h_x = 346;
+			var flip_h_y = by+39;
+			if point_in_rectangle(mx,my,flip_h_x,flip_h_y,flip_h_x+29,flip_h_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.flip_horizontal();
+					}
+				}
+				
+			var flip_v_x = 377;
+			var flip_v_y = by+39;
+			if point_in_rectangle(mx,my,flip_v_x,flip_v_y,flip_v_x+29,flip_v_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.flip_vertical();
+					}
+				}
+				
+			var scale_up_x = 414;
+			var scale_up_y = by+39;
+			if point_in_rectangle(mx,my,scale_up_x,scale_up_y,scale_up_x+29,scale_up_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.scale_up();
+					}
+				}
+				
+			var scale_down_x = 445;
+			var scale_down_y = by+39;
+			if point_in_rectangle(mx,my,scale_down_x,scale_down_y,scale_down_x+29,scale_down_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) m.scale_down();
+					}
+				}
+				
+			var toggle_clear_x = 482;
+			var toggle_clear_y = by+39;
+			if point_in_rectangle(mx,my,toggle_clear_x,toggle_clear_y,toggle_clear_x+29,toggle_clear_y+25)
+				{
+				if mb
+					{
+					if instance_exists(obj_mouse_stamp) 
+						{
+						clear_back = !clear_back;
+						m.toggle_clear();
+						}
+					}
+				}
+			break;
+			}
+		case 3: // BUGZ
+			{
+			//TODO: currently handled in Draw GUI, needs changing
+			break;
+			}
+		case 4: // FILE
+			{
 			//+90,+34
 			var gal_x = 66;
 			var gal_y = by+1;
@@ -554,6 +733,19 @@ else
 			if point_in_rectangle(mx,my,quit_x,quit_y,quit_x+90,quit_y+34)
 				{
 				if mb back_to_main();
+				}
+				
+			if show_menu break;
+			var backdrop_x = 89;
+			var backdrop_y = by+38;
+			if point_in_rectangle(mx,my,backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26)
+				{
+				if mb //load_bkg();
+					{
+					callmethod = load_bkg;
+					loading_prompt = true;
+					alarm[0] = 2;
+					}
 				}
 			break;
 			}

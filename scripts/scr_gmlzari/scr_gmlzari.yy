@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"scr_gmlzari",
   "parent":{
-    "name":"Resource Functions",
-    "path":"folders/Scripts/Resource Functions.yy",
+    "name":"Extensions",
+    "path":"folders/Scripts/Extensions.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -1,1 +1,0 @@
-if !global.use_external_assets event_inherited();

@@ -1,3 +1,5 @@
+if global.use_external_assets sprite_index = global.spr_ui.ctrl[note];
+
 if !place_teleporter
 	{
 	if mouse_wheel_up()
@@ -12,13 +14,19 @@ if !place_teleporter
 		}
 	}
 
-if y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
+if y >= room_height or device_mouse_y_to_gui(0) > 416 exit;
 var xx = floor(mouse_x/16);
 var yy = floor(mouse_y/16);
-if mouse_check_button(mb_left)
+if point_in_rectangle(xx,yy,0,0,160,104)
 	{
+	if mouse_check_button_pressed(mb_left)
+	or mouse_check_button_pressed(mb_right)
+		{
+		parent.record();
+		}
+		
 	//Add/override note
-	if xx >= 0 && xx < 160 && yy >= 0 && yy < 104
+	if mouse_check_button(mb_left)
 		{
 		// mouse press check
 		if (note == 8 or note == 9) && !mouse_check_button_pressed(mb_left) then exit;
@@ -61,13 +69,12 @@ if mouse_check_button(mb_left)
 			note = 8;
 			}
 		}
-	}
 	
-// Delete note
-if mouse_check_button(mb_right)
-	{
-	if xx >= 0 && xx < 160 && yy >= 0 && yy < 104
+	// Delete note
+	if mouse_check_button(mb_right)
 		{
+		if global.use_external_assets sprite_index = global.spr_ui.tone;
+		
 		var data = global.ctrl_grid[xx][yy];
 		if data > 0 global.ctrl_grid[xx][yy] = 0;
 		(parent.field).update_surf_partial(xx,yy);//ctrl
@@ -76,16 +83,17 @@ if mouse_check_button(mb_right)
 			{
 			delete_teleporter_block(xx,yy,data);
 			}
-		}
-	if place_teleporter
-		{
-		place_teleporter = false;
-		global.ctrl_grid[tele_obj[0]][tele_obj[1]]  = 0;
-		(parent.field).update_surf_partial(tele_obj[0],tele_obj[1]);
-		tele_obj = [];
-		note = 8;
-		}
+			
+		if place_teleporter
+			{
+			place_teleporter = false;
+			global.ctrl_grid[tele_obj[0]][tele_obj[1]]  = 0;
+			(parent.field).update_surf_partial(tele_obj[0],tele_obj[1]);
+			tele_obj = [];
+			note = 8;
+			}
 	
-	// existing flag check
-	delete_flag(xx,yy);
+		// existing flag check
+		delete_flag(xx,yy);
+		}
 	}

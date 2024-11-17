@@ -7,15 +7,17 @@ enabled = false;
 }
 
 start_gallery = function(){
-var f = global.main_dir+"GALLERY/ALIENEXP.GAL";
-//var f = get_open_filename_ext("SimTunes .GAL file|*.GAL","",global.main_dir+"GALLERY/","Open Gallery File...");
-if string_length(f) > 0 && file_exists(f)
-global.playfield = tun_load_tun(f);
-if is_struct(global.playfield)
+//var f = global.main_dir+"GALLERY/ALIENEXP.GAL";
+var f = get_open_filename_ext("SimTunes .GAL file|*.GAL","",global.main_dir+"GALLERY/","Open Gallery File...");
+if string_length(f) > 0 && file_exists(f) 
 	{
-	//global.playfield = tun_load_tun(global.main_dir+"GALLERY/WATCHING.GAL");
-	scr_trans(rm_playfield);
-	enabled = false;
+	global.playfield = tun_load_tun(f);
+	if is_struct(global.playfield)
+		{
+		//global.playfield = tun_load_tun(global.main_dir+"GALLERY/WATCHING.GAL");
+		scr_trans(rm_playfield);
+		enabled = false;
+		}
 	}
 }
 
@@ -56,7 +58,7 @@ if surface_exists(surf)
 	}
 }
 #endregion
-
+instance_create_depth(0,0,depth-1,obj_mouse_parent);
 enabled = true;
 over = false;
 spr = -1;

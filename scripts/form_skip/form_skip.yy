@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_note_blend",
+  "%Name":"form_skip",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_note_blend",
+  "name":"form_skip",
   "parent":{
-    "name":"Scripts",
-    "path":"folders/Scripts.yy",
+    "name":"Buffer Functions",
+    "path":"folders/Scripts/Buffer Functions.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -10,7 +10,7 @@
   "option_android_build_tools":"",
   "option_android_compile_sdk":"",
   "option_android_device_support":0,
-  "option_android_display_name":"Created with GameMaker",
+  "option_android_display_name":"GMTunes",
   "option_android_facebook_app_display_name":"",
   "option_android_facebook_id":"",
   "option_android_gamepad_support":true,

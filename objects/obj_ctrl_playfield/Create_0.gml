@@ -4,11 +4,14 @@ if global.use_external_assets use_classic_gui = true;
 clear_back = true;
 draw_flash = false;
 loading_prompt = false;
+watch_mode = false;
+watch_count = 0;
+watch_target = noone;
 callmethod = function(){};
 paused = false;
-show_menu = false;
+show_menu = true;
 menu = 0;
-menu_y = 0;
+menu_y = 28;
 dialog = -1; // Async Dialog result
 
 play_index = 0;

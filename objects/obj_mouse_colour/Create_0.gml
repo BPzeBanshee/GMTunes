@@ -5,6 +5,11 @@ surf = -1;
 note = 1;
 note_prev = note;
 
+held_x = -1;
+held_y = -1;
+hold_x = false;
+hold_y = false;
+
 mbr = mouse_check_button(mb_right);
 mbr_prev = mbr;
 

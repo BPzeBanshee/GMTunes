@@ -276,7 +276,7 @@ var ctrl_grid = Array2(160,104);
 
 var chunk_size = buffer_read(bu,buffer_u32);
 trace("Size of music note table size: {0}",chunk_size);
-buffer_save_ext(bu,"chunk_og.dat",buffer_tell(bu),chunk_size);
+//buffer_save_ext(bu,"chunk_og.dat",buffer_tell(bu),chunk_size);
 
 var newbuf = scr_decrypt_chunk(bu,chunk_size);
 var minibuf = newbuf.buffer_new;

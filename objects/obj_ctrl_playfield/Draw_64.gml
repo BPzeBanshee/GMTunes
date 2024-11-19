@@ -9,6 +9,21 @@ if loading_prompt
 	draw_text(320,240,"NOW LOADING\n(MAY LAG A BIT)");
 	return;
 	}
+	
+if watch_mode
+	{
+	draw_rectangle_color(0,416,640,480,0,0,0,0,false);
+	draw_set_halign(fa_center);
+	var v = draw_get_valign();
+	draw_set_valign(fa_top);
+	draw_text(320,416+10,playfield_name);
+	draw_set_font(global.fnt_italic);
+	draw_text(320,416+22,playfield_author);
+	draw_set_font(global.fnt_default);
+	draw_text(320,416+35,string_wordwrap_width(playfield_desc,600));
+	draw_set_valign(v);
+	return;
+	}
 
 var mx = device_mouse_x_to_gui(0);
 var my = device_mouse_y_to_gui(0);
@@ -266,6 +281,10 @@ if use_classic_gui
 			var gal_x = 65;
 			var gal_y = by;
 			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_top,0,gal_x,gal_y);
+			
+			var watch_x = 155;
+			var watch_y = by+1;
+			if draw_flash == 2 draw_sprite(global.spr_ui.onclick_top,0,watch_x,watch_y);
 		
 			var load_x = 246;
 			var load_y = by;
@@ -326,38 +345,17 @@ else
 		// paint
 		case 0:
 			{
-			var xx = 0;
 			// top row
 			for (var i=1;i<=25;i++)
 				{
-				xx = bx+(16*i);
-				draw_sprite(spr_note,i-1,xx,by);
-				if point_in_rectangle(mx,my,xx,by,xx+16,by+15) && mb
-					{
-					if !instance_exists(obj_mouse_colour)
-						{
-						instance_destroy(m);
-						mouse_create(obj_mouse_colour); 
-						}
-					m.note = i;
-					}
+				draw_sprite(spr_note,i-1,bx+(16*i),by);
 				}
 			
 			// bottom row
 			for (var i=1;i<=14;i++)
 				{
 				if i == 9 then i++;
-				xx = bx+(16*i);
-				draw_sprite(spr_note_ctrl,i-1,xx,by+16);
-				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
-					{
-					if !instance_exists(obj_mouse_ctrl)
-						{
-						instance_destroy(m);
-						mouse_create(obj_mouse_ctrl); 
-						}
-					m.note = i;
-					}
+				draw_sprite(spr_note_ctrl,i-1,bx+(16*i),by+16);
 				}
 				
 			// Rainbow option
@@ -575,6 +573,11 @@ else
 			var gal_y = by+1;
 			draw_rectangle(gal_x,gal_y,gal_x+90,gal_y+34,true);
 			draw_text(gal_x+45,gal_y+16,"GALLERY");
+			
+			var watch_x = 155;
+			var watch_y = by+1;
+			draw_rectangle(watch_x,watch_y,watch_x+90,watch_y+34,true);
+			draw_text(watch_x+45,watch_y+16,"WATCH");
 	
 			//+90,+34
 			var load_x = 247;

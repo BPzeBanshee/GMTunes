@@ -1,6 +1,9 @@
 // Button events
 if instance_exists(obj_trans) exit;
 
+// Camera movement
+update_camera();
+
 // Keyboard events
 event_user(1);
 
@@ -15,6 +18,21 @@ if show_menu
 	if menu_y < 28 menu_y += 4;
 	}
 else if menu_y > 0 menu_y -= 4;
+
+// Watch mode
+if watch_mode
+	{
+	if (keyboard_check_pressed_sane(vk_anykey)
+	or mouse_check_button_pressed(mb_any))
+	&& alarm[2] < (game_get_speed(gamespeed_fps)*6)-1 // button press check immediately on setting alarm
+		{
+		watch_mode = false;
+		watch_count = 0;
+		watch_target = noone;
+		alarm[2] = -1;
+		}
+	exit;
+	}
 
 // Constant items that are at the same place no matter which menu is present
 var zoom_x = 534;
@@ -459,6 +477,17 @@ if use_classic_gui
 					flash(1);
 					}
 				}
+				
+			var watch_x = 155;
+			var watch_y = by+1;
+			if point_in_rectangle(mx,my,watch_x,watch_y,watch_x+90,watch_y+34)
+				{
+				if mb 
+					{
+					flash(2);
+					start_watch_mode();
+					}
+				}
 			
 			//+90,+34
 			var load_x = 247;
@@ -522,6 +551,38 @@ else
 		{
 		case 0: // PAINT
 			{
+			var xx = 0;
+			// top row
+			for (var i=1;i<=25;i++)
+				{
+				xx = bx+(16*i);
+				if point_in_rectangle(mx,my,xx,by,xx+16,by+15) && mb
+					{
+					if !instance_exists(obj_mouse_colour)
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_colour); 
+						}
+					m.note = i;
+					}
+				}
+				
+			// bottom row
+			for (var i=1;i<=14;i++)
+				{
+				xx = bx+(16*i);
+				if i == 9 then i++;
+				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
+					{
+					if !instance_exists(obj_mouse_ctrl)
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_ctrl); 
+						}
+					m.note = i;
+					}
+				}
+			
 			// Rainbow option
 			var rainbow_x = bx+400; //463
 			var rainbow_y = by;
@@ -700,6 +761,17 @@ else
 					callmethod = load_gal;
 					loading_prompt = true;
 					alarm[0] = 2;
+					}
+				}
+				
+			var watch_x = 155;
+			var watch_y = by+1;
+			if point_in_rectangle(mx,my,watch_x,watch_y,watch_x+90,watch_y+34)
+				{
+				if mb 
+					{
+					flash(2);
+					start_watch_mode();
 					}
 				}
 	

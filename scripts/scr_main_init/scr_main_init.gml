@@ -6,6 +6,9 @@ function scr_main_init(){
 #macro GAME_VERSION string("({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
 #macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
 #macro Web:TUNERES "/TUNERES.DAT_ext/"
+#macro vk_capslock 20
+#macro vk_oem_minus 189
+#macro vk_oem_equals 187
 
 trace("GMTunes Build {0}",GAME_VERSION);
 
@@ -86,7 +89,7 @@ else
 }
 
 function scr_config_load(){
-ini_open(working_directory+"/GMTunes.ini");
+ini_open(game_save_id+"/GMTunes.ini");
 global.debug = ini_read_real("GMTunes","debug",true);
 global.use_external_assets = ini_read_real("GMTunes","use_external_assets",true);
 global.music_volume = ini_read_real("GMTunes","music_volume",50);

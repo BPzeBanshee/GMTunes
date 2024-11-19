@@ -1,4 +1,8 @@
-function extract_dat(filehandle){
+/// @desc Opens a SimTunes LZARI container file, splits it out into it's file contents and decompresses them.
+/// @param {string} filehandle File location
+/// @param {bool} [remove_lzdir]=false Delete the LZARI file contents after decompression is done
+/// @returns {real} Description
+function extract_dat(filehandle,remove_lzdir=false){
 // Get file
 if !file_exists(filehandle) then return -1;
 
@@ -57,6 +61,7 @@ for (var i=0;i<array_length(filenames);i++)
 
 // clear buffer
 buffer_delete(bu);
+if remove_lzdir directory_destroy(infile);
 return 0;
 }
 

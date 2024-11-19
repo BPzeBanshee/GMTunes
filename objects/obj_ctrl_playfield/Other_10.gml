@@ -33,78 +33,6 @@ if string_length(f)>0
 		}
 	}
 }
-load_bug = function(bugzid,filename=""){
-var mycolor,dir;
-switch bugzid
-	{
-	case 0: mycolor = "Yellow"; dir=0; break;
-	case 1: mycolor = "Green"; dir=90; break;
-	case 2: mycolor = "Blue"; dir=180; break;
-	case 3: mycolor = "Red"; dir=270; break;
-	default: return -1;
-	}
-if filename == ""
-filename = get_open_filename_ext("Bugz File|*.BUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
-if filename != ""
-	{
-	var mybug = bug_create(room_width*0.5,room_height*0.5,filename);
-	mybug.direction = dir;
-	mybug.gear = 3;
-	mybug.timer = game_get_speed(gamespeed_fps) / 3;
-	mybug.paused = paused;
-	return mybug;
-	}
-return -2;
-}
-load_yellow = function(filename=""){
-var mybug = load_bug(0,filename);
-if instance_exists(mybug)
-	{
-	instance_destroy(bug_yellow);
-	bug_yellow = mybug;
-	return 0;
-	}
-}
-load_green = function(filename=""){
-var mybug = load_bug(1,filename);
-if instance_exists(mybug)
-	{
-	instance_destroy(bug_green);
-	bug_green = mybug;
-	return 0;
-	}
-}
-load_blue = function(filename=""){
-var mybug = load_bug(2,filename);
-if instance_exists(mybug)
-	{
-	instance_destroy(bug_blue);
-	bug_blue = mybug;
-	return 0;
-	}
-}
-load_red = function(filename=""){
-var mybug = load_bug(3,filename);
-if instance_exists(mybug)
-	{
-	instance_destroy(bug_red);
-	bug_red = mybug;
-	return 0;
-	}
-}
-place_flag = function(flag_id){
-if mouse_y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
-var xx = floor(mouse_x/16);
-var yy = floor(mouse_y/16);
-if xx == global.flag_list[flag_id,0] && yy == global.flag_list[flag_id,1]
-	{
-	global.flag_list[flag_id,2] += 90;
-	if global.flag_list[flag_id,2] >= 360 global.flag_list[flag_id,2] = 0;
-	}
-else global.flag_list[flag_id,2] = 0;
-global.flag_list[flag_id,0] = xx;
-global.flag_list[flag_id,1] = yy;
-}
 rally_bugz_to_flags = function(){
 var bugz = [bug_yellow,bug_green,bug_blue,bug_red];
 for (var i=0;i<4;i++)
@@ -172,7 +100,7 @@ if hard
 	tun_apply_data(playfield);
 	}
 else field.update_surf();
-audio_play_sound(global.snd_ui.zap,0,false);
+if global.use_external_assets audio_play_sound(global.snd_ui.zap,0,false);
 }
 flash = function(value){
 draw_flash = value;
@@ -186,7 +114,7 @@ global.ctrl_grid = variable_clone(ctrl_grid_prev1);
 note_grid_prev1	= variable_clone(note_grid_prev2);
 ctrl_grid_prev1	= variable_clone(ctrl_grid_prev2);
 field.update_surf();
-trace("Undo button pressed");
+//trace("Undo button pressed");
 audio_play_sound(global.snd_ui.undo,0,false);
 }
 record = function(){
@@ -195,17 +123,41 @@ ctrl_grid_prev1 = variable_clone(global.ctrl_grid);
 note_grid_prev2	= variable_clone(note_grid_prev1);
 ctrl_grid_prev2	= variable_clone(ctrl_grid_prev1);
 }
-update_camera = function(){
-var xo = 0;
-var yo = 0;
-if keyboard_check(vk_left) or keyboard_check(ord("A")) then xo = -global.zoom*4;
-if keyboard_check(vk_right) or keyboard_check(ord("D")) then xo = global.zoom*4;
-if keyboard_check(vk_up) or keyboard_check(ord("W")) then yo = -global.zoom*4;
-if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
+zoom_in = function(){
+if global.zoom > 1 then exit;
 var cam = view_camera[0];
-var cx = camera_get_view_x(cam);
-var cy = camera_get_view_y(cam);
-
+var cam_w = camera_get_view_width(cam);
+var cam_h = camera_get_view_height(cam);
+var cx = camera_get_view_x(cam) - (cam_w/4);//x - (cam_w/4);
+var cy = camera_get_view_y(cam) - (cam_h/4);//y - (cam_h/4);
+camera_set_view_size(cam,cam_w/2,cam_h/2);
+camera_set_view_pos(cam,cx,cy);
+global.zoom += 1;
+update_camera();
+}
+zoom_out = function(){
+if global.zoom < 1 exit;
+var cam = view_camera[0];
+var cam_w = camera_get_view_width(cam);
+var cam_h = camera_get_view_height(cam);
+var cx = camera_get_view_x(cam) - cam_w;//x - (cam_w);
+var cy = camera_get_view_y(cam) - cam_h;//y - (cam_h);
+camera_set_view_size(cam,cam_w*2,cam_h*2);
+camera_set_view_pos(cam,cx,cy);
+global.zoom -= 1;
+update_camera();
+}
+start_watch_mode = function(){
+if !watch_mode
+	{
+	watch_mode = true;
+	repeat global.zoom zoom_out();
+	alarm[2] = 60*5;
+	}
+return 0;
+}
+update_camera = function(){
+var cam = view_camera[0];
 var xform = room_width - camera_get_view_width(cam);
 var yform = 0;
 switch global.zoom
@@ -214,7 +166,26 @@ switch global.zoom
 	case 1: yform = 1664 - (416*2); break;
 	case 0: break;
 	}
-// (64 * global.zoom);// (64 * (global.zoom/2));
-//room_height+(256/(global.zoom+1))-ch;
-camera_set_view_pos(cam,clamp(cx+xo,0,xform),clamp(cy+yo,0,yform));
+	
+var cx,cy;
+if instance_exists(watch_target)
+&& global.zoom > 0
+	{
+	var	lx = lerp(watch_target.x+8,watch_target.x+8+lengthdir_x(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
+	var	ly = lerp(watch_target.y+8,watch_target.y+8+lengthdir_y(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
+	cx = lx - camera_get_view_width(cam)/2;
+	cy = ly - camera_get_view_height(cam)/2;
+	}
+else
+	{
+	var xo = 0;
+	var yo = 0;
+	if keyboard_check(vk_left) or keyboard_check(ord("A")) then xo = -global.zoom*4;
+	if keyboard_check(vk_right) or keyboard_check(ord("D")) then xo = global.zoom*4;
+	if keyboard_check(vk_up) or keyboard_check(ord("W")) then yo = -global.zoom*4;
+	if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
+	var cx = camera_get_view_x(cam) + xo;
+	var cy = camera_get_view_y(cam) + yo;
+	}
+camera_set_view_pos(cam,clamp(cx,0,xform),clamp(cy,0,yform));
 }

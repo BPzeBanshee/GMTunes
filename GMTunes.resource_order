@@ -53,7 +53,7 @@
     {"name":"obj_mouse_stamp","order":6,"path":"objects/obj_mouse_stamp/obj_mouse_stamp.yy",},
     {"name":"obj_mouse_zoom","order":5,"path":"objects/obj_mouse_zoom/obj_mouse_zoom.yy",},
     {"name":"obj_trans","order":3,"path":"objects/obj_trans/obj_trans.yy",},
-    {"name":"obj_video_intro","order":6,"path":"objects/obj_video_intro/obj_video_intro.yy",},
+    {"name":"obj_video_intro","order":7,"path":"objects/obj_video_intro/obj_video_intro.yy",},
     {"name":"rm_debug_tools","order":2,"path":"rooms/rm_debug_tools/rm_debug_tools.yy",},
     {"name":"rm_main","order":1,"path":"rooms/rm_main/rm_main.yy",},
     {"name":"rm_playfield","order":3,"path":"rooms/rm_playfield/rm_playfield.yy",},

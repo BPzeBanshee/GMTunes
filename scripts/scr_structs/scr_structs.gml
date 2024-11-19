@@ -39,15 +39,15 @@ function default_playfield() : playfield_struct() constructor {
 	desc = "This is a new playfield.";
 	background = "BACK01.BAC"; // I personally like 03GP4BT.BAC but SimTunes defaults to this
 	bugz.yellow.filename = "YELLOW00.BUG";
-	bugz.yellow.pos = [1280,832];
+	bugz.yellow.pos = [576,1280];
 	bugz.yellow.dir = 0;
 	bugz.green.filename = "GREEN00.BUG";
-	bugz.green.pos = [1280,832];
-	bugz.green.dir = 90;
+	bugz.green.pos = [1920,384];
+	bugz.green.dir = 180;
 	bugz.blue.filename = "BLUE00.BUG";
-	bugz.blue.pos = [1280,832];
-	bugz.blue.dir = 180;
+	bugz.blue.pos = [1920,1280];
+	bugz.blue.dir = 90;
 	bugz.red.filename = "RED00.BUG";
-	bugz.red.pos = [1280,832];
+	bugz.red.pos = [576,384];
 	bugz.red.dir = 270;
 	}

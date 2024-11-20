@@ -35,8 +35,8 @@ bug_red = noone;
 
 global.note_grid = Array2(160,104);
 global.ctrl_grid = Array2(160,104);
-note_grid_prev1 = [];
-ctrl_grid_prev1 = [];
+note_grid_prev1 = Array2(160,104);
+ctrl_grid_prev1 = Array2(160,104);
 note_grid_prev2 = [];
 ctrl_grid_prev2 = [];
 

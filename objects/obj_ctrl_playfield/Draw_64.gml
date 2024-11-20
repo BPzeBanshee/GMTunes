@@ -1,11 +1,10 @@
 // Feather disable GM2016
 draw_set_alpha(1);
-scr_draw_vars(global.fnt_bold,fa_left,c_white);
+scr_draw_vars(global.fnt_bold,fa_center,c_white);
 draw_set_valign(fa_middle);
 if loading_prompt
 	{
 	draw_rectangle_color(0,0,640,480,0,0,0,0,false);
-	draw_set_halign(fa_center);
 	draw_text(320,240,"NOW LOADING\n(MAY LAG A BIT)");
 	return;
 	}
@@ -13,7 +12,6 @@ if loading_prompt
 if watch_mode
 	{
 	draw_rectangle_color(0,416,640,480,0,0,0,0,false);
-	draw_set_halign(fa_center);
 	var v = draw_get_valign();
 	draw_set_valign(fa_top);
 	draw_text(320,416+10,playfield_name);
@@ -32,14 +30,6 @@ var bx = 63;
 var by = 416;
 if use_classic_gui 
 	{
-	var undo_x = 579;
-	var undo_y = by+36;
-	if draw_flash == 101 draw_sprite(global.spr_ui.onclick_top,0,undo_x,undo_y);
-	
-	var reset_x = 610;
-	var reset_y = by+36;
-	if draw_flash == 102 draw_sprite(global.spr_ui.onclick_top,0,reset_x,reset_y);
-	
 	switch menu
 		{
 		// paint
@@ -305,6 +295,14 @@ if use_classic_gui
 			}
 		}
 	
+	var undo_x = 578;
+	var undo_y = by+35;
+	if draw_flash == 101 draw_sprite(global.spr_ui.onclick_undo,0,undo_x,undo_y);
+	
+	var reset_x = 609;
+	var reset_y = by+35;
+	if draw_flash == 102 draw_sprite(global.spr_ui.onclick_zap,0,reset_x,reset_y);
+	
 	var chooser_x = bx-20;
 	var chooser_y = by+40;
 	draw_sprite(global.spr_ui.chooser[show_menu],0,chooser_x,chooser_y);
@@ -322,24 +320,13 @@ if use_classic_gui
 		if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
 			{
 			menu = i;
+			audio_play_sound(global.snd_ui.switcher,0,false);
 			}
 		}
 	}
 else
 	{
 	draw_rectangle_color(0,416,640,480,0,0,0,0,false);
-	
-	// Constant items that are at the same place no matter which menu is present
-	var zoom_x = 534;
-	var zoom_y = by+1;
-	draw_circle(zoom_x+8,zoom_y+8,8,true);
-	draw_line(zoom_x+8,zoom_y+16,zoom_x+8,zoom_y+32);
-	
-	var tweezer_x = 556;
-	var tweezer_y = by+1;
-	draw_line(tweezer_x,tweezer_y,tweezer_x+8,tweezer_y+32);
-	draw_line(tweezer_x+8,tweezer_y+32,tweezer_x+16,tweezer_y);
-		
 	switch menu
 		{
 		// paint
@@ -518,7 +505,7 @@ else
 			// Rally Bugz to flags
 			draw_rectangle_color(bbx,by+33,bbx+63,by+63,c_white,c_white,c_white,c_white,true);
 			draw_text(bbx+32,by+48,"RALLY");
-			if point_in_rectangle(mx,my,bbx,by+33,bbx+64,by+63) && mb
+			if point_in_rectangle(mx,my,bbx,by+33,bbx+64,by+63) && mb && !show_menu
 				{
 				rally_bugz_to_flags();
 				}
@@ -536,7 +523,7 @@ else
 				var xx = bbx+(32*i);
 				draw_sprite(spr_flag,i,xx+2+sprite_get_xoffset(spr_flag),by+34+sprite_get_yoffset(spr_flag));
 				//draw_rectangle_color(xx,by+33,xx+33,by+63,c_white,c_white,c_white,c_white,true);
-				if point_in_rectangle(mx,my,xx,by+33,xx+33,by+63) && mb
+				if point_in_rectangle(mx,my,xx,by+33,xx+33,by+63) && mb && !show_menu
 					{
 					mouse_create(obj_mouse_flag);
 					m.flag_id = i;
@@ -595,6 +582,62 @@ else
 			draw_rectangle(quit_x,quit_y,quit_x+90,quit_y+34,true);
 			draw_text(quit_x+48,quit_y+16,"QUIT");
 			break;
+			}
+		}
+		
+	// Constant items that are at the same place no matter which menu is present
+	draw_set_color(c_white);
+	draw_set_halign(fa_center);
+	draw_set_valign(fa_middle);
+	
+	var zoom_x = 534;
+	var zoom_y = by+1;
+	draw_circle(zoom_x+8,zoom_y+8,8,true);
+	draw_line(zoom_x+8,zoom_y+16,zoom_x+8,zoom_y+32);
+	
+	var tweezer_x = 556;
+	var tweezer_y = by+1;
+	draw_line(tweezer_x,tweezer_y,tweezer_x+8,tweezer_y+32);
+	draw_line(tweezer_x+8,tweezer_y+32,tweezer_x+16,tweezer_y);
+	
+	var undo_x = 578;
+	var undo_y = by+35;
+	draw_rectangle(undo_x,undo_y,undo_x+29,undo_y+29,true);
+	draw_text(undo_x+14,undo_y+14,"UNDO");
+	if draw_flash == 101 draw_rectangle(undo_x,undo_y,undo_x+29,undo_y+29,false);
+	
+	var reset_x = 609;
+	var reset_y = by+35;
+	draw_rectangle(reset_x,reset_y,reset_x+29,reset_y+29,true);
+	draw_text(reset_x+14,reset_y+14,"RESET");
+	if draw_flash == 102 draw_rectangle(reset_x,reset_y,reset_x+29,reset_y+29,false);
+	
+	var chooser_x = bx-20;
+	var chooser_y = by+40;
+	draw_rectangle(chooser_x,chooser_y,chooser_x+20,chooser_y+20,true);
+	draw_text(chooser_x+10,chooser_y+10,show_menu ? "O" : "X");
+	if point_in_rectangle(mx,my,chooser_x,chooser_y,chooser_x+20,chooser_y+20) && mb
+		{
+		show_menu = !show_menu;
+		}
+		
+	var mmy = 480 - round(menu_y);
+	var mmx = bx+7;
+	if menu_y>0 //draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
+		{
+		draw_rectangle_color(mmx,mmy,mmx+(95*4)+95,mmy+24,0,0,0,0,false);
+		draw_rectangle(mmx,mmy,mmx+(95*4)+95,mmy+24,true);
+		draw_text(mmx+48,mmy+12,"PAINT");
+		draw_text(mmx+(95)+48,mmy+12,"STAMP");
+		draw_text(mmx+(95*2)+48,mmy+12,"EXPLORE");
+		draw_text(mmx+(95*3)+48,mmy+12,"BUGZ");
+		draw_text(mmx+(95*4)+48,mmy+12,"FILE");
+		}
+	for (var i=0;i<5;i++)
+		{
+		if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
+			{
+			menu = i;
 			}
 		}
 	}

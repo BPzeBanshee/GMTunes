@@ -150,6 +150,7 @@ global.snd_ui.zap = wav_load(TUNERES+"ZAP.WAV");
 global.snd_ui.undo = wav_load(TUNERES+"UNDO.WAV");
 global.snd_ui.menu[0] = wav_load(TUNERES+"POPDOWN.WAV");
 global.snd_ui.menu[1] = wav_load(TUNERES+"POPUP.WAV");
+global.snd_ui.switcher = wav_load(TUNERES+"SWITCHER.WAV");
 }
 
 function scr_spr_init(){
@@ -292,6 +293,8 @@ if surface_exists(temp4)
 	global.spr_ui.onclick_okcancel = sprite_create_from_surface(temp4,0,126,116,34,true,false,0,0);
 	global.spr_ui.onclick_slider_left = sprite_create_from_surface(temp4,74,68,28,28,true,false,0,0);
 	global.spr_ui.onclick_slider_right = sprite_create_from_surface(temp4,74,96,28,28,true,false,0,0);
+	global.spr_ui.onclick_zap = sprite_create_from_surface(temp4,0,190,30,30,true,false,0,0);
+	global.spr_ui.onclick_undo = sprite_create_from_surface(temp4,60,190,30,30,true,false,0,0);
 	
 	global.spr_ui.stamp_clearback[0] = sprite_create_from_surface(temp4,94,245,29,25,false,false,0,0);
 	global.spr_ui.stamp_clearback[1] = sprite_create_from_surface(temp4,94,270,29,25,false,false,0,0);

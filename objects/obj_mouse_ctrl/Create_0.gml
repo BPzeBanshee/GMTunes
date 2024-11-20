@@ -1,5 +1,11 @@
 // Inherit the parent event
 event_inherited();
+
+held_x = -1;
+held_y = -1;
+hold_x = false;
+hold_y = false;
+
 note = 1;
 place_teleporter = false;
 tele_obj = [];

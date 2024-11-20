@@ -115,7 +115,7 @@ note_grid_prev1	= variable_clone(note_grid_prev2);
 ctrl_grid_prev1	= variable_clone(ctrl_grid_prev2);
 field.update_surf();
 //trace("Undo button pressed");
-audio_play_sound(global.snd_ui.undo,0,false);
+if global.use_external_assets audio_play_sound(global.snd_ui.undo,0,false);
 }
 record = function(){
 note_grid_prev1 = variable_clone(global.note_grid);

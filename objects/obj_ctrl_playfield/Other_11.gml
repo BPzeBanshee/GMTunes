@@ -42,7 +42,8 @@ else
 	{
 	if !instance_exists(m) && m_prev != noone
 		{
-		mouse_create(m_prev);
+		trace("Mouse object deleted somehow, reverting to m_prev ({0})",object_get_name(m_prev.object_index));
+		mouse_create(m_prev.object_index);
 		}
 	}
 // TODO: expose mouse playfield position to allow color picking
@@ -58,7 +59,11 @@ else
 // Menu category selection
 for (var i=0;i<5;i++)
 	{
-	if keyboard_check_pressed(ord(string(i))) menu = i;
+	if keyboard_check_pressed(ord(string(i+1))) 
+		{
+		menu = i;
+		audio_play_sound(global.snd_ui.switcher,0,false); // replace with actual menu sound
+		}
 	}
 if keyboard_check_pressed(vk_capslock) show_menu = !show_menu;
 	

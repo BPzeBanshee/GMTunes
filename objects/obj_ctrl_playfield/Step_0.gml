@@ -29,6 +29,7 @@ if watch_mode
 		watch_mode = false;
 		watch_count = 0;
 		watch_target = noone;
+		mouse_create(m_prev);
 		alarm[2] = -1;
 		}
 	exit;
@@ -37,16 +38,18 @@ if watch_mode
 // Constant items that are at the same place no matter which menu is present
 var zoom_x = 534;
 var zoom_y = by+1;
-if point_in_rectangle(mx,my,zoom_x,zoom_y,zoom_x+22,zoom_y+33)
+if point_in_rectangle(mx,my,zoom_x,zoom_y,zoom_x+22,zoom_y+33) && mb
 	{
-	if mb mouse_create(obj_mouse_zoom);
+	button_click();
+	mouse_create(obj_mouse_zoom);
 	}
 	
 var tweezer_x = 556;
 var tweezer_y = by+1;
-if point_in_rectangle(mx,my,tweezer_x,tweezer_y,tweezer_x+20,tweezer_y+33)
+if point_in_rectangle(mx,my,tweezer_x,tweezer_y,tweezer_x+20,tweezer_y+33) && mb
 	{
-	if mb mouse_create(obj_mouse_grab);
+	button_click();
+	mouse_create(obj_mouse_grab);
 	}
 	
 var undo_x = 579;
@@ -77,6 +80,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					play_index++; if play_index > 4 play_index = 0;
 					}
 				}
@@ -120,6 +124,7 @@ if use_classic_gui
 				var xx = note_x + (16*(i-1));
 				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
 					{
+					button_click();
 					if !instance_exists(obj_mouse_ctrl)
 						{
 						instance_destroy(m);
@@ -134,6 +139,7 @@ if use_classic_gui
 			var rainbow_y = by;
 			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+16,rainbow_y+16) && mb
 				{
+				button_click();
 				if !instance_exists(obj_mouse_rainbow)
 					{
 					instance_destroy(m);
@@ -151,6 +157,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					if !instance_exists(obj_mouse_stamp)
 						{
 						instance_destroy(m);
@@ -169,6 +176,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					if !instance_exists(obj_mouse_stamp)
 						{
 						instance_destroy(m);
@@ -189,13 +197,14 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					if !instance_exists(obj_mouse_stamp)
 						{
 						instance_destroy(m);
 						mouse_create(obj_mouse_stamp); 
 						}
 					var f = get_open_filename("*.STP","");
-					if f != "" then m.load_stamp_from_file(f);
+					if f != "" m.load_stamp_from_file(f);
 					flash(3);
 					}
 				}
@@ -209,10 +218,11 @@ if use_classic_gui
 					if instance_exists(obj_mouse_stamp)
 					if m.loaded
 						{
+						button_click();
 						var f = get_save_filename("*.STP","");
-						if f != "" then m.save_stamp_to_file(f);
+						if f != "" m.save_stamp_to_file(f);
+						flash(4);
 						}
-					flash(4);
 					}
 				}
 				
@@ -222,7 +232,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.rotate_right();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.rotate_right();
 					}
 				}
 				
@@ -232,7 +243,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.rotate_left();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.rotate_left();
 					}
 				}
 				
@@ -242,7 +254,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.flip_horizontal();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.flip_horizontal();
 					}
 				}
 				
@@ -252,7 +265,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.flip_vertical();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.flip_vertical();
 					}
 				}
 				
@@ -262,7 +276,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.scale_up();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.scale_up();
 					}
 				}
 				
@@ -272,7 +287,8 @@ if use_classic_gui
 				{
 				if mb
 					{
-					if instance_exists(obj_mouse_stamp) m.scale_down();
+					button_click();
+					if instance_exists(obj_mouse_stamp) if m.loaded m.scale_down();
 					}
 				}
 				
@@ -282,6 +298,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					if instance_exists(obj_mouse_stamp) 
 						{
 						clear_back = !clear_back;
@@ -301,6 +318,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					menu_bugz(); 
 					flash(1);
 					}
@@ -315,6 +333,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = true;
 					flash(2);
 					}
@@ -329,9 +348,10 @@ if use_classic_gui
 					{
 					// Click to pause/unpause
 					var bo = bugpic_x+(50*i);
-					if point_in_rectangle(mx,my,bo,bugpic_y,bo+50,bugpic_y+34)
+					if point_in_rectangle(mx,my,bo,bugpic_y,bo+50,bugpic_y+34) && mb
 						{
-						if mb if instance_exists(bug[i]) bug[i].paused = !bug[i].paused;
+						button_click();
+						if instance_exists(bug[i]) bug[i].paused = !bug[i].paused;
 						}
 					}
 				}
@@ -343,6 +363,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++) if instance_exists(bug[i]) bug[i].paused = false;
 					flash(3);
 					}
@@ -357,6 +378,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++)
 						{
 						if instance_exists(bug[i])
@@ -376,6 +398,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++)
 						{
 						if instance_exists(bug[i])
@@ -395,6 +418,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++)
 						{
 						if instance_exists(bug[i])
@@ -415,6 +439,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					for (var i=0;i<4;i++)
 						{
 						if instance_exists(bug[i])
@@ -439,6 +464,7 @@ if use_classic_gui
 					{
 					if mb 
 						{
+						button_click();
 						rally_bugz_to_flags();
 						flash(8);
 						}
@@ -454,6 +480,7 @@ if use_classic_gui
 					{
 					if mb 
 						{
+						button_click();
 						mouse_create(obj_mouse_flag);
 						m.flag_id = i;
 						}
@@ -471,6 +498,7 @@ if use_classic_gui
 				{
 				if mb//load_tun();
 					{
+					button_click();
 					callmethod = load_gal;
 					loading_prompt = true;
 					alarm[0] = 2;
@@ -484,6 +512,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					flash(2);
 					start_watch_mode();
 					}
@@ -496,6 +525,7 @@ if use_classic_gui
 				{
 				if mb//load_tun();
 					{
+					button_click();
 					flash(3);
 					callmethod = load_tun;
 					loading_prompt = true;
@@ -509,6 +539,7 @@ if use_classic_gui
 				{
 				if mb
 					{
+					button_click();
 					flash(4);
 					callmethod = save_tun;
 					loading_prompt = true;
@@ -522,6 +553,7 @@ if use_classic_gui
 				{
 				if mb 
 					{
+					button_click();
 					flash(5);
 					back_to_main();
 					}
@@ -535,6 +567,7 @@ if use_classic_gui
 				{
 				if mb //load_bkg();
 					{
+					button_click();
 					callmethod = load_bkg;
 					loading_prompt = true;
 					alarm[0] = 2;

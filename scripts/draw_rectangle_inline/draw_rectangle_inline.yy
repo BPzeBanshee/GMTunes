@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"draw_rectangle_inline",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"draw_rectangle_inline",
+  "parent":{
+    "name":"Others",
+    "path":"folders/Scripts/CORE/Others.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

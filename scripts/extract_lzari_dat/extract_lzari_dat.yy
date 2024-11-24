@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"extract_dat",
+  "%Name":"extract_lzari_dat",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"extract_dat",
+  "name":"extract_lzari_dat",
   "parent":{
     "name":"Resource Functions",
     "path":"folders/Scripts/Resource Functions.yy",

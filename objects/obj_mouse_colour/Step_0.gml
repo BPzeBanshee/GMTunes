@@ -31,16 +31,34 @@ else
 	held_x = -1; hold_x = false;
 	held_y = -1; hold_y = false;	
 	}
+	
+
 
 if point_in_rectangle(xx,yy,0,0,160,104)
 	{
-	// Add/override note
+	// Color picker
+	var colorpick = false;
+	if keyboard_check_pressed(vk_oem_comma) mbr = true;
+	if keyboard_check(vk_oem_comma)
+		{
+		colorpick = true;
+		var data = global.note_grid[xx][yy];
+		if mouse_check_button_pressed(mb_left) && data > 0 
+			{
+			note = data;
+			mbr = false;
+			}
+		}
+	
+	// Record prior state
 	if mouse_check_button_pressed(mb_left)
 	or mouse_check_button_pressed(mb_right)
 		{
 		parent.record();
 		}
-	if mouse_check_button(mb_left) 
+		
+	// Add/override note
+	if mouse_check_button(mb_left) && !colorpick
 		{
 		var data = global.note_grid[xx][yy];
 		if data != note
@@ -58,5 +76,9 @@ if point_in_rectangle(xx,yy,0,0,160,104)
 		if data > 0 global.note_grid[xx][yy] = 0;
 		(parent.field).update_surf_partial(xx,yy);
 		}
-	else mbr = false;
+		
+	if !mouse_check_button(mb_left)
+	&& !mouse_check_button(mb_right)
+	&& !keyboard_check(vk_oem_comma)
+	mbr = false;
 	}

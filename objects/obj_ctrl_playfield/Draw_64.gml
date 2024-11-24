@@ -132,6 +132,7 @@ if use_classic_gui
 			{
 			draw_rectangle_color(0,416,640,480,0,0,0,0,false);
 			/*draw_sprite(gui.explore,0,0,by);*/ 
+			draw_set_halign(fa_left);
 			draw_text(bx,by+16,"FIELD/EXPLORE TBA"); 
 			break;
 			}
@@ -305,7 +306,7 @@ if use_classic_gui
 	
 	var chooser_x = bx-20;
 	var chooser_y = by+40;
-	draw_sprite(global.spr_ui.chooser[show_menu],0,chooser_x,chooser_y);
+	draw_sprite(global.spr_ui.chooser[!show_menu],0,chooser_x,chooser_y);
 	if point_in_rectangle(mx,my,chooser_x,chooser_y,chooser_x+20,chooser_y+20) && mb
 		{
 		show_menu = !show_menu;
@@ -429,7 +430,7 @@ else
 			}
 	
 		// field/explore
-		case 2: draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
+		case 2: draw_set_halign(fa_left); draw_text(bx,by+16,"FIELD/EXPLORE TBA"); break;
 		
 		// bugz
 		case 3: 
@@ -449,8 +450,8 @@ else
 					case 2: c = c_aqua; break;
 					case 3: c = c_red; break;
 					}
-				draw_rectangle_color(bbx,by,bbx+62,by+32,c,c,c,c,true);
-				draw_rectangle_color(bbx,by+33,bbx+62,by+63,c,c,c,c,true);
+				draw_rectangle_inline_c(bbx,by,bbx+62,by+32,c);
+				draw_rectangle_inline_c(bbx,by+33,bbx+62,by+63,c);
 			
 				// draw bug sprite
 				if instance_exists(bug[i])
@@ -467,7 +468,7 @@ else
 					}
 					
 				// bug speed
-				if point_in_rectangle(mx,my,bbx,by+33,bbx+32,by+63) && mb
+				if point_in_rectangle(mx,my,bbx,by+33,bbx+32,by+63) && mb && !show_menu
 					{
 					if instance_exists(bug[i])
 						{
@@ -476,7 +477,7 @@ else
 						bug[i].calculate_timer();
 						}
 					}
-				if point_in_rectangle(mx,my,bbx+33,by+33,bbx+64,by+63) && mb
+				if point_in_rectangle(mx,my,bbx+33,by+33,bbx+64,by+63) && mb && !show_menu
 					{
 					if instance_exists(bug[i])
 						{
@@ -495,7 +496,7 @@ else
 				}
 			
 			// Stop all bugs
-			draw_rectangle_color(bbx,by,bbx+63,by+32,c_white,c_white,c_white,c_white,true);
+			draw_rectangle_inline(bbx,by,bbx+63,by+32);
 			draw_text(bbx+32,by+16,"STOP!");
 			if point_in_rectangle(mx,my,bbx,by,bbx+64,by+32) && mb
 				{
@@ -503,7 +504,7 @@ else
 				}
 				
 			// Rally Bugz to flags
-			draw_rectangle_color(bbx,by+33,bbx+63,by+63,c_white,c_white,c_white,c_white,true);
+			draw_rectangle_inline(bbx,by+33,bbx+63,by+63);
 			draw_text(bbx+32,by+48,"RALLY");
 			if point_in_rectangle(mx,my,bbx,by+33,bbx+64,by+63) && mb && !show_menu
 				{
@@ -511,7 +512,7 @@ else
 				}
 			bbx += 64;
 		
-			draw_rectangle_color(bbx,by,bbx+63,by+32,c_white,c_white,c_white,c_white,true);
+			draw_rectangle_inline(bbx,by,bbx+63,by+32);
 			draw_text(bbx+32,by+16,"GO!");
 			if point_in_rectangle(mx,my,bbx,by,bbx+64,by+32) && mb
 				{
@@ -533,7 +534,7 @@ else
 				
 			bbx += 64;
 			
-			draw_rectangle_color(bbx,by,bbx+63,by+32,c_white,c_white,c_white,c_white,true);
+			draw_rectangle_inline(bbx,by,bbx+63,by+32);
 			draw_text(bbx+32,by+16,"CHOOSE");
 			if point_in_rectangle(mx,my,bbx,by,bbx+64,by+32) && mb
 				{
@@ -552,34 +553,34 @@ else
 			
 			var backdrop_x = 89;
 			var backdrop_y = by+38;
-			draw_rectangle(backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26,true);
+			draw_rectangle_inline(backdrop_x,backdrop_y,backdrop_x+88,backdrop_y+26);
 			draw_text(backdrop_x+44,backdrop_y+13,"BACKDROP");
 	
 			//+90,+34
 			var gal_x = 66;
 			var gal_y = by+1;
-			draw_rectangle(gal_x,gal_y,gal_x+90,gal_y+34,true);
+			draw_rectangle_inline(gal_x,gal_y,gal_x+90,gal_y+34);
 			draw_text(gal_x+45,gal_y+16,"GALLERY");
 			
 			var watch_x = 155;
 			var watch_y = by+1;
-			draw_rectangle(watch_x,watch_y,watch_x+90,watch_y+34,true);
+			draw_rectangle_inline(watch_x,watch_y,watch_x+90,watch_y+34);
 			draw_text(watch_x+45,watch_y+16,"WATCH");
 	
 			//+90,+34
 			var load_x = 247;
 			var load_y = by+1;
-			draw_rectangle(load_x,load_y,load_x+90,load_y+34,true);
+			draw_rectangle_inline(load_x,load_y,load_x+90,load_y+34);
 			draw_text(load_x+45,load_y+16,"LOAD");
 		
 			var save_x = 338;
 			var save_y = by+1;
-			draw_rectangle(save_x,save_y,save_x+90,save_y+34,true);
+			draw_rectangle_inline(save_x,save_y,save_x+90,save_y+34);
 			draw_text(save_x+45,save_y+16,"SAVE");
 		
 			var quit_x = 429;
 			var quit_y = by+1;
-			draw_rectangle(quit_x,quit_y,quit_x+90,quit_y+34,true);
+			draw_rectangle_inline(quit_x,quit_y,quit_x+90,quit_y+34);
 			draw_text(quit_x+48,quit_y+16,"QUIT");
 			break;
 			}
@@ -602,19 +603,19 @@ else
 	
 	var undo_x = 578;
 	var undo_y = by+35;
-	draw_rectangle(undo_x,undo_y,undo_x+29,undo_y+29,true);
+	draw_rectangle_inline(undo_x,undo_y,undo_x+29,undo_y+29);
 	draw_text(undo_x+14,undo_y+14,"UNDO");
 	if draw_flash == 101 draw_rectangle(undo_x,undo_y,undo_x+29,undo_y+29,false);
 	
 	var reset_x = 609;
 	var reset_y = by+35;
-	draw_rectangle(reset_x,reset_y,reset_x+29,reset_y+29,true);
+	draw_rectangle_inline(reset_x,reset_y,reset_x+29,reset_y+29);
 	draw_text(reset_x+14,reset_y+14,"RESET");
 	if draw_flash == 102 draw_rectangle(reset_x,reset_y,reset_x+29,reset_y+29,false);
 	
 	var chooser_x = bx-20;
 	var chooser_y = by+40;
-	draw_rectangle(chooser_x,chooser_y,chooser_x+20,chooser_y+20,true);
+	draw_rectangle_inline(chooser_x,chooser_y,chooser_x+20,chooser_y+20);
 	draw_text(chooser_x+10,chooser_y+10,show_menu ? "O" : "X");
 	if point_in_rectangle(mx,my,chooser_x,chooser_y,chooser_x+20,chooser_y+20) && mb
 		{
@@ -626,7 +627,7 @@ else
 	if menu_y>0 //draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
 		{
 		draw_rectangle_color(mmx,mmy,mmx+(95*4)+95,mmy+24,0,0,0,0,false);
-		draw_rectangle(mmx,mmy,mmx+(95*4)+95,mmy+24,true);
+		draw_rectangle_inline(mmx,mmy,mmx+(95*4)+95,mmy+24);
 		draw_text(mmx+48,mmy+12,"PAINT");
 		draw_text(mmx+(95)+48,mmy+12,"STAMP");
 		draw_text(mmx+(95*2)+48,mmy+12,"EXPLORE");

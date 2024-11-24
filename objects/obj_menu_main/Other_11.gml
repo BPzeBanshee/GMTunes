@@ -1,6 +1,3 @@
-
-
-	
 if !surface_exists(surf) surf = init_surfpal(spr_shd_menu1,h);
 if !surface_exists(surf2) surf2 = init_surfpal(spr_shd_menu2,h2);
 if !surface_exists(surf3) surf3 = init_surfpal(spr_shd_menu3,h3);

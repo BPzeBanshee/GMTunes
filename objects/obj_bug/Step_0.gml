@@ -1,15 +1,22 @@
 // Movement
-//image_speed = paused ? 0 : 8/timer_max;
 if !paused
 	{
 	spr_subimg += grabbed ? 16/timer_max : 8/timer_max;
-	if round(spr_subimg) > 7 then spr_subimg = 0;
+	if round(spr_subimg) > 7 spr_subimg = 0;
 	}
 
 if grabbed || paused exit;
 timer -= 1;
 if timer < 1
 	{
+	// Adding this fixes REVERB.GAL but breaks RAINSONG.GAL
+	// and likely every other file that uses direction tiles,
+	// WTF?
+	if warp_alt && global.reverb_hack
+		{
+		warp_alt = false;
+		return;
+		}
 	if warp
 		{
 		x = ctrl_x;
@@ -48,12 +55,28 @@ if (hit_lastx != xx or hit_lasty != yy)
 			//trace(string("bug {0} playing sound at calculated volume {1}",bugzid,vol));
 			snd_last = audio_play_sound(snd_struct.snd[note-1],0,false,vol);
 			}
-		if ltxy_mode == 0 then alarm[0] = 2;
+		if ltxy_mode == 0 alarm[0] = 2;
 		anim_playing = true;
 		anim_index = 0;
 		}
 	var c2 = global.ctrl_grid[xx][yy];
-	if c2 > 0 then controlnote_hit(c2);
+	if c2 > 0 controlnote_hit(c2);
+	
+	// play function tile clicks
+	if global.use_external_assets 
+	&& global.function_tile_clicks 
+	&& (c == 0 && c2 > 0)
+		{
+		var s;
+		switch bugztype
+			{
+			case 0: s = global.snd_ui.yclick; break;
+			case 1: s = global.snd_ui.gclick; break;
+			case 2: s = global.snd_ui.bclick; break;
+			case 3: s = global.snd_ui.rclick; break;
+			}
+		audio_play_sound(s,0,false);
+		}
 	}
 
 if anim_playing == true

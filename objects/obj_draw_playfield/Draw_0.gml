@@ -8,4 +8,4 @@ else draw_surface_ext(pixel_surf,0,0,1,1,0,c_white,1);
 	var yy = camera_get_view_y(cam);
 	draw_surface_part(pixel_surf,xx,yy,640,480,xx,yy);
 	}*/
-//draw_flags();
+draw_flags();

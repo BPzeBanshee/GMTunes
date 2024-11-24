@@ -6,6 +6,7 @@ audio_play_sound(array_last(snd_struct.snd),0,false);
 
 calculate_timer = function(){
 var second = game_get_speed(gamespeed_fps);
+if timer < 0 timer = 0;
 switch gear
 	{
 	// Bad Apple BPM test:
@@ -38,10 +39,10 @@ switch mm
 	case 1: direction += 90; break;
 	case 2: direction -= 90; break;
 	case 3: direction += 180; break;
-	case 4: direction = 0;		ctrl_x = (xx + 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
-	case 5: direction = 270;	ctrl_x = (xx) * 16;			ctrl_y = (yy + 8) * 16;		warp = true; break;
-	case 6: direction = 180;	ctrl_x = (xx - 8) * 16;		ctrl_y = (yy) * 16;			warp = true; break;
-	case 7: direction = 90;		ctrl_x = (xx) * 16;			ctrl_y = (yy - 8) * 16;		warp = true; break;
+	case 4: direction = 0;		ctrl_x = (xx + 8) * 16;		ctrl_y = (yy) * 16;			break;
+	case 5: direction = 270;	ctrl_x = (xx) * 16;			ctrl_y = (yy + 8) * 16;		break;
+	case 6: direction = 180;	ctrl_x = (xx - 8) * 16;		ctrl_y = (yy) * 16;			break;
+	case 7: direction = 90;		ctrl_x = (xx) * 16;			ctrl_y = (yy - 8) * 16;		break;
 	case 8: // tele from
 		{
 		for (var i=0;i<array_length(global.warp_list);i++)
@@ -51,20 +52,20 @@ switch mm
 				{
 				ctrl_x = (global.warp_list[i][2] * 16);
 				ctrl_y = (global.warp_list[i][3] * 16);
-				warp = true;
 				}
 			}
 		break;
 		}
 	case 9: break;
 	case 10: break; // random direction
-	case 11: ctrl_x = (xx - 8) * 16; ctrl_y = (yy - 8) * 16; warp = true; break;
-	case 12: ctrl_x = (xx + 8) * 16; ctrl_y = (yy - 8) * 16; warp = true; break;
-	case 13: ctrl_x = (xx + 8) * 16; ctrl_y = (yy + 8) * 16; warp = true; break;
-	case 14: ctrl_x = (xx - 8) * 16; ctrl_y = (yy + 8) * 16; warp = true; break;
+	case 11: ctrl_x = (xx - 8) * 16; ctrl_y = (yy - 8) * 16; break;
+	case 12: ctrl_x = (xx + 8) * 16; ctrl_y = (yy - 8) * 16; break;
+	case 13: ctrl_x = (xx + 8) * 16; ctrl_y = (yy + 8) * 16; break;
+	case 14: ctrl_x = (xx - 8) * 16; ctrl_y = (yy + 8) * 16; break;
 	}
 	
 if !place_snapped(16,16) then move_snap(16,16);
+if (ctrl_x > -1 || ctrl_y > -1) {warp = true; warp_alt = true;}
 direction_p = direction;
 }
 

@@ -4,15 +4,15 @@ switch mode
 	case 0:
 	case 1:
 		{
-		if timer < 120
+		if timer < g*2
 			{
-			if alpha < 1 then alpha += 0.05;
+			if alpha < 1 then alpha += inc;
 			}
 		if (keyboard_check_pressed_sane(vk_anykey) || mouse_check_button_pressed(mb_any)) 
-		&& timer < 120 then timer = 120;
-		if timer > 120
+		&& timer < g*2 timer = g*2;
+		if timer > g*2
 			{
-			alpha -= 0.05;
+			alpha -= inc;
 			if alpha == 0
 				{
 				timer = 0;
@@ -28,7 +28,7 @@ switch mode
 			audio_play_sound(s,0,false);
 			timer = 0;
 			alpha = 1;
-			alarm[0] = ceil(60/ff);
+			alarm[0] = ceil(g/ff);
 			mode++;
 			}
 		else mode = 4;
@@ -36,7 +36,7 @@ switch mode
 		}
 	case 3:
 		{
-		if timer >= (audio_sound_length(s)*60)
+		if timer >= (audio_sound_length(s)*g)
 		or ((keyboard_check_pressed_sane(vk_anykey) || mouse_check_button_pressed(mb_any))  
 		&& !keyboard_check(vk_f4))
 			{

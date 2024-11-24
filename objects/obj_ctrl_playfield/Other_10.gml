@@ -1,5 +1,10 @@
 ///@desc Event Functions
 // Feather disable GM2016
+button_click = function(){
+if global.use_external_assets
+audio_play_sound(global.snd_ui.button,0,false);
+return 0;
+}
 mouse_create = function(obj){
 if instance_exists(m)
 	{
@@ -31,6 +36,65 @@ if string_length(f)>0
 			layer_background_yscale(bid,4);
 			}
 		}
+	}
+}
+load_bug = function(bugzid,filename=""){
+var mycolor,dir;
+switch bugzid
+	{
+	case 0: mycolor = "Yellow"; dir=0; break;
+	case 1: mycolor = "Green"; dir=90; break;
+	case 2: mycolor = "Blue"; dir=180; break;
+	case 3: mycolor = "Red"; dir=270; break;
+	default: return -1;
+	}
+if filename == ""
+filename = get_open_filename_ext("Bugz File|*.BUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
+if string_length(filename)>0
+	{
+	var mybug = bug_create(room_width*0.5,room_height*0.5,filename);
+	mybug.direction = dir;
+	mybug.gear = 3;
+	mybug.timer = game_get_speed(gamespeed_fps) / 3;
+	mybug.paused = paused;
+	return mybug;
+	}
+return -2;
+}
+load_yellow = function(filename=""){
+var mybug = load_bug(0,filename);
+if instance_exists(mybug)
+	{
+	instance_destroy(bug_yellow);
+	bug_yellow = mybug;
+	return 0;
+	}
+}
+load_green = function(filename=""){
+var mybug = load_bug(1,filename);
+if instance_exists(mybug)
+	{
+	instance_destroy(bug_green);
+	bug_green = mybug;
+	return 0;
+	}
+}
+load_blue = function(filename=""){
+var mybug = load_bug(2,filename);
+if instance_exists(mybug)
+	{
+	instance_destroy(bug_blue);
+	bug_blue = mybug;
+	return 0;
+	}
+}
+load_red = function(filename=""){
+var mybug = load_bug(3,filename);
+if instance_exists(mybug)
+	{
+	instance_destroy(bug_red);
+	bug_red = mybug;
+	return 0;
 	}
 }
 rally_bugz_to_flags = function(){
@@ -84,7 +148,13 @@ if string_length(f)>0
 	}
 }
 menu_bugz = function(){
-instance_create_depth(x,y,depth,obj_menu_bugz);//-1
+if directory_exists(global.main_dir+"/BUGZ")
+instance_create_depth(x,y,depth,obj_menu_bugz)
+else 
+	{
+	var b = instance_create_depth(x,y,depth,obj_menu_bugz_alt);
+	b.parent = id;
+	}
 }
 reset_playfield = function(hard=false){
 record();
@@ -99,7 +169,7 @@ if hard
 	var playfield = new default_playfield();
 	tun_apply_data(playfield);
 	}
-else field.update_surf();
+field.update_surf();
 if global.use_external_assets audio_play_sound(global.snd_ui.zap,0,false);
 }
 flash = function(value){
@@ -152,6 +222,8 @@ if !watch_mode
 	{
 	watch_mode = true;
 	repeat global.zoom zoom_out();
+	m_prev = m.object_index;
+	instance_destroy(m);
 	alarm[2] = 60*5;
 	}
 return 0;
@@ -171,10 +243,25 @@ var cx,cy;
 if instance_exists(watch_target)
 && global.zoom > 0
 	{
-	var	lx = lerp(watch_target.x+8,watch_target.x+8+lengthdir_x(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
-	var	ly = lerp(watch_target.y+8,watch_target.y+8+lengthdir_y(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
-	cx = lx - camera_get_view_width(cam)/2;
-	cy = ly - camera_get_view_height(cam)/2;
+	var xx = watch_target.x+8;
+	var yy = watch_target.y+8;
+	if !watch_target.paused
+		{
+		var dx = watch_target.x+8+lengthdir_x(16,watch_target.direction);
+		var dy = watch_target.y+8+lengthdir_y(16,watch_target.direction);
+		if watch_target.warp
+			{
+			dx = watch_target.ctrl_x+8;
+			dy = watch_target.ctrl_y+8;
+			}
+		var t = max(0,watch_target.timer/watch_target.timer_max);
+		xx = lerp(watch_target.x+8,dx,1-t);
+		yy = lerp(watch_target.y+8,dy,1-t);
+		}
+	//var	lx = lerp(watch_target.x+8,watch_target.x+8+lengthdir_x(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
+	//var	ly = lerp(watch_target.y+8,watch_target.y+8+lengthdir_y(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
+	cx = xx - camera_get_view_width(cam)/2;
+	cy = yy - camera_get_view_height(cam)/2;
 	}
 else
 	{

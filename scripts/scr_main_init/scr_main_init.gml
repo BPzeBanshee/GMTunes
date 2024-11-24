@@ -1,15 +1,14 @@
 function scr_main_init(){
-
 // Macros
 #macro trace show_debug_message
 #macro msg show_message
-#macro GAME_VERSION string("({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
-#macro TUNERES game_save_id+"/TUNERES.DAT_ext/"
-#macro Web:TUNERES "/TUNERES.DAT_ext/"
+#macro GAME_VERSION string("1 ({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
+#macro TUNERES game_save_id+"/TUNERES.DAT/"
+#macro Web:TUNERES "/TUNERES.DAT/"
 #macro vk_capslock 20
 #macro vk_oem_minus 189
 #macro vk_oem_equals 187
-
+#macro vk_oem_comma 188
 trace("GMTunes Build {0}",GAME_VERSION);
 
 // Function calls
@@ -20,6 +19,7 @@ pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
 scr_config_load();
 audio_master_gain(round(global.music_volume)/100);
 gpu_set_texfilter(global.use_texfilter);
+game_set_speed(global.target_framerate,gamespeed_fps);
 instance_create_depth(x,y,-9999,obj_debug);
 
 // Controller objects and globalvars
@@ -29,13 +29,17 @@ global.ctrl_grid = [];
 global.warp_list = [];
 global.flag_list = [];
 global.zoom = 0;
+global.reverb_hack = false;
 
 // Establishing program directory etc
 //if GM_build_type == "run"
 global.main_dir = working_directory+"/"
 //else global.main_dir = program_directory+"/";
+var load_video = false;
 if os_type == os_windows
 	{
+	// Attempt to locate original SimTunes directory
+	var success = false;
 	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
 	if file_exists(config)
 		{
@@ -47,7 +51,52 @@ if os_type == os_windows
 		if savepath != ""
 			{
 			global.main_dir = string_replace(savepath,@"TUNES\","");
+			success = true;
 			trace("global.main_dir set to {0}",global.main_dir);
+			}
+		}
+	
+	if !success
+		{
+		show_message("GMTunes was unable to find your SimTunes directory.\n\nPlease manually locate the SimTunes directory to load asset data, or hit 'Cancel' to operate using internal assets only.");
+		var d = get_open_filename_ext("","","C:/","Locate SimTunes directory (pick any file)");
+		if string_length(d) > 0 
+			{
+			global.main_dir = filename_path(d);
+			trace("global.main_dir manually set to {0}",global.main_dir);
+			}
+		else
+			{
+			global.use_external_assets = false;
+			}
+		}
+		
+	if global.use_external_assets
+		{
+		// Extract TUNERES.DAT assets if possible
+		if !directory_exists(TUNERES)
+			{
+			gmlzari_init();
+			if file_exists(global.main_dir+"TUNERES.DAT")
+				{
+				var result = extract_lzari_dat(global.main_dir+"TUNERES.DAT",game_save_id,true);
+				if result < 0 
+					{
+					show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
+					global.use_external_assets = false;
+					}
+				else load_video = true;
+				}
+			else 
+				{
+				show_message("TUNERES.DAT not found.\nGame will use placeholder assets only.");
+				global.use_external_assets = false;
+				}
+			}
+		else 
+			{
+			trace("Extracted folder already present, avoiding extra work");
+			load_video = true;
 			}
 		}
 	}
@@ -61,23 +110,12 @@ scr_snd_init();
 // Load note sprites
 scr_spr_init();
 
-if os_type == os_windows && global.use_external_assets 
-	{
-	// Extract TUNERES.DAT assets if possible
-	if !directory_exists(TUNERES)
-		{
-		gmlzari_init();
-		if file_exists(global.main_dir+"TUNERES.DAT")
-			{
-			var result = extract_dat(global.main_dir+"TUNERES.DAT");
-			if result < 0 show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
-			}
-		else show_message("TUNERES.DAT not found.\nGame will use placeholder assets only or whatever is available in "+string(TUNERES));
-		}
-	else trace("Extracted folder already present, avoiding extra work");	
-	
-	// TODO: load string table from SimTunes.dat
+// TODO: load string table from SimTunes.dat
+//scr_strtbl_init();
 
+// Play intro graphics+video or just go straight to main room
+if load_video == true
+	{
 	// Play intro graphics+video
 	instance_create_depth(x,y,0,obj_video_intro);
 	}
@@ -90,21 +128,28 @@ else
 
 function scr_config_load(){
 ini_open(game_save_id+"/GMTunes.ini");
-global.debug = ini_read_real("GMTunes","debug",true);
-global.use_external_assets = ini_read_real("GMTunes","use_external_assets",true);
-global.music_volume = ini_read_real("GMTunes","music_volume",50);
-global.use_texfilter = ini_read_real("GMTunes","use_texture_filtering",false);
+global.debug = ini_read_real("Core","debug",true);
+global.use_external_assets = ini_read_real("Core","use_external_assets",true);
+global.music_volume = ini_read_real("Core","music_volume",50);
+global.use_texfilter = ini_read_real("Core","use_texture_filtering",false);
+global.target_framerate = ini_read_real("Core","target_framerate",60);
 //if os_type == os_operagx global.use_external_assets = false;
+
+global.function_tile_clicks = ini_read_real("SimTunes","function_tile_clicks",false);
 ini_close();
 return 0;
 }
 
 function scr_config_save(){
-ini_open("GMTunes.ini");
-ini_write_real("GMTunes","debug",global.debug);
-ini_write_real("GMTunes","use_external_assets",global.use_external_assets);
-ini_write_real("GMTunes","music_volume",global.music_volume);
-ini_write_real("GMTunes","use_texture_filtering",global.use_texfilter);
+ini_open(game_save_id+"/GMTunes.ini");
+ini_write_real("Core","debug",global.debug);
+if !ini_key_exists("Core","use_external_assets")
+ini_write_real("Core","use_external_assets",global.use_external_assets);
+ini_write_real("Core","music_volume",global.music_volume);
+ini_write_real("Core","use_texture_filtering",global.use_texfilter);
+ini_write_real("Core","target_framerate",global.target_framerate);
+
+ini_write_real("SimTunes","function_tile_clicks",global.function_tile_clicks);
 ini_close();
 return 0;
 }
@@ -151,6 +196,11 @@ global.snd_ui.undo = wav_load(TUNERES+"UNDO.WAV");
 global.snd_ui.menu[0] = wav_load(TUNERES+"POPDOWN.WAV");
 global.snd_ui.menu[1] = wav_load(TUNERES+"POPUP.WAV");
 global.snd_ui.switcher = wav_load(TUNERES+"SWITCHER.WAV");
+global.snd_ui.button = wav_load(TUNERES+"BUTTON.WAV");
+global.snd_ui.rclick = wav_load(TUNERES+"clk811.wav");
+global.snd_ui.bclick = wav_load(TUNERES+"BCLICK.WAV");
+global.snd_ui.gclick = wav_load(TUNERES+"GCLICK.WAV");
+global.snd_ui.yclick = wav_load(TUNERES+"YCLICK.WAV");
 }
 
 function scr_spr_init(){

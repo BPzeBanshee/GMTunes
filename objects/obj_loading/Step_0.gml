@@ -3,7 +3,7 @@ switch mode
 	// fade in
 	case 0:
 		{
-		if alpha < 1 alpha += 0.05;// else mode = 1;
+		if alpha < 1 alpha += inc;// else mode = 1;
 		break;
 		}
 		
@@ -18,7 +18,7 @@ switch mode
 	// fade out
 	case 2:
 		{
-		if alpha > 0 alpha -= 0.05 else instance_destroy();
+		if alpha > 0 alpha -= inc else instance_destroy();
 		break;
 		}
 	}

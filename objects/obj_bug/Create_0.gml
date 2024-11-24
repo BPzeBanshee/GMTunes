@@ -8,6 +8,8 @@ paused = false;
 grabbed = false;
 muted = false;
 
+warp_alt = false;
+
 gear = 3;
 timer = 0;
 timer_max = timer;

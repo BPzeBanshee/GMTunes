@@ -1,4 +1,5 @@
 ///@desc Keyboard Functions
+// Feather disable GM1041
 // Trying to be authentic to SimTunes here where possible
 // Failing that we comment out until features are implemented
 
@@ -40,21 +41,12 @@ else if keyboard_check(ord("M"))
 	}
 else
 	{
-	if !instance_exists(m) && m_prev != noone
+	if !instance_exists(m) && m_prev != noone 
 		{
-		trace("Mouse object deleted somehow, reverting to m_prev ({0})",object_get_name(m_prev.object_index));
-		mouse_create(m_prev.object_index);
+		trace("Mouse object deleted somehow, reverting to m_prev ({0})",object_get_name(m_prev));
+		mouse_create(m_prev);
 		}
 	}
-// TODO: expose mouse playfield position to allow color picking
-/*if keyboard_check(ord(","))
-	{
-	if instance_exists(obj_mouse_colour)
-		{
-		if mouse_check_button_pressed(mb_left)
-		m.note = global.note_grid[m.xx,m.yy];
-		}
-	}*/
 	
 // Menu category selection
 for (var i=0;i<5;i++)
@@ -78,6 +70,11 @@ if keyboard_check_pressed(vk_enter)
 	{
 	dialog = get_integer_async("Bugz Gear Speed",-1);
 	}
+if keyboard_check_pressed(vk_f11)
+	{
+	global.reverb_hack = !global.reverb_hack;
+	msg("Reverb.gal hack toggled "+(global.reverb_hack ? "ON" : "OFF")+". Hope you know what you're doing.");
+	}
 	
 // ==== Things that use the CTRL key ====
 if keyboard_check(vk_control)
@@ -95,12 +92,12 @@ if keyboard_check(vk_control)
 	if keyboard_check_pressed(ord("C"))
 		{
 		if !instance_exists(obj_mouse_stamp) mouse_create(obj_mouse_stamp);
-		m.copy_mode = true;
+		m.move_mode = false;
 		}
 	if keyboard_check_pressed(ord("X"))
 		{
 		if !instance_exists(obj_mouse_stamp) mouse_create(obj_mouse_stamp);
-		m.copy_mode = false;
+		m.move_mode = true;
 		}
 	
 	// Zap (Erase) Screen

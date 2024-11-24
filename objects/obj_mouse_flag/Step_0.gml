@@ -19,9 +19,9 @@ if mouse_check_button_pressed(mb_left)
 		
 	// it also dictates flags cannot share positions with control notes,
 	// probably because it's considered a special type of control note itself
-	if global.ctrl_grid[xx][yy] != 34
+	if global.ctrl_grid[xx][yy] != 0
 		{
-		global.ctrl_grid[xx][yy] = 34;
+		global.ctrl_grid[xx][yy] = 0;
 		(parent.field).update_surf_partial(xx,yy);
 		}
 		
@@ -50,7 +50,7 @@ if mouse_check_button_pressed(mb_right)
 			global.flag_list[i][1] = -1;
 			global.flag_list[i][2] = -1;
 			
-			if global.ctrl_grid[xx][yy] == 34
+			if global.ctrl_grid[xx][yy] > 0
 				{
 				global.ctrl_grid[xx][yy] = 0;
 				(parent.field).update_surf_partial(xx,yy);

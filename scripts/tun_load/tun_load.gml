@@ -550,6 +550,7 @@ var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tu
 for (var i=0;i<4;i++)
 	{
 	if bugz[i].filename != ""
+	if file_exists(global.main_dir+"/BUGZ/"+bugz[i].filename)
 		{
 		//var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
 		var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);

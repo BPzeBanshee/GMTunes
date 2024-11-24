@@ -3,10 +3,10 @@ draw_set_alpha(1);
 draw_set_halign(fa_center);
 draw_set_valign(fa_top);
 draw_set_color(c_black);
-draw_set_font(fnt_internal_bold);
+draw_set_font(fnt_system);
 
 // selection animation
-select_a = select_am ? select_a+0.033 : select_a-0.033;
+select_a = select_am ? select_a+select_inc : select_a-select_inc;
 if select_a >= 1 select_am = false;
 if select_a <= 0 select_am = true;
 

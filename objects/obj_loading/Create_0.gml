@@ -1,6 +1,9 @@
 alpha = 0;
 mode = 0;
 
+g = game_get_speed(gamespeed_fps);
+inc = 3 / g;
+
 tasks = 0;
 max_tasks = 1;
 txt = "Loading Aeuhh....";

@@ -37,13 +37,17 @@ else
 		yy = 0;
 		}
 	}
-/*for (var xx=0;xx<4;xx++)
+/*
+// Immediate load, but stalls app for some time
+for (var _x=0;_x<4;_x++)
 	{
-	for (var yy=0; yy < array_length(lists[xx]); yy++)
+	for (var _y=0; _y < array_length(lists[_x]); _y++)
 		{
-		bug[xx][yy] = load_bug_metadata(dir+lists[xx][yy]);
+		bug[_x][_y] = load_bug_metadata(dir+lists[_x][_y]);
 		}
-	}*/
+	}
+loading_obj.tasks = loading_obj.max_tasks-1;
+*/
 	
 // Fade out when done, otherwise keep doing stuff
 loading_obj.tasks++;
@@ -51,6 +55,6 @@ if loading_obj.tasks == loading_obj.max_tasks
 	{
 	ready = true;
 	loading_obj.mode = 2;
-	alarm[1] = 3;
+	alarm[1] = g/20;
 	}
 else alarm[0] = 1;

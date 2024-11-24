@@ -1,14 +1,15 @@
 /// @desc Opens a SimTunes LZARI container file, splits it out into it's file contents and decompresses them.
-/// @param {string} filehandle File location
+/// @param {string} dat_file File location
+/// @param {string} output_dir Output directory
 /// @param {bool} [remove_lzdir]=false Delete the LZARI file contents after decompression is done
 /// @returns {real} Description
-function extract_dat(filehandle,remove_lzdir=false){
+function extract_lzari_dat(dat_file,output_dir,remove_lzdir=false){
 // Get file
-if !file_exists(filehandle) then return -1;
+if !file_exists(dat_file) then return -1;
 
 // Load file into buffer, do some error checking
 var bu = buffer_create(8,buffer_grow,1);
-buffer_load_ext(bu,filehandle,0);
+buffer_load_ext(bu,dat_file,0);
 
 // There's no obvious formatting here because of compression/encryption
 // so just prep some variables instead
@@ -40,9 +41,8 @@ while buffer_tell(bu) < eob-8
 trace("sizes: "+string(sizes));
 trace("offsets: "+string(offsets));*/
 
-var sandbox = game_save_id;//environment_get_variable("LOCALAPPDATA")+"/GMTunes/";
-var infile = sandbox+"/"+filename_name(filehandle)+"_lz/";
-var outfile = sandbox+"/"+filename_name(filehandle)+"_ext/";
+var infile = output_dir+"/"+filename_name(dat_file)+"_lz/";
+var outfile = output_dir+"/"+filename_name(dat_file)+"/";
 
 if !directory_exists(infile) then directory_create(infile);
 if !directory_exists(outfile) then directory_create(outfile);

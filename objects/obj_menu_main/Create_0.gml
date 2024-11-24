@@ -46,13 +46,15 @@ init_surfpal = function(spr,arr){
 	return surf;
 	}
 cycle_surfpal = function(surf,arr){
+var g = game_get_speed(gamespeed_fps);
+var inc = round(240 / g);
 if surface_exists(surf)
 	{
 	surface_set_target(surf);
 	for (var yy=0; yy<surface_get_height(surf); yy++)
 		{
 		draw_point_color(1,yy,make_color_hsv(arr[yy],255,255));
-		arr[yy] += 4; if arr[yy] > 255 arr[yy] -= 255;
+		arr[yy] += inc; if arr[yy] > 255 arr[yy] -= 255;
 		}
 	surface_reset_target();
 	}

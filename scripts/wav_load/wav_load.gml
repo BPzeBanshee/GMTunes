@@ -23,7 +23,13 @@ if has_metadata
 	// Metadata integrity checks (RIFF, filesize, WAVEfmt ,length)
 	var test = buffer_read_word(bu); if test != "RIFF" return -1;
 	buffer_read(bu,buffer_u32); //trace("test: {0}, size-8: {1}",test,size-8); //if test != size-8 return -2;
-	test = buffer_read_word(bu) + buffer_read_word(bu); if test != "WAVEfmt " return -3;
+	test = buffer_read_word(bu); // YYC compile jank, executes these backwards if put in one line
+	test += buffer_read_word(bu); 
+	if test != "WAVEfmt " 
+		{
+		msg("wav_load_from_buffer: test returned "+string(test));
+		return -3;
+		}
 	test = buffer_read(bu,buffer_u32); if test != 16 return -4;
 	
 	// Get the rest of the metadata

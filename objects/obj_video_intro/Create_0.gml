@@ -7,6 +7,9 @@ surf = -1;
 
 if global.use_external_assets
 	{
+	g = game_get_speed(gamespeed_fps);
+	inc = 3 / g; //0.05;
+	
 	// Company logos
 	spr_logo1 = -1;
 	spr_logo2 = -1;

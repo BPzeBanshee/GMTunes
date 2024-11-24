@@ -1,3 +1,8 @@
+/*
+TODO: rewrite to not abuse Draw GUI/view resizing and instead extrapolate x/y values by pixelsize.
+This should let us recreate the original zoom effects of the SNES prototype Music Factory.
+*/
+
 pixel_surf = -1;
 update_surf = function(){
 var ww = 160;
@@ -105,10 +110,6 @@ for (var i=0;i<4;i++)
 		{
 		var fx = (global.flag_list[i][0] * 16);
 		var fy = (global.flag_list[i][1] * 16);
-		var g = xy_to_gui(fx,fy);
-		var g2 = 8;
-		if global.zoom == 1 g2 /= 2;
-		if global.zoom == 0 g2 /= 4;
 		
 		// establish flag direction
 		var ang = 0;
@@ -126,19 +127,19 @@ for (var i=0;i<4;i++)
 		if global.use_external_assets
 			{
 			spr = global.spr_flag2[global.zoom][i][ang];
+			switch global.zoom
+				{
+				default: break;
+				case 1: sc = 2; break;
+				case 0: sc = 4; break;
+				}
 			}
 		else 
 			{
 			d = global.flag_list[i][2];
 			ind = i;
-			switch global.zoom
-				{
-				default: break;
-				case 1: sc = 0.5; break;
-				case 0: sc = 0.25; break;
-				}
 			}
-		draw_sprite_ext(spr,ind,g.gx+g2,g.gy+g2,sc,sc,d,c_white,1); //g.gx+g2,g.gy+g2
+		draw_sprite_ext(spr,ind,fx+8,fy+8,sc,sc,d,c_white,1); //g.gx+g2,g.gy+g2
 		}
 	}
 }

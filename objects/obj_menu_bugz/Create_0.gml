@@ -131,6 +131,9 @@ snd_count = 0;
 back = -1;
 select_a = 1;
 select_am = 1;
+// TODO: speed not accurate to SimTunes exactly
+g = game_get_speed(gamespeed_fps);
+select_inc = (1/30) * (60/g);
 dir = global.main_dir+"/BUGZ/";
 mouse_old = obj_ctrl_playfield.m;
 bug_index = [];

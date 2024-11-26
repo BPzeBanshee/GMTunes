@@ -577,6 +577,21 @@ if use_classic_gui
 			break;
 			}
 		}
+		
+	// Menu controls
+	if show_menu
+		{
+		var mmx = bx+7;
+		var mmy = 480 - round(menu_y);
+		for (var i=0;i<5;i++)
+			{
+			if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
+				{
+				menu = i;
+				audio_play_sound(global.snd_ui.switcher,0,false);
+				}
+			}
+		}
 	}
 else
 	{
@@ -853,6 +868,20 @@ else
 					}
 				}
 			break;
+			}
+		}
+	
+	// Menu controls
+	if show_menu
+		{
+		var mmx = bx+7;
+		var mmy = 480 - round(menu_y);
+		for (var i=0;i<5;i++)
+			{
+			if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
+				{
+				menu = i;
+				}
 			}
 		}
 	}

@@ -52,6 +52,20 @@ event_user(0);
 m = noone; m_prev = m; 
 mouse_create(obj_mouse_parent); 
 
+// Load preset stamps
+pstamp = [];
+pstamp_page = 0;
+for (var i=0;i<100;i++)
+	{
+	pstamp[i] = stamp_load(global.main_dir+"PSTAMPS/PREST"+string(i+1)+".STP");
+	
+	/*var ww = surface_get_width(pstamp[i].surf);
+	var hh = surface_get_height(pstamp[i].surf);
+	var surf = pstamp[i].surf;
+	pstamp[i].surf = sprite_create_from_surface(surf,0,0,ww,hh,false,false,0,0);
+	surface_free(surf);*/
+	}
+
 // Load GUI images
 if use_classic_gui
 	{

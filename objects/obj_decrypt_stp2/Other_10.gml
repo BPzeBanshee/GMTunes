@@ -87,7 +87,7 @@ for (var yy = 0; yy < hh; yy++)
     for (var xx = 0; xx < ww; xx++)
         {
 		var data = buffer_read(bu,buffer_u8);
-		if data > 0 then draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
+		if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
         }
     }
 surface_reset_target();

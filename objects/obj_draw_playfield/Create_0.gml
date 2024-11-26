@@ -68,10 +68,13 @@ if !surface_exists(pixel_surf) then update_surf();
 surface_set_target(pixel_surf);
 for (var ny=0; ny<h; ny++)
 	{
+	var _y = yy+ny;
+	if _y > 103 or _y < 0 continue;
 	for (var nx=0; nx<w; nx++)
 		{
 		var _x = xx+nx;
-		var _y = yy+ny;
+		if _x > 159 or _x < 0 continue;
+		
 		var data = global.note_grid[_x][_y];
 		var data_ctrl = global.ctrl_grid[_x][_y];
 		if data_ctrl == 34 data_ctrl = 0;

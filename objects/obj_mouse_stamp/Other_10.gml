@@ -189,11 +189,18 @@ var sx = xx - max(copy_w,0);
 var sy = yy - max(copy_h,0);
 for (var dx = 0; dx < width; dx++)
 	{
+	// Sanity check
+	var fx = sx+dx;
+	if fx < 0 or fx > 159 continue;
 	for (var dy = 0; dy < height; dy++)
 		{
+		// Sanity check
+		var fy = sy+dy;
+		if fy < 0 or fy > 103 continue;
+		
 		// Paint blocks
 		var data = grid_note[dx][dy];
-		if data > 0 || !clear_back global.note_grid[sx+dx][sy+dy] = data;
+		if data > 0 || !clear_back global.note_grid[fx][fy] = data;
 			
 		// Control blocks
 		var data2 = grid_ctrl[dx][dy];
@@ -208,8 +215,8 @@ for (var dx = 0; dx < width; dx++)
 					if dx == copy_flags[i][0] 
 					&& dy == copy_flags[i][1]
 						{
-						copy_flags[i][0] = sx+dx;
-						copy_flags[i][1] = sy+dy;
+						copy_flags[i][0] = fx;
+						copy_flags[i][1] = fy;
 						nd = i;
 						}
 					}
@@ -226,12 +233,11 @@ for (var dx = 0; dx < width; dx++)
 			if data2 > 251 data2 = 0;
 							
 			// finally, add to grid
-			global.ctrl_grid[sx+dx][sy+dy] = data2;
+			global.ctrl_grid[fx][fy] = data2;
 			}
-		//(parent.field).update_surf_partial(sx+dx,sy+dy);
 		}
 	}
-(parent.field).update_surf_zone(sx,sy,dx,dy);
+(parent.field).update_surf_zone(sx,sy,width,height);
 			
 // Teleporter blocks
 for (var i=0;i<array_length(warp_starts);i++)

@@ -97,6 +97,60 @@ if use_classic_gui
 			var save_stamp_y = by+38;
 			if draw_flash == 4 draw_sprite(global.spr_ui.onclick_bottom,0,save_stamp_x,save_stamp_y);
 			
+			// Preset Stamps
+			var preset_x = 155+90+76;
+			var preset_y = by+3;
+			for (var i=0;i<5;i++)
+				{
+				var j = (pstamp_page * 5) + i;
+				if surface_exists(pstamp[j].surf) draw_surface(pstamp[j].surf,preset_x+(30*i)+6,preset_y+6);
+				draw_rectangle_inline(preset_x+(30*i),preset_y,preset_x+(30*(i+1)),preset_y+30);
+				if point_in_rectangle(mx,my,preset_x+(30*i),preset_y,preset_x+(30*(i+1)),preset_y+30) && mb
+					{
+					if !instance_exists(obj_mouse_stamp) 
+						{
+						instance_destroy(m);
+						mouse_create(obj_mouse_stamp);
+						}
+					m.grid_note = pstamp[j].note_array;
+					m.grid_ctrl = pstamp[j].ctrl_array;
+					m.loaded = true;
+					m.move_mode = false;
+					m.width = array_length(pstamp[j].note_array);
+					m.height = array_length(pstamp[j].note_array[0]);
+					m.surf = surface_create(m.width,m.height);
+					surface_copy(m.surf,0,0,pstamp[j].surf);
+					m.copy_w = m.width;
+					m.copy_h = m.height;
+					m.copy_x = m.width/2;
+					m.copy_y = m.height/2;
+					}
+				}
+				
+			var preset_up_x = 495;
+			var preset_up_y = by+3;
+			draw_rectangle_inline(preset_up_x,preset_up_y,preset_up_x+12,preset_up_y+8);
+			if point_in_rectangle(mx,my,preset_up_x,preset_up_y,preset_up_x+12,preset_up_y+8) && mb
+				{
+				pstamp_page--;
+				if pstamp_page < 0 pstamp_page = 19;
+				}
+				
+			draw_set_font(fnt_system);
+			draw_set_color(c_black);
+			draw_text(preset_up_x+6,preset_up_y+16,string(pstamp_page+1));
+			draw_set_color(c_white);
+			
+			var preset_down_x = 495;
+			var preset_down_y = by+28;
+			draw_rectangle_inline(preset_down_x,preset_down_y,preset_down_x+12,preset_down_y+8);
+			if point_in_rectangle(mx,my,preset_down_x,preset_down_y,preset_down_x+12,preset_down_y+8) && mb
+				{
+				pstamp_page++;
+				if pstamp_page > 19 pstamp_page = 0;
+				}	
+			
+			
 			// Greyed area
 			var not_ready_x = 176;
 			var not_ready_y = by+38;
@@ -313,16 +367,11 @@ if use_classic_gui
 		audio_play_sound(global.snd_ui.menu[show_menu],0,false);
 		}
 		
-	var mmy = 480 - round(menu_y);
-	var mmx = bx+7;
-	if menu_y>0 draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
-	for (var i=0;i<5;i++)
+	if show_menu
 		{
-		if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
-			{
-			menu = i;
-			audio_play_sound(global.snd_ui.switcher,0,false);
-			}
+		var mmy = 480 - round(menu_y);
+		var mmx = bx+7;
+		if menu_y>0 draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
 		}
 	}
 else
@@ -622,9 +671,9 @@ else
 		show_menu = !show_menu;
 		}
 		
+	var mmx = bx+7;	
 	var mmy = 480 - round(menu_y);
-	var mmx = bx+7;
-	if menu_y>0 //draw_sprite(global.spr_ui.menu[menu],0,bx,mmy);
+	if menu_y > 0
 		{
 		draw_rectangle_color(mmx,mmy,mmx+(95*4)+95,mmy+24,0,0,0,0,false);
 		draw_rectangle_inline(mmx,mmy,mmx+(95*4)+95,mmy+24);
@@ -633,12 +682,5 @@ else
 		draw_text(mmx+(95*2)+48,mmy+12,"EXPLORE");
 		draw_text(mmx+(95*3)+48,mmy+12,"BUGZ");
 		draw_text(mmx+(95*4)+48,mmy+12,"FILE");
-		}
-	for (var i=0;i<5;i++)
-		{
-		if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
-			{
-			menu = i;
-			}
 		}
 	}

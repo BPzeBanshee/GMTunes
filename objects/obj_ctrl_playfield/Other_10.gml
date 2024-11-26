@@ -5,6 +5,9 @@ if global.use_external_assets
 audio_play_sound(global.snd_ui.button,0,false);
 return 0;
 }
+
+///@desc Creates a mouse object
+///@param {Asset.GMObject, Id.Instance} obj
 mouse_create = function(obj){
 if instance_exists(m)
 	{

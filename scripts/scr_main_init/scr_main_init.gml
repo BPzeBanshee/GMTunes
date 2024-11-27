@@ -2,7 +2,7 @@ function scr_main_init(){
 // Macros
 #macro trace show_debug_message
 #macro msg show_message
-#macro GAME_VERSION string("1 ({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
+#macro GAME_VERSION string("2 ({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
 #macro TUNERES game_save_id+"/TUNERES.DAT/"
 #macro Web:TUNERES "/TUNERES.DAT/"
 #macro vk_capslock 20
@@ -350,7 +350,8 @@ if surface_exists(temp4)
 	global.spr_ui.stamp_clearback[1] = sprite_create_from_surface(temp4,94,270,29,25,false,false,0,0);
 	global.spr_ui.stamp_tilemode[0] = sprite_create_from_surface(temp4,94,295,29,25,false,false,0,0);
 	global.spr_ui.stamp_tilemode[1] = sprite_create_from_surface(temp4,94,320,29,25,false,false,0,0);
-	
+	global.spr_ui.stamp_up = sprite_create_from_surface(temp4,92,47,16,7,false,false,0,0);
+	global.spr_ui.stamp_down = sprite_create_from_surface(temp4,92,54,16,8,false,false,0,0);
 	surface_free(temp4);
 	}
 

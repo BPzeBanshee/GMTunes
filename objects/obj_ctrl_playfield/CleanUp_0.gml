@@ -3,6 +3,12 @@ global.ctrl_grid = [];
 global.playfield = {};
 window_set_caption("GMTunes"); 
 
+for (var i=0;i<array_length(pstamp_spr);i++)
+	{
+	sprite_delete(pstamp_spr[i]);
+	delete pstamp[i];
+	}
+
 if use_classic_gui
 	{
 	var a = struct_get_names(gui);

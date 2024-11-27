@@ -54,16 +54,35 @@ mouse_create(obj_mouse_parent);
 
 // Load preset stamps
 pstamp = [];
+pstamp_spr = [];
 pstamp_page = 0;
 for (var i=0;i<100;i++)
 	{
 	pstamp[i] = stamp_load(global.main_dir+"PSTAMPS/PREST"+string(i+1)+".STP");
+	if !is_struct(pstamp[i]) continue;
 	
-	/*var ww = surface_get_width(pstamp[i].surf);
-	var hh = surface_get_height(pstamp[i].surf);
-	var surf = pstamp[i].surf;
-	pstamp[i].surf = sprite_create_from_surface(surf,0,0,ww,hh,false,false,0,0);
-	surface_free(surf);*/
+	var ww = pstamp[i].width;
+	var hh = pstamp[i].height;
+	
+	// Generate Surface Image
+	var surf = surface_create(ww,hh);
+	surface_set_target(surf);
+	draw_clear_alpha(c_black,0);
+
+	// Draw 'stamp'
+	for (var yy = 0; yy < hh; yy++)
+	    {
+	    for (var xx = 0; xx < ww; xx++)
+	        {
+			var data = pstamp[i].note_array[xx][yy];
+			if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
+	        }
+	    }
+	surface_reset_target();
+	
+	// Create non-volatile sprite from surface, then free surface
+	pstamp_spr[i] = sprite_create_from_surface(surf,0,0,ww,hh,false,false,0,0);
+	surface_free(surf);
 	}
 
 // Load GUI images

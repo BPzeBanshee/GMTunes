@@ -1,4 +1,4 @@
-if y >= room_height or device_mouse_y_to_gui(0) > 416 then exit;
+if y >= room_height or device_mouse_y_to_gui(0) > 416 exit;
 var xx = floor(x/16);
 var yy = floor(y/16);
 if global.use_external_assets

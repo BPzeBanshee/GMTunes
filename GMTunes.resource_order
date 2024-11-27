@@ -77,6 +77,7 @@
     {"name":"scr_structs","order":10,"path":"scripts/scr_structs/scr_structs.yy",},
     {"name":"scr_trans","order":6,"path":"scripts/scr_trans/scr_trans.yy",},
     {"name":"stamp_load","order":15,"path":"scripts/stamp_load/stamp_load.yy",},
+    {"name":"stamp_save","order":16,"path":"scripts/stamp_save/stamp_save.yy",},
     {"name":"string_wordwrap_width","order":1,"path":"scripts/string_wordwrap_width/string_wordwrap_width.yy",},
     {"name":"tun_load","order":8,"path":"scripts/tun_load/tun_load.yy",},
     {"name":"tun_save","order":9,"path":"scripts/tun_save/tun_save.yy",},

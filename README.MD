@@ -28,7 +28,7 @@ GMTunes has been in the works on and off for some years but still needs work. A 
 - 'empty' no-Bugz playfield state, can load SimTunes `.bug` files and pick from WIP selection menu
 - Level loading of JSON-based `.gmtun` format, SimTunes `.gal` "Gallery" files and `.tun` save files
 - Saving games in JSON-based `.gmtun` format and experimental support for SimTunes `.tun` format
-- Stamp features (except stamp tiling mode and GUI presets)
+- Stamp features (except stamp tiling mode)
 - enhanced 'Watch' mode that actually tracks Bugz movement
 - Background loading (.BAC files)
 - Bugz loading (.BUG files)

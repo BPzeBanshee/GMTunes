@@ -1,4 +1,4 @@
-///@desc
+// TODO: rename to something more technically accurate (it's Bug instance data, not Bug file data)
 function bug_struct() constructor {
 	filename = "";
 	bugztype = 0; // Not used in .tun file except in error codes. used in .bug

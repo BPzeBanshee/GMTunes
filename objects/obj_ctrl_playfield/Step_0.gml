@@ -68,6 +68,21 @@ if point_in_rectangle(mx,my,reset_x,reset_y,reset_x+28,reset_y+28)
 
 if use_classic_gui
 	{
+	// Menu controls
+	if show_menu
+		{
+		var mmx = bx+7;
+		var mmy = 480 - round(menu_y);
+		for (var i=0;i<5;i++)
+			{
+			if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
+				{
+				menu = i;
+				audio_play_sound(global.snd_ui.switcher,0,false);
+				}
+			}
+		}
+		
 	switch menu
 		{
 		// PAINT
@@ -203,7 +218,7 @@ if use_classic_gui
 						instance_destroy(m);
 						mouse_create(obj_mouse_stamp); 
 						}
-					var f = get_open_filename("*.STP","");
+					var f = get_open_filename_ext("SimTunes Stamp file (STP)|*.STP|GMTunes JSON Stamp file (JSTP)|*.JSTP","",global.main_dir+"/STAMPS/","Load Stamp...");
 					if f != "" m.load_stamp_from_file(f);
 					flash(3);
 					}
@@ -219,7 +234,7 @@ if use_classic_gui
 					if m.loaded
 						{
 						button_click();
-						var f = get_save_filename("*.STP","");
+						var f = get_save_filename_ext("SimTunes Stamp file (STP)|*.STP|GMTunes JSON Stamp file (JSTP)|*.JSTP","",global.main_dir+"/STAMPS/","Save Stamp...");
 						if f != "" m.save_stamp_to_file(f);
 						flash(4);
 						}
@@ -577,7 +592,9 @@ if use_classic_gui
 			break;
 			}
 		}
-		
+	}
+else
+	{
 	// Menu controls
 	if show_menu
 		{
@@ -588,13 +605,10 @@ if use_classic_gui
 			if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
 				{
 				menu = i;
-				audio_play_sound(global.snd_ui.switcher,0,false);
 				}
 			}
 		}
-	}
-else
-	{
+	
 	switch menu
 		{
 		case 0: // PAINT
@@ -868,20 +882,6 @@ else
 					}
 				}
 			break;
-			}
-		}
-	
-	// Menu controls
-	if show_menu
-		{
-		var mmx = bx+7;
-		var mmy = 480 - round(menu_y);
-		for (var i=0;i<5;i++)
-			{
-			if point_in_rectangle(mx,my,mmx+(95*i),mmy,mmx+95+(95*i),mmy+24) && mb
-				{
-				menu = i;
-				}
 			}
 		}
 	}

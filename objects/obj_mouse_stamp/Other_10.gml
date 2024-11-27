@@ -1,18 +1,19 @@
 // Feather disable GM2016
 
+
 copy = function(cx,cy,w,h){
 // convert to abs
 if w < 0 {cx += w; w = abs(w);}
 if h < 0 {cy += h; h = abs(h);}
 trace("copy(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
-var grid_note_new = Array2(w,h);
-var grid_ctrl_new = Array2(w,h);
+var note_array_new = Array2(w,h);
+var ctrl_array_new = Array2(w,h);
 for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
 		var play_note = global.note_grid[cx+xx][cy+yy];
-		if play_note > 0 grid_note_new[xx][yy] = play_note;
+		if play_note > 0 note_array_new[xx][yy] = play_note;
 		
 		var ctrl_note = global.ctrl_grid[cx+xx][cy+yy];
 		if ctrl_note > 0 
@@ -69,12 +70,12 @@ for (var yy = 0; yy < h; yy++)
 			if ctrl_note == 34 ctrl_note = 0;
 			
 			// finally, set note
-			grid_ctrl_new[xx][yy] = ctrl_note;
+			ctrl_array_new[xx][yy] = ctrl_note;
 			}
 		}
 	}
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;	
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;	
 width = w;
 height = h;
 loaded = true;
@@ -86,14 +87,14 @@ cut = function(cx,cy,w,h){
 if w < 0 {w = abs(w); cx -= w;}
 if h < 0 {h = abs(h); cy -= h;}
 trace("cut(): cx:{0}, cy:{1}, w:{2}, h:{3}",cx,cy,w,h);
-var grid_note_new = Array2(w,h);
-var grid_ctrl_new = Array2(w,h);
+var note_array_new = Array2(w,h);
+var ctrl_array_new = Array2(w,h);
 for (var yy = 0; yy < h; yy++)
     {
     for (var xx = 0; xx < w; xx++)
 		{
 		var data_note = global.note_grid[cx+xx,cy+yy];
-		if data_note > 0 grid_note_new[xx][yy] = data_note;
+		if data_note > 0 note_array_new[xx][yy] = data_note;
 		
 		var ctrl_note = global.ctrl_grid[cx+xx][cy+yy];
 		if ctrl_note > 0 
@@ -169,14 +170,14 @@ for (var yy = 0; yy < h; yy++)
 						}
 					}
 				}
-			grid_ctrl_new[xx][yy] = ctrl_note;
+			ctrl_array_new[xx][yy] = ctrl_note;
 			}
 		}
 	}
 array_clear(global.ctrl_grid,cx,cy,w,h,0);
 array_clear(global.note_grid,cx,cy,w,h,0);
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
 width = w;
 height = h;
 loaded = true;
@@ -199,11 +200,11 @@ for (var dx = 0; dx < width; dx++)
 		if fy < 0 or fy > 103 continue;
 		
 		// Paint blocks
-		var data = grid_note[dx][dy];
+		var data = note_array[dx][dy];
 		if data > 0 || !clear_back global.note_grid[fx][fy] = data;
 			
 		// Control blocks
-		var data2 = grid_ctrl[dx][dy];
+		var data2 = ctrl_array[dx][dy];
 		if data2 > 0 || !clear_back
 			{
 			// flags
@@ -256,111 +257,37 @@ if move_mode unload_stamp();
 }
 
 load_stamp_from_file = function(file){
-// .STP "STP2" Format
+// .STP "STP2" or .JSTP Format
 // File check
 if file == "" or !file_exists(file) return -1;
 
-// Load file into buffer, do some error checking
-var bu = buffer_create(256,buffer_grow,1);
-buffer_load_ext(bu,file,0);
-
-if buffer_read_word(bu) != "STP2"
-    {
-    msg("File doesn't match SimTunes STP2 format.");
-    buffer_delete(bu);
-    alarm[0] = 1; // kludge to avoid crash from obj_ctrl_playfield var management
-	return -2;
-    }
-var size = buffer_get_size(bu); // actual size of file loaded into buffer
-//buffer_seek(bu,buffer_seek_start,4);
-
-// .STP "STP2"
-// reset surface/ds_maps if present
+// reset vars if present
 unload_stamp();
 scale = 4;
-// reset strings if reloading
-//name = "";
-//author = "";
-//desc = "";
 
-// Height first, Width second
-height = buffer_read(bu,buffer_u32);
-width = buffer_read(bu,buffer_u32);
-trace("Stamp dimensions: "+string(width)+" x "+string(height));
+// Load file into struct
+var mystamp = stamp_load(file);
+if !is_struct(mystamp) return -2;
+height = mystamp.height;
+width = mystamp.width;
+note_array = mystamp.note_array;
+ctrl_array = mystamp.ctrl_array;
 
-// String data
-// 'STAMPS' folder contains name, author and description
-// 'PSTAMPS' folder are the 'presets' and simply have preset names "Stp1", etc
-// Sidenote: buffer_text reads were tried but aren't stringent enough here, go byte-at-a-time
-
-// Name
-var name_size = buffer_read(bu,buffer_u8);
-//trace("name_size: "+string(name_size));
-if name_size > 0
-	{
-	buffer_seek(bu,buffer_seek_relative,name_size);
-	//repeat name_size name += chr(buffer_read(bu,buffer_u8));
-	//trace("Stamp Name: "+string(name));
-	}
-
-var author_size = buffer_read(bu,buffer_u8);
-if author_size > 0
-	{
-	buffer_seek(bu,buffer_seek_relative,author_size);
-	//repeat author_size author += chr(buffer_read(bu,buffer_u8));
-	//trace("Author: "+string(author));
-	}
-
-var desc_size = buffer_read(bu,buffer_u8);
-if desc_size > 0
-	{
-	buffer_seek(bu,buffer_seek_relative,desc_size);
-	//repeat desc_size desc += chr(buffer_read(bu,buffer_u8));
-	//trace("Description: "+string(desc));
-	}
-
-// Stamp data
-/*
-x/y reads left to right, top to bottom
-25 'colors', 00 is blank
-*/
-grid_note = [];
-grid_ctrl = [];
-grid_note = Array2(width,height);
-grid_ctrl = Array2(width,height);
-
-// Load pixel data
-for (var yy = 0; yy < height; yy++)
-    {
-    for (var xx = 0; xx < width; xx++)
-        {
-		var data = buffer_read(bu,buffer_u8);
-		if data > 0 grid_note[xx][yy] = data;
-        }
-    }
-	
-// Load control data
+// Handle teleport data
 // (Flags in Stamps not supported by SimTunes)
 for (var yy = 0; yy < height; yy++)
     {
     for (var xx = 0; xx < width; xx++)
         {
-		var data = buffer_read(bu,buffer_u8);
+		var data = mystamp.ctrl_array[xx][yy];
 		if data > 0 
 			{
 			if data == 8 array_push(warp_starts,[true,xx,yy]);
 			if data == 9 array_push(warp_ends,[true,xx,yy]);
-			grid_ctrl[xx][yy] = data;
 			}
         }
     }
 
-// bonus 4 bytes of nothing at the end
-//var blankspace = buffer_tell(bu);
-//trace("Buffer position: {0}, Size: {1}",blankspace,size);
-	
-// Now that we're done, free buffer
-buffer_delete(bu);
 
 move_mode = false;
 loaded = true;
@@ -369,79 +296,28 @@ copy_y = floor(y/16);
 copy_w = width;
 copy_h = height;
 update_surf(width,height);
+delete mystamp;
 }
-
 save_stamp_to_file = function(file){
 // Feather disable GM1017
 if string_length(file)==0 return -1;
 var name = get_string("Stamp name: ","");
-var auth = get_string("Author name: ","");
+var author = get_string("Author name: ","");
 var desc = get_string("Description: ","");
-var w = width;
-var h = height;
-
-var buf_data = buffer_create(64,buffer_grow,1);
-
-// write fourcc
-buffer_write(buf_data,buffer_text,"STP2");
-
-// write height, then width
-buffer_write(buf_data,buffer_u32,h);
-buffer_write(buf_data,buffer_u32,w);
-
-// metadata
-buffer_write(buf_data,buffer_u8,string_byte_length(name));
-buffer_write(buf_data,buffer_text,name);
-buffer_write(buf_data,buffer_u8,string_byte_length(auth));
-buffer_write(buf_data,buffer_text,auth);
-buffer_write(buf_data,buffer_u8,string_byte_length(desc));
-buffer_write(buf_data,buffer_text,desc);
-
-// Save pixel data
-for (var yy = 0; yy < h; yy++)
-    {
-    for (var xx = 0; xx < w; xx++)
-        {
-		var data = grid_note[xx][yy];
-		buffer_write(buf_data,buffer_u8,data);
-        }
-    }
-	
-// Save control data
-for (var yy = 0; yy < h; yy++)
-    {
-    for (var xx = 0; xx < w; xx++)
-        {
-		var data = grid_ctrl[xx][yy];
-		
-		// (Flags in Stamps not supported by SimTunes, 
-		// but we're gonna match behaviour anyway)
-		if data == 34
-			{
-			for (var i=0;i<4;i++)
-				{
-				if copy_flags[i][0] == xx
-				&& copy_flags[i][1] == yy
-				data = 252+i;
-				}
-			}
-			
-		buffer_write(buf_data,buffer_u8,data);
-        }
-    }
-	
-// bonus 4 bytes of nothing at the end
-buffer_write(buf_data,buffer_u32,0);
-
-// finally, save to file, then cleanup
-buffer_save(buf_data,file);
-buffer_delete(buf_data);
-return 0;
+var mystamp = new stamp_struct();
+mystamp.name = name;
+mystamp.author = author;
+mystamp.desc = desc;
+mystamp.width = width;
+mystamp.height = height;
+mystamp.note_array = note_array;
+mystamp.ctrl_array = ctrl_array;
+stamp_save(mystamp,file);
+delete mystamp;
 }
-
 unload_stamp = function(){
-grid_note = [];
-grid_ctrl = [];
+note_array = [];
+ctrl_array = [];
 if surface_exists(surf) surface_free(surf);
 loaded = false;
 width = -1;
@@ -456,7 +332,6 @@ warp_starts = [];
 warp_ends = [];
 copy_flags = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]];
 }
-
 update_surf = function(ww=width,hh=height){
 if (ww == 0 or hh == 0) return 0;
 // update surface
@@ -476,39 +351,38 @@ for (var yy = 0; yy < hh; yy++)
     for (var xx = 0; xx < ww; xx++)
         {
 		// draw ctrl note grey first, but override with colors if present
-		var data2 = grid_ctrl[xx][yy];
+		var data2 = ctrl_array[xx][yy];
 		if data2 > 0 draw_point_color(xx,yy,c_grey);// draw_sprite(spr_note_ctrl,data2-1,xx,yy);
-		var data = grid_note[xx][yy];
+		var data = note_array[xx][yy];
 		if data > 0 draw_sprite_part(spr_note,data-1,0,0,1,1,xx,yy);
         }
     }
 surface_reset_target();
 }
-
 rotate_left = function(){
 var ww = width;
 var hh = height;
-var grid_note_new = Array2(hh,ww);
-var grid_ctrl_new = Array2(hh,ww);
+var note_array_new = Array2(hh,ww);
+var ctrl_array_new = Array2(hh,ww);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
-		var data = grid_note[xx][yy];
-		grid_note_new[yy][(width-1)-xx] = data;
+		var data = note_array[xx][yy];
+		note_array_new[yy][(width-1)-xx] = data;
 		
-		var data2 = grid_ctrl[xx][yy];
-		grid_ctrl_new[yy][(width-1)-xx] = data2;
+		var data2 = ctrl_array[xx][yy];
+		ctrl_array_new[yy][(width-1)-xx] = data2;
 		}
 	}
 	
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
-grid_note_new = [];
-grid_ctrl_new = [];
-width = array_length(grid_note);
-height = array_length(grid_note[0]);
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
+note_array_new = [];
+ctrl_array_new = [];
+width = array_length(note_array);
+height = array_length(note_array[0]);
 copy_w = width;
 copy_h = height;
 
@@ -516,31 +390,30 @@ copy_h = height;
 surface_resize(surf,hh,ww);
 update_surf(hh,ww);
 }
-
 rotate_right = function(){
 var ww = width;
 var hh = height;
-var grid_note_new = Array2(hh,ww);
-var grid_ctrl_new = Array2(hh,ww);
+var note_array_new = Array2(hh,ww);
+var ctrl_array_new = Array2(hh,ww);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
-		var data = grid_note[xx][yy];
-		grid_note_new[(height-1)-yy][xx] = data;
+		var data = note_array[xx][yy];
+		note_array_new[(height-1)-yy][xx] = data;
 		
-		var data2 = grid_ctrl[xx][yy];
-		grid_ctrl_new[(height-1)-yy][xx] = data2;
+		var data2 = ctrl_array[xx][yy];
+		ctrl_array_new[(height-1)-yy][xx] = data2;
 		}
 	}
 
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
-grid_note_new = [];
-grid_ctrl_new = [];
-width = array_length(grid_note);
-height = array_length(grid_note[0]);
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
+note_array_new = [];
+ctrl_array_new = [];
+width = array_length(note_array);
+height = array_length(note_array[0]);
 copy_w = width;
 copy_h = height;
 
@@ -548,58 +421,55 @@ copy_h = height;
 surface_resize(surf,hh,ww);
 update_surf(hh,ww);
 } 
-
 flip_vertical = function(){
 var ww = width;
 var hh = height;
-var grid_note_new = Array2(ww,hh);
-var grid_ctrl_new = Array2(ww,hh);
+var note_array_new = Array2(ww,hh);
+var ctrl_array_new = Array2(ww,hh);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
-		var data = grid_note[xx][yy];
-		grid_note_new[xx][(height-1)-yy] = data;
+		var data = note_array[xx][yy];
+		note_array_new[xx][(height-1)-yy] = data;
 		
-		var data2 = grid_ctrl[xx][yy];
-		grid_ctrl_new[xx][(height-1)-yy] = data2;
+		var data2 = ctrl_array[xx][yy];
+		ctrl_array_new[xx][(height-1)-yy] = data2;
 		}
 	}
 
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
 
 // update surface
 update_surf(ww,hh);
 }
-
 flip_horizontal = function(){
 var ww = width;
 var hh = height;
-var grid_note_new = Array2(ww,hh);
-var grid_ctrl_new = Array2(ww,hh);
+var note_array_new = Array2(ww,hh);
+var ctrl_array_new = Array2(ww,hh);
 trace("flip_horizontal - ww: {0}, hh: {1}",ww,hh);
 
 for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
-		var data = grid_note[xx][yy];
-		grid_note_new[(width-1)-xx][yy] = data;
+		var data = note_array[xx][yy];
+		note_array_new[(width-1)-xx][yy] = data;
 		
-		var data2 = grid_ctrl[xx][yy];
-		grid_ctrl_new[(width-1)-xx][yy] = data2;
+		var data2 = ctrl_array[xx][yy];
+		ctrl_array_new[(width-1)-xx][yy] = data2;
 		}
 	}
 
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
 
 // update surface
 update_surf(ww,hh);
 }
-
 scale_up = function(){
 if size < 5
 	{
@@ -607,8 +477,8 @@ if size < 5
 	scale *= 2;
 	var ww = width*2;
 	var hh = height*2;
-	var grid_note_new = Array2(ww,hh);
-	var grid_ctrl_new = Array2(ww,hh);
+	var note_array_new = Array2(ww,hh);
+	var ctrl_array_new = Array2(ww,hh);
 
 	for (var xx=0; xx<width; xx++)
 		{
@@ -617,28 +487,27 @@ if size < 5
 			var sx = xx*2;
 			var sy = yy*2;
 			
-			var data = grid_note[xx][yy];
-			array_clear(grid_note_new,sx,sy,2,2,data);
+			var data = note_array[xx][yy];
+			array_clear(note_array_new,sx,sy,2,2,data);
 			
-			var data2 = grid_ctrl[xx][yy];
+			var data2 = ctrl_array[xx][yy];
 			if data2 == 8 or data2 == 9
 				{
-				array_clear(grid_ctrl_new,sx,sy,2,2,0);
-				grid_ctrl_new[sx+1][sy+1] = data2;
+				array_clear(ctrl_array_new,sx,sy,2,2,0);
+				ctrl_array_new[sx+1][sy+1] = data2;
 				}
-			else array_clear(grid_ctrl_new,sx,sy,2,2,data2);
+			else array_clear(ctrl_array_new,sx,sy,2,2,data2);
 			}
 		}
-	grid_note = grid_note_new;
-	grid_ctrl = grid_ctrl_new;
-	width = array_length(grid_note);
-	height = array_length(grid_note[0]);
+	note_array = note_array_new;
+	ctrl_array = ctrl_array_new;
+	width = array_length(note_array);
+	height = array_length(note_array[0]);
 	copy_w = width;
 	copy_h = height;
 	update_surf();
 	}
 }
-
 scale_down = function(){
 if width/2 < 2 or height/2 < 2 return 0;
 if size > 1 size--;
@@ -646,8 +515,8 @@ scale /= 2;
 
 var ww = width/2;
 var hh = height/2;
-var grid_note_new = Array2(ww,hh);
-var grid_ctrl_new = Array2(ww,hh);
+var note_array_new = Array2(ww,hh);
+var ctrl_array_new = Array2(ww,hh);
 
 // TODO: probably not accurate formula given how
 // it operates with teleporter positions
@@ -655,23 +524,22 @@ for (var xx=0; xx<ww; xx++)
 	{
 	for (var yy=0; yy<hh; yy++)
 		{
-		var data = grid_note[xx*2][yy*2];
-		grid_note_new[xx][yy] = data;
+		var data = note_array[xx*2][yy*2];
+		note_array_new[xx][yy] = data;
 			
-		var data2 = grid_ctrl[xx*2][yy*2];
-		grid_ctrl_new[xx][yy] = data2;
+		var data2 = ctrl_array[xx*2][yy*2];
+		ctrl_array_new[xx][yy] = data2;
 		}
 	}
 	
-grid_note = grid_note_new;
-grid_ctrl = grid_ctrl_new;
-width = array_length(grid_note);
-height = array_length(grid_note[0]);
+note_array = note_array_new;
+ctrl_array = ctrl_array_new;
+width = array_length(note_array);
+height = array_length(note_array[0]);
 copy_w = width;
 copy_h = height;
 update_surf();
 }
-
 toggle_clear = function(){
 clear_back = parent.clear_back;
 if loaded update_surf();

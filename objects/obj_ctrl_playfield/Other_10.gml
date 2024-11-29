@@ -261,8 +261,6 @@ if instance_exists(watch_target)
 		xx = lerp(watch_target.x+8,dx,1-t);
 		yy = lerp(watch_target.y+8,dy,1-t);
 		}
-	//var	lx = lerp(watch_target.x+8,watch_target.x+8+lengthdir_x(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
-	//var	ly = lerp(watch_target.y+8,watch_target.y+8+lengthdir_y(16,watch_target.direction),1-(watch_target.timer/watch_target.timer_max));
 	cx = xx - camera_get_view_width(cam)/2;
 	cy = yy - camera_get_view_height(cam)/2;
 	}
@@ -274,8 +272,8 @@ else
 	if keyboard_check(vk_right) or keyboard_check(ord("D")) then xo = global.zoom*4;
 	if keyboard_check(vk_up) or keyboard_check(ord("W")) then yo = -global.zoom*4;
 	if keyboard_check(vk_down) or keyboard_check(ord("S")) then yo = global.zoom*4;
-	var cx = camera_get_view_x(cam) + xo;
-	var cy = camera_get_view_y(cam) + yo;
+	cx = camera_get_view_x(cam) + xo;
+	cy = camera_get_view_y(cam) + yo;
 	}
 camera_set_view_pos(cam,clamp(cx,0,xform),clamp(cy,0,yform));
 }

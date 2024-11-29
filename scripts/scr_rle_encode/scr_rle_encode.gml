@@ -1,5 +1,7 @@
-///@desc
-/*function scr_rle_encode(input_array){
+/*
+// Botched attempt at supporting both verbatim and
+//  repeat modes, kept for posterity.
+function scr_rle_encode(input_array){
 trace("W: {0}, H: {1}",array_length(input_array),array_length(input_array[0]));
 var output_array = [];
 var count_repeats = 0;

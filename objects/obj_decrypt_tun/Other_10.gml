@@ -4,7 +4,7 @@ TODO: UPDATE TO USE FINDINGS FROM TUN_LOAD
 */
 
 // Get file
-var f = get_open_filename(".TUN","");
+var f = get_open_filename("SimTunes .tun File (.tun)|*.TUN","");
 if string_length(f) == 0
 	{
 	instance_destroy();
@@ -50,14 +50,9 @@ trace("Unknown BS #1: "+string(unk));
 // Get binary size of next blob minus size bit (assuming preview picture)
 s = buffer_read(bu,buffer_u32); trace("Size of preview picture in bytes: "+string(s));
 
-// Copy original file data to separate buffer for analysis
-var t = buffer_tell(bu);
-buffer_copy(bu,t,s,oldchunk,0);
-buffer_seek(bu,buffer_seek_start,t);
-
 // Decrypt chunk
 var newbuf = scr_decrypt_chunk(bu,s);
-var minibuf = newbuf.buf;
+var minibuf = newbuf.buffer_new;
 var minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
@@ -157,7 +152,6 @@ if count > 0 then trace(string(count)+" erroneous color value entries found in p
 buffer_seek(minibuf,buffer_seek_start,0);
 buffer_copy(minibuf,0,minibuf_size,newchunk,0);
 buffer_seek(minibuf,buffer_seek_start,0);
-newchunk_enc = scr_encrypt_chunk(minibuf);
 
 // Author name string size
 var author_size = buffer_read(bu,buffer_u32);
@@ -230,7 +224,7 @@ trace("Bugz list: "+string(bugz_list));
 s = buffer_read(bu,buffer_u32);
 trace("Size of note table size: "+string(s));
 newbuf = scr_decrypt_chunk(bu,s);
-minibuf = newbuf.buf;
+minibuf = newbuf.buffer_new;
 minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");
@@ -249,7 +243,7 @@ buffer_delete(minibuf);
 s = buffer_read(bu,buffer_u32);
 trace("Size of note table size: "+string(s));
 newbuf = scr_decrypt_chunk(bu,s);
-minibuf = newbuf.buf;
+minibuf = newbuf.buffer_new;
 minibuf_size = newbuf.size_final;
 buffer_seek(minibuf,buffer_seek_start,0);
 trace("buffer written, size: "+string(minibuf_size)+" ("+string(buffer_get_size(minibuf))+")");

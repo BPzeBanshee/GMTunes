@@ -1,6 +1,6 @@
 {
   "$GMObject":"",
-  "%Name":"obj_decrypt_ver5",
+  "%Name":"obj_decrypt_tun",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
@@ -10,7 +10,7 @@
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":12,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"obj_decrypt_ver5",
+  "name":"obj_decrypt_tun",
   "overriddenProperties":[],
   "parent":{
     "name":"TUN (Savefiles)",

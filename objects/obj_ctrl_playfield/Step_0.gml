@@ -1,3 +1,5 @@
+// Feather disable GM2016
+
 // Button events
 if instance_exists(obj_trans) exit;
 
@@ -349,7 +351,7 @@ if use_classic_gui
 				if mb 
 					{
 					button_click();
-					for (var i=0;i<4;i++) if instance_exists(bug[i]) then bug[i].paused = true;
+					for (var i=0;i<4;i++) if instance_exists(bug[i]) bug[i].paused = true;
 					flash(2);
 					}
 				}

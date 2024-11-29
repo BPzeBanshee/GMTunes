@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"bac_load",
   "parent":{
-    "name":"Scripts",
-    "path":"folders/Scripts.yy",
+    "name":"SimTunes Resources",
+    "path":"folders/Scripts/SimTunes Resources.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -21,7 +21,7 @@ var mybugz = [bug_yellow,bug_green,bug_blue,bug_red];
 var str;
 for (var i=0;i<4;i++)
 	{
-	str[i] = new bug_struct();
+	str[i] = new bug_data_struct();
 	if mybugz[i] != noone
 		{
 		str[i].filename =	mybugz[i].bugzname;

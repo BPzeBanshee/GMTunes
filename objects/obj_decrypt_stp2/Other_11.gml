@@ -1,6 +1,6 @@
 ///@desc .STP "STP2" Format (script)
 // Get filename + open approval
-var f = get_open_filename("*.STP|SimTunes Stamp file","");
+var f = get_open_filename("SimTunes Stamp File (.stp)|*.STP|GMTunes JSON Stamp file (.jstp)|*.JSTP","");
 if string_length(f) == 0
 	{
 	instance_destroy();

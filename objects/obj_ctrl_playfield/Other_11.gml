@@ -1,5 +1,7 @@
 ///@desc Keyboard Functions
 // Feather disable GM1041
+// Feather disable GM2016
+
 // Trying to be authentic to SimTunes here where possible
 // Failing that we comment out until features are implemented
 

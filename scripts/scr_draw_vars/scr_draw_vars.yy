@@ -6,7 +6,7 @@
   "name":"scr_draw_vars",
   "parent":{
     "name":"Others",
-    "path":"folders/Scripts/CORE/Others.yy",
+    "path":"folders/Scripts/Others.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

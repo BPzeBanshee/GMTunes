@@ -9,7 +9,7 @@ array_push(txta,"ANIM (.BUG)");				array_push(obj,obj_decrypt_anim);
 array_push(txta,"STYL/LITE (.BUG)");		array_push(obj,obj_decrypt_lite);
 array_push(txta,"BACK (.BAC)");		array_push(obj,obj_decrypt_back);
 array_push(txta,"STP2 (.STP)");		array_push(obj,obj_decrypt_stp2);
-array_push(txta,"VER5 (.TUN)");		array_push(obj,obj_decrypt_ver5);
+array_push(txta,"VER5 (.TUN)");		array_push(obj,obj_decrypt_tun);
 array_push(txta,"BM (.BMP)");		array_push(obj,obj_decrypt_bmp);
 array_push(txta,"TUNERES.DAT");		array_push(obj,obj_decrypt_dat);
 array_push(txta,"EXIT TO MAIN");

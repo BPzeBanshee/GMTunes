@@ -1,5 +1,5 @@
 ///@desc scr_decrypt_chunk test
-var f = get_open_filename(".TUN","");
+var f = get_open_filename("SimTunes Playfield file (.tun)|*.TUN","");
 if f == ""
 	{
 	instance_destroy();

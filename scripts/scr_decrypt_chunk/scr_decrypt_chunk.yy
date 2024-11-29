@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"scr_decrypt_chunk",
   "parent":{
-    "name":"Buffer Functions",
-    "path":"folders/Scripts/Buffer Functions.yy",
+    "name":"SimTunes Resources",
+    "path":"folders/Scripts/SimTunes Resources.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

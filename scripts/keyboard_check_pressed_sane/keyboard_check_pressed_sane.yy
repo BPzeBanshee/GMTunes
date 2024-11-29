@@ -6,7 +6,7 @@
   "name":"keyboard_check_pressed_sane",
   "parent":{
     "name":"Others",
-    "path":"folders/Scripts/CORE/Others.yy",
+    "path":"folders/Scripts/Others.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

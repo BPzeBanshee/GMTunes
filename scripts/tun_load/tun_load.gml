@@ -1,3 +1,63 @@
+// ==== Structs for playfield/.tuns ====
+function bug_data_struct() constructor {
+	filename = "";
+	bugztype = 0; // Not used in .tun file except in error codes. used in .bug
+	dir = 0; //0-3, 0: up, 1: right, etc
+	gear = 4;
+	pos = [0,0]; //[x,y,dir]
+	ctrl = [-1,-1];
+	paused = false; //true/false
+	volume = 128; //0-128 in increments of 16
+	}
+	
+function playfield_struct() constructor {
+	version = 1;
+	name = "";
+	author = "";
+	desc = "";
+	preview_image = "";
+	background = "";
+	camera_pos = [0,0];
+	pixelsize = 4; // SimTunes uses pixelsize 4,8,16
+	camera_zoom = 0; // SimTunes uses 0-2
+	warp_list = []; //[xfrom,yfrom,xto,yto] //[-1,-1,-1,-1]
+	flag_list = [[-1,-1,-1],[-1,-1,-1],[-1,-1,-1],[-1,-1,-1]]; //[x,y,dir]
+	note_list = Array2(160,104);//[note,x,y]
+	ctrl_list = Array2(160,104);
+	bugz = {
+		yellow: new bug_data_struct(),
+		green: new bug_data_struct(),
+		blue: new bug_data_struct(),
+		red: new bug_data_struct()
+		}
+	}
+	
+function default_playfield() : playfield_struct() constructor {
+	version = 1;
+	name = "New user";
+	author = "New author";
+	desc = "This is a new playfield.";
+	background = "BACK01.BAC"; // I personally like 03GP4BT.BAC but SimTunes defaults to this
+	bugz.yellow.filename = "YELLOW00.BUG";
+	bugz.yellow.pos = [576,1280];
+	bugz.yellow.dir = 0;
+	bugz.green.filename = "GREEN00.BUG";
+	bugz.green.pos = [1920,384];
+	bugz.green.dir = 180;
+	bugz.blue.filename = "BLUE00.BUG";
+	bugz.blue.pos = [1920,1280];
+	bugz.blue.dir = 90;
+	bugz.red.filename = "RED00.BUG";
+	bugz.red.pos = [576,384];
+	bugz.red.dir = 270;
+	}
+
+// ==== Main functions ====
+
+///@desc Loads a .tun or .gmtun file depending on given extension, then applies
+///@desc that data to the global struct.
+///@param {String} file
+///@returns {Real} error code
 function tun_load(file){
 // File error checking
 if !file_exists(file) then return -2;
@@ -29,8 +89,10 @@ if is_struct(mystruct)
 return 1;
 }
 
+///@desc Loads a .tun file and returns a struct
+///@param {String} file
+///@returns {Real,Struct}
 function tun_load_tun(file){
-
 // Load file into buffer
 var bu = buffer_create(8,buffer_grow,1);
 buffer_load_ext(bu,file,0);
@@ -468,113 +530,6 @@ buffer_delete(bu);
 return mystruct;
 }
 
-function tun_load_gmtun(tun_filename="") {
-if tun_filename == "" exit;
-var f = buffer_load(tun_filename);
-var mystruct = json_parse(buffer_read(f,buffer_text));
-buffer_delete(f);
-
-//mystruct.note_list = json_parse(mystruct.note_list);
-//mystruct.ctrl_list = json_parse(mystruct.ctrl_list);
-
-trace(tun_filename+" loaded!");
-return mystruct;
-}
-
-function tun_apply_data(tun_struct) {
-// Metadata
-playfield_name = tun_struct.name;
-playfield_author = tun_struct.author;
-playfield_desc = tun_struct.desc;
-if playfield_name != "" window_set_caption(string("GMTunes: {0} - {1}",playfield_author,playfield_name));
-
-// Background
-if sprite_exists(myback) then sprite_delete(myback);
-if global.use_external_assets
-	{
-	var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
-	myback = bac_load(dir);
-	}
-//trace(dir+" resulted in code "+string(myback));
-if sprite_exists(myback)
-	{
-	var bid = layer_background_get_id("lay_bkg");
-	layer_background_blend(bid,c_white);
-	layer_background_sprite(bid,myback);
-	layer_background_xscale(bid,4);
-	layer_background_yscale(bid,4);
-	layer_background_vtiled(bid,false);
-	layer_background_htiled(bid,false);
-	mybackname = tun_struct.background;
-	}
-else
-	{
-	trace("sprite_exists(myback) failed, loading internal bkg...");
-	var bid = layer_background_get_id("lay_bkg");
-	layer_background_blend(bid,c_white);
-	layer_background_sprite(bid,spr_playfield_bkg);
-	layer_background_xscale(bid,4);
-	layer_background_yscale(bid,4);
-	layer_background_vtiled(bid,true);
-	layer_background_htiled(bid,true);
-	mybackname = "";
-	}
-	
-// Camera settings
-global.zoom = tun_struct.camera_zoom;
-var ww = 640*4; // 1920
-var hh = 480*4; // 1856
-x = clamp(tun_struct.camera_pos[0],0,ww);
-y = clamp(tun_struct.camera_pos[1],0,hh);
-switch global.zoom
-	{
-	case 1: ww /= 2; hh /= 2; break;
-	case 2: ww /= 4; hh /= 4; break;
-	default: break;
-	}
-var cam = view_get_camera(0);
-camera_set_view_size(cam,ww,hh);
-camera_set_view_pos(cam,x,y);
-
-// Flags
-global.flag_list = tun_struct.flag_list;
-
-// Pixel/Control grids
-global.note_grid = tun_struct.note_list;
-global.ctrl_grid = tun_struct.ctrl_list;
-global.warp_list = tun_struct.warp_list;
-trace("warp_list: {0}",global.warp_list);
-
-// finally, actually create the bugz
-var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
-for (var i=0;i<4;i++)
-	{
-	if bugz[i].filename != ""
-	if file_exists(global.main_dir+"/BUGZ/"+bugz[i].filename)
-		{
-		//var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
-		var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
-		bug.gear = bugz[i].gear;
-		bug.paused = bugz[i].paused;
-		bug.volume = bugz[i].volume;
-		bug.direction = bugz[i].dir;
-		bug.ctrl_x = bugz[i].ctrl[0];
-		bug.ctrl_y = bugz[i].ctrl[1];
-		if bug.ctrl_x > -1 || bug.ctrl_y > -1 bug.warp = true;
-		bug.calculate_timer();
-	
-		// apply the bugz to obj_ctrl_playfield's local bug tracking
-		switch i
-			{
-			case 0: bug_yellow = bug; break;
-			case 1: bug_green = bug; break;
-			case 2: bug_blue = bug; break;
-			case 3: bug_red = bug; break;
-			}
-		}
-	}
-}
-
 function tun_read_bugz_code_01(bu){
 var pair1 = [];
 var count = 1;
@@ -746,3 +701,110 @@ buffer_read(bu,buffer_u8);
 
 return [ctrl_x * 16,ctrl_y * 16];
 }
+
+///@desc Loads a .gmtun file and returns a struct
+///@param {String} file
+function tun_load_gmtun(file) {
+var f = buffer_load(file);
+var mystruct = json_parse(buffer_read(f,buffer_text));
+buffer_delete(f);
+trace(file+" loaded!");
+return mystruct;
+}
+
+///@desc Applies data from the given struct onto the global playfield struct
+///@param {Struct} tun_struct
+function tun_apply_data(tun_struct) {
+// Metadata
+playfield_name = tun_struct.name;
+playfield_author = tun_struct.author;
+playfield_desc = tun_struct.desc;
+if playfield_name != "" window_set_caption(string("GMTunes: {0} - {1}",playfield_author,playfield_name));
+
+// Background
+if sprite_exists(myback) then sprite_delete(myback);
+if global.use_external_assets
+	{
+	var dir = global.main_dir+"BACKDROP/"+tun_struct.background;
+	myback = bac_load(dir);
+	}
+//trace(dir+" resulted in code "+string(myback));
+if sprite_exists(myback)
+	{
+	var bid = layer_background_get_id("lay_bkg");
+	layer_background_blend(bid,c_white);
+	layer_background_sprite(bid,myback);
+	layer_background_xscale(bid,4);
+	layer_background_yscale(bid,4);
+	layer_background_vtiled(bid,false);
+	layer_background_htiled(bid,false);
+	mybackname = tun_struct.background;
+	}
+else
+	{
+	trace("sprite_exists(myback) failed, loading internal bkg...");
+	var bid = layer_background_get_id("lay_bkg");
+	layer_background_blend(bid,c_white);
+	layer_background_sprite(bid,spr_playfield_bkg);
+	layer_background_xscale(bid,4);
+	layer_background_yscale(bid,4);
+	layer_background_vtiled(bid,true);
+	layer_background_htiled(bid,true);
+	mybackname = "";
+	}
+	
+// Camera settings
+global.zoom = tun_struct.camera_zoom;
+var ww = 640*4; // 1920
+var hh = 480*4; // 1856
+x = clamp(tun_struct.camera_pos[0],0,ww);
+y = clamp(tun_struct.camera_pos[1],0,hh);
+switch global.zoom
+	{
+	case 1: ww /= 2; hh /= 2; break;
+	case 2: ww /= 4; hh /= 4; break;
+	default: break;
+	}
+var cam = view_get_camera(0);
+camera_set_view_size(cam,ww,hh);
+camera_set_view_pos(cam,x,y);
+
+// Flags
+global.flag_list = tun_struct.flag_list;
+
+// Pixel/Control grids
+global.note_grid = tun_struct.note_list;
+global.ctrl_grid = tun_struct.ctrl_list;
+global.warp_list = tun_struct.warp_list;
+trace("warp_list: {0}",global.warp_list);
+
+// finally, actually create the bugz
+var bugz = [tun_struct.bugz.yellow,tun_struct.bugz.green,tun_struct.bugz.blue,tun_struct.bugz.red];
+for (var i=0;i<4;i++)
+	{
+	if bugz[i].filename != ""
+	if file_exists(global.main_dir+"/BUGZ/"+bugz[i].filename)
+		{
+		//var bug = bug_create(bugz[i].pos[0]*16,bugz[i].pos[1]*16,global.main_dir+"/BUGZ/"+bugz[i].filename);
+		var bug = bug_create(bugz[i].pos[0],bugz[i].pos[1],global.main_dir+"/BUGZ/"+bugz[i].filename);
+		bug.gear = bugz[i].gear;
+		bug.paused = bugz[i].paused;
+		bug.volume = bugz[i].volume;
+		bug.direction = bugz[i].dir;
+		bug.ctrl_x = bugz[i].ctrl[0];
+		bug.ctrl_y = bugz[i].ctrl[1];
+		if bug.ctrl_x > -1 || bug.ctrl_y > -1 bug.warp = true;
+		bug.calculate_timer();
+	
+		// apply the bugz to obj_ctrl_playfield's local bug tracking
+		switch i
+			{
+			case 0: bug_yellow = bug; break;
+			case 1: bug_green = bug; break;
+			case 2: bug_blue = bug; break;
+			case 3: bug_red = bug; break;
+			}
+		}
+	}
+}
+

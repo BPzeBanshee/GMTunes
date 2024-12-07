@@ -11,17 +11,6 @@ function scr_main_init(){
 #macro vk_oem_comma 188
 trace("GMTunes Build {0}",GAME_VERSION);
 
-// Function calls
-surface_depth_disable(true);
-window_set_caption("GMTunes");
-pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
-
-scr_config_load();
-audio_master_gain(round(global.music_volume)/100);
-gpu_set_texfilter(global.use_texfilter);
-game_set_speed(global.target_framerate,gamespeed_fps);
-instance_create_depth(x,y,-9999,obj_debug);
-
 // Controller objects and globalvars
 global.playfield = {}; // struct
 global.note_grid = [];
@@ -31,47 +20,24 @@ global.flag_list = [];
 global.zoom = 0;
 global.reverb_hack = false;
 
+// Function calls
+surface_depth_disable(true);
+window_set_caption("GMTunes");
+pal_swap_init_system(shd_pal_swapper,shd_pal_html_sprite,shd_pal_html_surface);
+
 // Establishing program directory etc
-//if GM_build_type == "run"
-global.main_dir = working_directory+"/"
-//else global.main_dir = program_directory+"/";
-var load_video = false;
-if os_type == os_windows
+scr_config_load();
+if global.main_dir == "" find_default_simtunes_dir();
+//if GM_build_type == "run" global.main_dir = working_directory+"/";
+
+// Apply stuff from config
+audio_master_gain(round(global.music_volume)/100);
+gpu_set_texfilter(global.use_texfilter);
+game_set_speed(global.target_framerate,gamespeed_fps);
+instance_create_depth(x,y,-9999,obj_debug);
+if global.use_external_assets
 	{
-	// Attempt to locate original SimTunes directory
-	var success = false;
-	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
-	if file_exists(config)
-		{
-		ini_open(config);
-		var savepath = ini_read_string("FILE FOLDERS","mCustomSavePath","");
-		ini_close();
-		trace(string("savepath returned {0}",savepath));
-	
-		if savepath != ""
-			{
-			global.main_dir = string_replace(savepath,@"TUNES\","");
-			success = true;
-			trace("global.main_dir set to {0}",global.main_dir);
-			}
-		}
-	
-	if !success
-		{
-		show_message("GMTunes was unable to find your SimTunes directory.\n\nPlease manually locate the SimTunes directory to load asset data, or hit 'Cancel' to operate using internal assets only.");
-		var d = get_open_filename_ext("","","C:/","Locate SimTunes directory (pick any file)");
-		if string_length(d) > 0 
-			{
-			global.main_dir = filename_path(d);
-			trace("global.main_dir manually set to {0}",global.main_dir);
-			}
-		else
-			{
-			global.use_external_assets = false;
-			}
-		}
-		
-	if global.use_external_assets
+	if os_type == os_windows
 		{
 		// Extract TUNERES.DAT assets if possible
 		if !directory_exists(TUNERES)
@@ -85,7 +51,6 @@ if os_type == os_windows
 					show_message("Failed to extract assets from TUNERES.DAT for some reason.\nGame will use placeholder assets only.");
 					global.use_external_assets = false;
 					}
-				else load_video = true;
 				}
 			else 
 				{
@@ -93,11 +58,7 @@ if os_type == os_windows
 				global.use_external_assets = false;
 				}
 			}
-		else 
-			{
-			trace("Extracted folder already present, avoiding extra work");
-			load_video = true;
-			}
+		else trace("Extracted folder already present, avoiding extra work");
 		}
 	}
 	
@@ -114,7 +75,8 @@ scr_spr_init();
 //scr_strtbl_init();
 
 // Play intro graphics+video or just go straight to main room
-if load_video == true
+if file_exists(global.main_dir+"SIMTUNES.SMK") 
+or file_exists(global.main_dir+"SIMMUSIK.SMK")
 	{
 	// Play intro graphics+video
 	instance_create_depth(x,y,0,obj_video_intro);
@@ -126,9 +88,61 @@ else
 	}
 }
 
+function find_default_simtunes_dir() {
+var success = false;
+
+// First, attempt to locate original SimTunes installation assuming Windows run
+if (os_type == os_windows) // || os_type == os_linux || os_type == os_macosx
+	{
+	var config = environment_get_variable("LOCALAPPDATA")+"/VirtualStore/Windows/SimTunes.ini";
+	if file_exists(config)
+		{
+		ini_open(config);
+		var savepath = ini_read_string("FILE FOLDERS","mCustomSavePath","");
+		ini_close();
+		trace(string("savepath returned {0}",savepath));
+	
+		if savepath != ""
+			{
+			global.main_dir = string_replace(savepath,@"TUNES\","");
+			success = true;
+			trace("global.main_dir set to {0}",global.main_dir);
+			}
+		}
+	}
+
+// If that fails, look next to program itself
+if directory_exists(program_directory+"/SIMTUNES")
+	{
+	global.main_dir = program_directory+"/SIMTUNES";
+	success = true;
+	}
+else if directory_exists(program_directory+"/SIMMUSIK")
+	{
+	global.main_dir = program_directory+"/SIMMUSIK";
+	success = true;
+	}
+	
+if !success
+	{
+	show_message("GMTunes was unable to find your SimTunes directory.\n\nPlease manually locate the SimTunes directory to load asset data, or hit 'Cancel' to operate using internal assets only.");
+	var d = get_open_filename_ext("","","C:/","Locate SimTunes directory (pick any file)");
+	if string_length(d) > 0 
+		{
+		global.main_dir = filename_path(d);
+		trace("global.main_dir manually set to {0}",global.main_dir);
+		}
+	else
+		{
+		global.use_external_assets = false;
+		}
+	}
+}
+
 function scr_config_load(){
 ini_open(game_save_id+"/GMTunes.ini");
 global.debug = ini_read_real("Core","debug",true);
+global.main_dir = ini_read_string("Core","simtunes_dir","");
 global.use_external_assets = ini_read_real("Core","use_external_assets",true);
 global.music_volume = ini_read_real("Core","music_volume",50);
 global.use_texfilter = ini_read_real("Core","use_texture_filtering",false);
@@ -137,13 +151,12 @@ global.target_framerate = ini_read_real("Core","target_framerate",60);
 
 global.function_tile_clicks = ini_read_real("SimTunes","function_tile_clicks",false);
 ini_close();
-return 0;
 }
 
 function scr_config_save(){
 ini_open(game_save_id+"/GMTunes.ini");
 ini_write_real("Core","debug",global.debug);
-if !ini_key_exists("Core","use_external_assets")
+ini_write_string("Core","simtunes_dir",global.main_dir);
 ini_write_real("Core","use_external_assets",global.use_external_assets);
 ini_write_real("Core","music_volume",global.music_volume);
 ini_write_real("Core","use_texture_filtering",global.use_texfilter);
@@ -151,7 +164,6 @@ ini_write_real("Core","target_framerate",global.target_framerate);
 
 ini_write_real("SimTunes","function_tile_clicks",global.function_tile_clicks);
 ini_close();
-return 0;
 }
 
 function scr_font_init(){
@@ -283,7 +295,7 @@ if surface_exists(ui_bug)
 		}
 	surface_free(ui_bug);
 	}
-else
+/*else
 	{
 	ui_bug = surface_create(50,34);
 	var colors = [c_yellow,c_lime,c_blue,c_red];
@@ -296,7 +308,7 @@ else
 		global.spr_ui.bug[i][1] = global.spr_ui.bug[i][0];
 		}
 	surface_free(ui_bug);
-	}
+	}*/
 
 // UI Sliders
 global.spr_ui.slider = [];
@@ -309,10 +321,10 @@ if surface_exists(ui_slider)
 		}
 	surface_free(ui_slider);
 	}
-else
+/*else
 	{
 	ui_slider = surface_create(23,5);
-	var colors = [c_yellow,c_green,c_blue,c_red];
+	var colors = [c_yellow,c_lime,c_blue,c_red];
 	for (var i=0;i<4;i++)
 		{
 		surface_set_target(ui_slider);
@@ -321,7 +333,7 @@ else
 		global.spr_ui.slider[i] = sprite_create_from_surface(ui_slider,0,0,23,5,false,false,12,2);
 		}
 	surface_free(ui_slider);
-	}
+	}*/
 	
 // UI 'Highlights'
 global.spr_ui.playnote = [];
@@ -370,7 +382,6 @@ for (var i=0;i<array_length(ctrl_files);i++)
 	{
 	global.spr_ui.ctrl[i] = bmp_load_sprite(TUNERES+ctrl_files[i],,,,,true,,0,0);
 	}
-window_set_cursor(cr_none);
 }
 
 function scr_main_free(){

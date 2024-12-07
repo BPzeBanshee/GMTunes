@@ -4,7 +4,7 @@ if sprite_exists(spr)
 	
 	// Start Game
 	pal_swap_set(surf,1,true);
-	draw_sprite_part(spr,0,206,21,227,244,206,21); 
+	draw_sprite_part(spr,0,206,21,227,247,206,21);  // height was 244
 	
 	// Gallery
 	pal_swap_set(surf2,1,true);
@@ -12,11 +12,11 @@ if sprite_exists(spr)
 	
 	// Tutorial
 	pal_swap_set(surf3,1,true);
-	draw_sprite_part(spr,0,427,270,176,138,427,270);
+	draw_sprite_part(spr,0,410,270,212,138,410,270); // left was 427, width 176
 	
 	// Exit Game
 	pal_swap_set(surf4,1,true);
-	draw_sprite_part(spr,0,280,371,77,85,280,371);
+	draw_sprite_part(spr,0,257,370,121,85,257,370); // top was 371, left 280, width 77
 	
 	pal_swap_reset();
 	}

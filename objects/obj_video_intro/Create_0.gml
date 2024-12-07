@@ -24,10 +24,13 @@ if global.use_external_assets
 	trace("GMLibSmacker Version: "+gmlibsmacker_version());
 
 	// Open SMK file
-	var o = gmlibsmacker_open_smk(global.main_dir+"SIMTUNES.SMK");
+	var o = -1;
+	var fn = "SIMTUNES.SMK";
+	if file_exists(global.main_dir+"SIMMUSIK.SMK") fn = "SIMMUSIK.SMK";
+	if file_exists(global.main_dir+fn) o = gmlibsmacker_open_smk(global.main_dir+fn);
 	if o < 0
 		{
-		trace("problem loading {0}, skipping to main menu",global.main_dir+"SIMTUNES.SMK");
+		trace("problem loading {0}, skipping to main menu",global.main_dir+fn);
 		room_goto(rm_main);
 		}
 	
@@ -89,6 +92,6 @@ if global.use_external_assets
 	}
 else
 	{
-	trace("problem loading {0}, skipping to main menu",global.main_dir+"SIMTUNES.SMK");
+	trace("global.use_external_assets set to 0, skipping to rm_main");
 	room_goto(rm_main);
 	}

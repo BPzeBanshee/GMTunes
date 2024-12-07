@@ -7,15 +7,20 @@ pixel_surf = -1;
 update_surf = function(){
 var ww = 160;
 var hh = 104;
-if !surface_exists(pixel_surf) then pixel_surf = surface_create(ww*16,hh*16); //ww,hh
+var px = 16;
+//if global.zoom == 1 px = 8;
+//if global.zoom == 0 px = 4;
+if !surface_exists(pixel_surf) pixel_surf = surface_create(ww*px,hh*px); //ww,hh
 surface_set_target(pixel_surf);
 draw_clear_alpha(c_black,0);
 
 // Draw notes
 for (var yy = 0; yy < hh; yy++)
 	{
+	var _y = yy * px;
 	for (var xx = 0; xx < ww; xx++)
 		{
+		var _x = xx * px;
 		var data = global.note_grid[xx][yy];
 		var data_ctrl = global.ctrl_grid[xx][yy];
 		if data_ctrl == 34 data_ctrl = 0;
@@ -23,12 +28,12 @@ for (var yy = 0; yy < hh; yy++)
 			{
 			if global.use_external_assets
 				{
-				draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16);
+				draw_sprite(global.spr_note2[data_ctrl][data],0,_x,_y);
 				}
 			else 
 				{
-				if data > 0 draw_sprite(spr_note,data-1,xx*16,yy*16);
-				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,xx*16,yy*16);
+				if data > 0 draw_sprite(spr_note,data-1,_x,_y);
+				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x,_y);
 				}
 			}
 		}
@@ -39,61 +44,67 @@ surface_reset_target();
 update_surf_partial = function(xx,yy){
 var data = global.note_grid[xx][yy];
 var data_ctrl = global.ctrl_grid[xx][yy];
+var px = 16;
+var _x = xx * px;
+var _y = yy * px;
 if data_ctrl == 34 data_ctrl = 0;
-if !surface_exists(pixel_surf) then update_surf();
+
+if !surface_exists(pixel_surf) update_surf();
 surface_set_target(pixel_surf);
 
 if data > 0 or data_ctrl > 0
 	{
 	if global.use_external_assets
-	draw_sprite(global.spr_note2[data_ctrl][data],0,xx*16,yy*16)
+	draw_sprite(global.spr_note2[data_ctrl][data],0,_x,_y)
 	else 
 		{
-		if data > 0 draw_sprite(spr_note,data-1,xx*16,yy*16);
-		if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,xx*16,yy*16);
+		if data > 0 draw_sprite(spr_note,data-1,_x,_y);
+		if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x,_y);
 		}
 	}
 else
 	{
 	gpu_set_blendmode(bm_subtract);
 	draw_set_alpha(1);
-	draw_rectangle(xx*16,yy*16,(xx*16)+15,(yy*16)+15,false);
+	draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
 	gpu_set_blendmode(bm_normal);
 	}
 surface_reset_target();
 }
 
 update_surf_zone = function(xx,yy,w,h){
+var px = 16;
 if !surface_exists(pixel_surf) then update_surf();
 surface_set_target(pixel_surf);
 for (var ny=0; ny<h; ny++)
 	{
-	var _y = yy+ny;
-	if _y > 103 or _y < 0 continue;
+	var cy = yy+ny;
+	if cy > 103 or cy < 0 continue;
+	var _y = cy*px;
+	
 	for (var nx=0; nx<w; nx++)
 		{
-		var _x = xx+nx;
-		if _x > 159 or _x < 0 continue;
-		
-		var data = global.note_grid[_x][_y];
-		var data_ctrl = global.ctrl_grid[_x][_y];
+		var cx = xx+nx;
+		if cx > 159 or cx < 0 continue;
+		var data = global.note_grid[cx][cy];
+		var data_ctrl = global.ctrl_grid[cx][cy];
 		if data_ctrl == 34 data_ctrl = 0;
-		
+		var _x = cx*px;
 		if data > 0 or data_ctrl > 0
 			{
 			if global.use_external_assets
-			draw_sprite(global.spr_note2[data_ctrl][data],0,_x*16,_y*16)
+			draw_sprite(global.spr_note2[data_ctrl][data],0,_x,_y)
 			else 
 				{
-				if data > 0 draw_sprite(spr_note,data-1,_x*16,_y*16);
-				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x*16,_y*16);
+				if data > 0 draw_sprite(spr_note,data-1,_x,_y);
+				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x,_y);
 				}
 			}
 		else
 			{
 			gpu_set_blendmode(bm_subtract);
 			draw_set_alpha(1);
-			draw_rectangle(_x*16,_y*16,(_x*16)+15,(_y*16)+15,false);
+			draw_rectangle(_x,_y,_x+px-1,_y*px-1,false);
 			gpu_set_blendmode(bm_normal);
 			}
 		}

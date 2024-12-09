@@ -27,7 +27,7 @@ if string_length(f)>0
 	var s = bac_load(f);
 	if sprite_exists(s)
 		{
-		sprite_delete(myback);
+		if sprite_exists(myback) sprite_delete(myback);
 		myback = s;
 		if sprite_exists(myback)
 			{

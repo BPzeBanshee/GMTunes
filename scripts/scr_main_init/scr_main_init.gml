@@ -112,14 +112,14 @@ if (os_type == os_windows) // || os_type == os_linux || os_type == os_macosx
 	}
 
 // If that fails, look next to program itself
-if directory_exists(program_directory+"/SIMTUNES")
+if directory_exists(program_directory+"/SIMTUNES/")
 	{
-	global.main_dir = program_directory+"/SIMTUNES";
+	global.main_dir = program_directory+"/SIMTUNES/";
 	success = true;
 	}
-else if directory_exists(program_directory+"/SIMMUSIK")
+else if directory_exists(program_directory+"/SIMMUSIK/")
 	{
-	global.main_dir = program_directory+"/SIMMUSIK";
+	global.main_dir = program_directory+"/SIMMUSIK/";
 	success = true;
 	}
 	

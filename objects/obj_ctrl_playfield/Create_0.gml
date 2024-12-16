@@ -86,6 +86,7 @@ for (var i=0;i<100;i++)
 	}
 
 // Load GUI images
+show_diag_ctrls = false;
 if use_classic_gui
 	{
 	gui = {paint: -1,stamp: -1,explore: -1,bugz: -1,file: -1};
@@ -94,4 +95,9 @@ if use_classic_gui
 	gui.explore = bmp_load_sprite(TUNERES+"Auto.bmp",,,,,,,0,0);
 	gui.bugz = bmp_load_sprite(TUNERES+"Bugz.bmp",,,,,,,0,0);
 	gui.file = bmp_load_sprite(TUNERES+"File.bmp",,,,,,,0,0);
+	
+	gui.notetable = bmp_load_sprite(TUNERES+"MAJOR2.BMP",,,,,,,0,0);
+	gui.notetable_adv = bmp_load_sprite(TUNERES+"CHROMATC.BMP",,,,,,,0,0);
+	gui.notetable_diag = bmp_load_sprite(TUNERES+"DIAGBTNS.BMP",,,,,,,0,0);
+	show_diag_ctrls = true;
 	}

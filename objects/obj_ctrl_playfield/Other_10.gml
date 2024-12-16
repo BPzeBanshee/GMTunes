@@ -17,6 +17,43 @@ if instance_exists(m)
 m = instance_create_depth(mouse_x,mouse_y,depth-1,obj);
 m.parent = id;
 }
+pick_note_color = function(i){
+if !instance_exists(obj_mouse_colour)
+	{
+	instance_destroy(m);
+	mouse_create(obj_mouse_colour); 
+	}
+m.note = i;
+					
+if global.use_external_assets
+	{
+	var snd = global.snd_ui.beep[i-1];
+	switch play_index
+		{
+		case 1: if instance_exists(bug_yellow) snd = bug_yellow.snd_struct.snd[i-1]; break;
+		case 2: if instance_exists(bug_green) snd = bug_green.snd_struct.snd[i-1]; break;
+		case 3: if instance_exists(bug_blue) snd = bug_blue.snd_struct.snd[i-1]; break;
+		case 4: if instance_exists(bug_red) snd = bug_red.snd_struct.snd[i-1]; break;
+		default: break;
+		}
+	if audio_exists(play_handle) audio_stop_sound(play_handle);
+	play_handle = audio_play_sound(snd,0,false);
+	}
+}
+pick_note_ctrl = function(i){
+button_click();
+if !instance_exists(obj_mouse_ctrl)
+	{
+	instance_destroy(m);
+	mouse_create(obj_mouse_ctrl); 
+	}
+m.note = i;
+}
+load_scale = function(){
+global.key_scale++;
+if global.key_scale > 10 global.key_scale = 0;
+}
+
 back_to_main = function(){
 scr_trans(rm_main);
 }

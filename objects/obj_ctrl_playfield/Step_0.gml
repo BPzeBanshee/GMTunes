@@ -102,40 +102,85 @@ if use_classic_gui
 					}
 				}
 				
-			// top row
+			// top row (chromatic-based scales have a top and bottom part)
 			var note_x = bx;
 			var note_y = by;
-			for (var i=1;i<=25;i++)
+			var note_gap_h = 24;
+			var note_gap_v = 32;
+			var notes_top = [2,4,-1,7,9,11,-1,14,16,-1,19,21,23];
+			var notes_btm = [1,3,5,6,8,10,12,13,15,17,18,20,22,24,25];
+			
+			for (var i=0;i<array_length(notes_btm);i++)
 				{
-				var xx = note_x + (16*(i-1));
-				if point_in_rectangle(mx,my,xx,note_y,xx+16,note_y+16) && mb
+				var xx = note_x + (note_gap_h * (i));
+				if point_in_rectangle(mx,my,xx,note_y,xx+note_gap_h,note_y+note_gap_v) && mb
+				pick_note_color(notes_btm[i]);
+				}
+			
+			if global.key_scale != KEY_SCALE.MAJOR
+			&& global.key_scale != KEY_SCALE.MAJOR_PENTATONIC
+				{
+				note_gap_v = 16;
+				for (var i=0;i<array_length(notes_top);i++)
 					{
-					if !instance_exists(obj_mouse_colour)
-						{
-						instance_destroy(m);
-						mouse_create(obj_mouse_colour); 
-						}
-					m.note = i;
-					
-					if global.use_external_assets
-						{
-						var snd = global.snd_ui.beep[i-1];
-						switch play_index
-							{
-							case 1: if instance_exists(bug_yellow) snd = bug_yellow.snd_struct.snd[i-1]; break;
-							case 2: if instance_exists(bug_green) snd = bug_green.snd_struct.snd[i-1]; break;
-							case 3: if instance_exists(bug_blue) snd = bug_blue.snd_struct.snd[i-1]; break;
-							case 4: if instance_exists(bug_red) snd = bug_red.snd_struct.snd[i-1]; break;
-							default: break;
-							}
-						if audio_exists(play_handle) audio_stop_sound(play_handle);
-						play_handle = audio_play_sound(snd,0,false);
-						}
+					if notes_top[i] == -1 continue;
+					var xx = note_x + 16 + (note_gap_h * (i));
+					if point_in_rectangle(mx,my,xx,note_y,xx+note_gap_h,note_y+note_gap_v) && mb
+					pick_note_color(notes_top[i]);
 					}
+				
 				}
 				
-			// Bottom row
-			for (var i=1;i<=14;i++)
+			// Bottom row (control notes)
+			var scale_x = bx+24;
+			var scale_y = by+38;
+			if point_in_rectangle(mx,my,scale_x,scale_y,scale_x+89,scale_y+38) && mb
+				{
+				button_click();
+				flash(1);
+				load_scale();
+				}
+				
+			// Direction chooser
+			var dir_x = 177;
+			var dir_y = by+47;
+			if point_in_rectangle(mx,my,dir_x,dir_y,dir_x+5,dir_y+9) && mb
+			show_diag_ctrls = !show_diag_ctrls;
+			
+			// Direction Notes
+			var ctrl_x = 185;
+			var ctrl_y = by+38;
+			note_gap_v = 28;
+			var dir_notes = show_diag_ctrls ? [11,12,13,14] : [7,4,5,6];
+			for (var i=0;i<array_length(dir_notes);i++)
+				{
+				var xx = ctrl_x + (note_gap_h * (i));
+				if point_in_rectangle(mx,my,xx,ctrl_y,xx+note_gap_h,ctrl_y+note_gap_v) && mb
+				pick_note_ctrl(dir_notes[i]);
+				}
+				
+			// Random direction option
+			var rng_x = 286;
+			var rng_y = by+38;
+			if point_in_rectangle(mx,my,rng_x,rng_y,rng_x+note_gap_h,rng_y+note_gap_v) && mb
+			pick_note_ctrl(10);
+			
+			// Teleport option
+			var tp_x = 316;
+			var tp_y = by+38;
+			if point_in_rectangle(mx,my,tp_x,tp_y,tp_x+note_gap_h,tp_y+note_gap_v) && mb
+			pick_note_ctrl(8);
+			
+			// L,R,X
+			var ctrl_notes = [1,2,3];
+			for (var i=0;i<array_length(ctrl_notes);i++)
+				{
+				var xx = 351 + (note_gap_h * (i));
+				if point_in_rectangle(mx,my,xx,ctrl_y,xx+note_gap_h,ctrl_y+note_gap_v) && mb
+				pick_note_ctrl(ctrl_notes[i]);
+				}
+			
+			/*for (var i=1;i<=14;i++)
 				{
 				if i == 9 then i++; // skip teleport destination note
 				var xx = note_x + (16*(i-1));
@@ -149,12 +194,12 @@ if use_classic_gui
 						}
 					m.note = i;
 					}
-				}
+				}*/
 				
 			// Rainbow option
-			var rainbow_x = bx+400; //463
+			var rainbow_x = bx+360; //400
 			var rainbow_y = by;
-			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+16,rainbow_y+16) && mb
+			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+24,rainbow_y+32) && mb
 				{
 				button_click();
 				if !instance_exists(obj_mouse_rainbow)

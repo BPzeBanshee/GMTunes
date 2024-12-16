@@ -36,7 +36,7 @@ if use_classic_gui
 		case 0:
 			{
 			draw_sprite(gui.paint,0,0,by); 
-			draw_rectangle_color(bx,by,533,by+64,0,0,0,0,false);
+			//draw_rectangle_color(bx,by,533,by+64,0,0,0,0,false);
 			
 			// musical selector (55,14)
 			var music_x = bx-8;
@@ -46,28 +46,39 @@ if use_classic_gui
 			// top row
 			var note_x = bx;
 			var note_y = by;
-			for (var i=1;i<=25;i++)
+			var note_spr = (global.key_scale == KEY_SCALE.MAJOR 
+			|| global.key_scale == KEY_SCALE.MAJOR_PENTATONIC)
+			? gui.notetable : gui.notetable_adv;
+			draw_sprite(note_spr,0,note_x,note_y);
+			/*for (var i=1;i<=25;i++)
 				{
 				var xx = note_x + (16*(i-1));
 				if global.use_external_assets
 				draw_sprite(global.spr_note2[0][i],0,xx,note_y)
 				else draw_sprite(spr_note,i-1,xx,note_y);
-				}
+				}*/
 			
 			// bottom row
-			for (var i=1;i<=14;i++)
+			var scale_x = bx+24;
+			var scale_y = by+38;
+			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_bottom,0,scale_x,scale_y);
+			
+			var note_dir_x = bx+123;
+			var note_dir_y = by+38;
+			if show_diag_ctrls draw_sprite(gui.notetable_diag,0,note_dir_x,note_dir_y);
+			/*for (var i=1;i<=14;i++)
 				{
 				if i == 9 then i++;
 				var xx = note_x + (16*(i-1));
 				if global.use_external_assets
 				draw_sprite(global.spr_note2[i][0],0,xx,by+16)
 				else draw_sprite(spr_note_ctrl,i-1,xx,by+16);
-				}
+				}*/
 				
 			// Rainbow option
-			var rainbow_x = bx+400; //463
+			/*var rainbow_x = bx+400; //463
 			var rainbow_y = by;
-			draw_sprite(spr_note_rainbow,0,rainbow_x,rainbow_y);
+			draw_sprite(spr_note_rainbow,0,rainbow_x,rainbow_y);*/
 			break;
 			}
 		

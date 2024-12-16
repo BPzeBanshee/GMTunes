@@ -11,6 +11,22 @@ function scr_main_init(){
 #macro vk_oem_comma 188
 trace("GMTunes Build {0}",GAME_VERSION);
 
+// Enums
+enum KEY_SCALE
+	{
+	MAJOR,
+	CHROMATIC,
+	MINOR,
+	MAJOR_PENTATONIC,
+	MINOR_PENTATONIC,
+	BLUES,
+	MIXOLYDIAN,
+	LYDIAN,
+	DORIAN,
+	PHRYGIAN,
+	LOCRIAN
+	}
+
 // Controller objects and globalvars
 global.playfield = {}; // struct
 global.note_grid = [];
@@ -150,10 +166,12 @@ global.target_framerate = ini_read_real("Core","target_framerate",60);
 //if os_type == os_operagx global.use_external_assets = false;
 
 global.function_tile_clicks = ini_read_real("SimTunes","function_tile_clicks",false);
+global.key_scale = ini_read_real("SimTunes","key_scale",KEY_SCALE.MAJOR);
 ini_close();
 }
 
 function scr_config_save(){
+// Feather disable GM1041
 ini_open(game_save_id+"/GMTunes.ini");
 ini_write_real("Core","debug",global.debug);
 ini_write_string("Core","simtunes_dir",global.main_dir);
@@ -163,6 +181,7 @@ ini_write_real("Core","use_texture_filtering",global.use_texfilter);
 ini_write_real("Core","target_framerate",global.target_framerate);
 
 ini_write_real("SimTunes","function_tile_clicks",global.function_tile_clicks);
+ini_write_real("SimTunes","key_scale",global.key_scale);
 ini_close();
 }
 
@@ -224,6 +243,7 @@ global.spr_note2[0][0] = -1;
 global.spr_flag2[0][0][0] = -1;
 
 // Color/Control Note blocks
+// TODO: add support for the DoReMi/nondescript a/b tile images
 var temp = bmp_load(TUNERES+"TILES16.BMP");
 if surface_exists(temp) 
 	{

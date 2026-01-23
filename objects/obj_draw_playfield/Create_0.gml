@@ -80,7 +80,7 @@ for (var ny=0; ny<h; ny++)
 	{
 	var cy = yy+ny;
 	if cy > 103 or cy < 0 continue;
-	var _y = cy*px;
+	var _y = cy * px;
 	
 	for (var nx=0; nx<w; nx++)
 		{
@@ -104,7 +104,7 @@ for (var ny=0; ny<h; ny++)
 			{
 			gpu_set_blendmode(bm_subtract);
 			draw_set_alpha(1);
-			draw_rectangle(_x,_y,_x+px-1,_y*px-1,false);
+			draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
 			gpu_set_blendmode(bm_normal);
 			}
 		}

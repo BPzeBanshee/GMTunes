@@ -102,36 +102,49 @@ if use_classic_gui
 					}
 				}
 				
-			// top row (chromatic-based scales have a top and bottom part)
+			// top row: colors + tools
+			// nb: chromatic-based scales have a top and bottom part
 			var note_x = bx;
 			var note_y = by;
 			var note_gap_h = 24;
 			var note_gap_v = 32;
-			var notes_top = [2,4,-1,7,9,11,-1,14,16,-1,19,21,23];
+			var notes_top = [2,4,7,9,11,14,16,19,21,23];
 			var notes_btm = [1,3,5,6,8,10,12,13,15,17,18,20,22,24,25];
-			
-			for (var i=0;i<array_length(notes_btm);i++)
-				{
-				var xx = note_x + (note_gap_h * (i));
-				if point_in_rectangle(mx,my,xx,note_y,xx+note_gap_h,note_y+note_gap_v) && mb
-				pick_note_color(notes_btm[i]);
-				}
-			
-			if global.key_scale != KEY_SCALE.MAJOR
-			&& global.key_scale != KEY_SCALE.MAJOR_PENTATONIC
+				
+			// Colors, top half
+			if show_adv_colors
 				{
 				note_gap_v = 16;
 				for (var i=0;i<array_length(notes_top);i++)
 					{
-					if notes_top[i] == -1 continue;
-					var xx = note_x + 16 + (note_gap_h * (i));
+					var o = 0;
+					if i >= 2 o = 1;
+					if i >= 5 o = 2;
+					if i >= 7 o = 3;
+					var xx = note_x + 12 + (note_gap_h * o) + (note_gap_h * i);
+					//var xx = note_x + 16 + (note_gap_h * (i));
 					if point_in_rectangle(mx,my,xx,note_y,xx+note_gap_h,note_y+note_gap_v) && mb
+					&& !notes_blocked_top[i]
 					pick_note_color(notes_top[i]);
 					}
+				}
 				
+			// Colors, bottom half
+			if show_adv_colors
+				{
+				note_gap_v = 16;
+				note_y = by + 16;
+				}
+			for (var i=0;i<array_length(notes_btm);i++)
+				{
+				var xx = note_x + (note_gap_h * (i));
+				if point_in_rectangle(mx,my,xx,note_y,xx+note_gap_h,note_y+note_gap_v) && mb
+				&& !notes_blocked_btm[i]
+				pick_note_color(notes_btm[i]);
 				}
 				
 			// Bottom row (control notes)
+			if show_menu exit;
 			var scale_x = bx+24;
 			var scale_y = by+38;
 			if point_in_rectangle(mx,my,scale_x,scale_y,scale_x+89,scale_y+38) && mb

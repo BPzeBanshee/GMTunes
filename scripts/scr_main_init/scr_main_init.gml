@@ -2,7 +2,7 @@ function scr_main_init(){
 // Macros
 #macro trace show_debug_message
 #macro msg show_message
-#macro GAME_VERSION string("2 ({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
+#macro GAME_VERSION string("3 ({0}-{1}-{2})",date_get_year(GM_build_date),date_get_month(GM_build_date),date_get_day(GM_build_date))
 #macro TUNERES game_save_id+"/TUNERES.DAT/"
 #macro Web:TUNERES "/TUNERES.DAT/"
 #macro vk_capslock 20
@@ -35,6 +35,7 @@ global.warp_list = [];
 global.flag_list = [];
 global.zoom = 0;
 global.reverb_hack = false;
+global.string_table = "";
 
 // Function calls
 surface_depth_disable(true);
@@ -78,6 +79,9 @@ if global.use_external_assets
 		}
 	}
 	
+// Load string table from SimTunes.dat
+if global.use_external_assets global.string_table = scr_strtbl_init(TUNERES+"/SimTunes.dat");
+	
 // Font loading
 scr_font_init();
 
@@ -87,12 +91,10 @@ scr_snd_init();
 // Load note sprites
 scr_spr_init();
 
-// TODO: load string table from SimTunes.dat
-//scr_strtbl_init();
-
 // Play intro graphics+video or just go straight to main room
-if file_exists(global.main_dir+"SIMTUNES.SMK") 
-or file_exists(global.main_dir+"SIMMUSIK.SMK")
+if global.use_external_assets
+&& (file_exists(global.main_dir+"SIMTUNES.SMK") 
+or file_exists(global.main_dir+"SIMMUSIK.SMK"))
 	{
 	// Play intro graphics+video
 	instance_create_depth(x,y,0,obj_video_intro);
@@ -496,5 +498,8 @@ if global.use_external_assets
 	// FREE EXTENSIONS
 	gmlzari_free();
 	gmlibsmacker_free();
+	
+	// Nuke globalvars just in case
+	global.string_table = "";
 	}
 }

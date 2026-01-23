@@ -86,7 +86,11 @@ for (var i=0;i<100;i++)
 	}
 
 // Load GUI images
+notes_blocked_top = array_create(10,0);
+notes_blocked_btm = array_create(15,0);
 show_diag_ctrls = false;
+show_adv_colors = false;
+update_note_scale();
 if use_classic_gui
 	{
 	gui = {paint: -1,stamp: -1,explore: -1,bugz: -1,file: -1};
@@ -99,5 +103,7 @@ if use_classic_gui
 	gui.notetable = bmp_load_sprite(TUNERES+"MAJOR2.BMP",,,,,,,0,0);
 	gui.notetable_adv = bmp_load_sprite(TUNERES+"CHROMATC.BMP",,,,,,,0,0);
 	gui.notetable_diag = bmp_load_sprite(TUNERES+"DIAGBTNS.BMP",,,,,,,0,0);
-	show_diag_ctrls = true;
+	gui.notetable_mask = bmp_load_sprite(TUNERES+"TONEMASK.BMP",,,,,true,,0,0);
+	gui.notetable_mask2 = bmp_load_sprite(TUNERES+"HALFMASK.BMP",,,,18,true,,0,0);
+	gui.notetable_abc = bmp_load_sprite(TUNERES+"ABC.BMP",,,,,true,,0,0);
 	}

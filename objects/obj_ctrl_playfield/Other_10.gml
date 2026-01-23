@@ -52,6 +52,7 @@ m.note = i;
 load_scale = function(){
 global.key_scale++;
 if global.key_scale > 10 global.key_scale = 0;
+update_note_scale();
 }
 
 back_to_main = function(){
@@ -313,4 +314,57 @@ else
 	cy = camera_get_view_y(cam) + yo;
 	}
 camera_set_view_pos(cam,clamp(cx,0,xform),clamp(cy,0,yform));
+}
+update_note_scale = function(){
+show_adv_colors = true;
+switch global.key_scale
+	{
+	default: break;
+	case KEY_SCALE.MAJOR:
+	notes_blocked_top = [0,0,0,0,0,0,0,0,0,0];
+	notes_blocked_btm = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	show_adv_colors = false;
+	break;
+	case KEY_SCALE.CHROMATIC:
+	notes_blocked_top = [0,0,0,0,0,0,0,0,0,0];
+	notes_blocked_btm = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	break;
+	case KEY_SCALE.MAJOR_PENTATONIC:
+	notes_blocked_top = [0,0,0,0,0,0,0,0,0,0];
+	notes_blocked_btm = [0,0,0,1,0,0,1,0,0,0,1,0,0,1,0];
+	show_adv_colors = false;
+	break;
+	case KEY_SCALE.MINOR: 
+	notes_blocked_top = [1,0,1,0,0,1,0,1,0,0];
+	notes_blocked_btm = [0,0,1,0,0,1,1,0,0,1,0,0,1,1,0];
+	break;
+	case KEY_SCALE.MINOR_PENTATONIC: 
+	notes_blocked_top = [1,0,1,1,0,1,0,1,1,0];
+	notes_blocked_btm = [0,1,1,0,0,1,1,0,1,1,0,0,1,1,0];
+	break;
+	case KEY_SCALE.BLUES:
+	notes_blocked_top = [1,0,0,1,0,1,0,0,1,0];
+	notes_blocked_btm = [0,1,1,0,0,1,1,0,1,1,0,0,1,1,0];
+	break;
+	case KEY_SCALE.MIXOLYDIAN:
+	notes_blocked_top = [1,1,1,1,0,1,1,1,1,0];
+	notes_blocked_btm = [0,0,0,0,0,0,0,1,0,0,0,0,0,1,0];
+	break;
+	case KEY_SCALE.LYDIAN:
+	notes_blocked_top = [1,1,0,1,1,1,1,0,1,1];
+	notes_blocked_btm = [0,0,0,1,0,0,0,0,0,0,1,0,0,0,0];
+	break;
+	case KEY_SCALE.DORIAN:
+	notes_blocked_top = [1,0,1,1,0,1,0,1,1,0];
+	notes_blocked_btm = [0,0,1,0,0,0,1,0,0,1,0,0,0,1,0];
+	break;
+	case KEY_SCALE.PHRYGIAN:
+	notes_blocked_top = [0,0,1,0,0,0,0,1,0,0];
+	notes_blocked_btm = [0,1,1,0,0,1,1,0,1,1,0,0,1,1,0];
+	break;
+	case KEY_SCALE.LOCRIAN:
+	notes_blocked_top = [0,0,0,0,0,0,0,0,0,0];
+	notes_blocked_btm = [0,1,1,0,1,1,1,0,1,1,0,1,1,1,0];
+	break;
+	}
 }

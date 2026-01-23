@@ -1,8 +1,8 @@
 {
-  "$GMProject":"",
+  "$GMProject":"v1",
   "%Name":"GMTunes",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[
@@ -42,6 +42,7 @@
     {"$GMFolder":"","%Name":"Internal Graphics","folderPath":"folders/Sprites/Internal Graphics.yy","name":"Internal Graphics","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Shader Stuff","folderPath":"folders/Sprites/Shader Stuff.yy","name":"Shader Stuff","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
+  "ForcedPrefabProjectReferences":[],
   "IncludedFiles":[
     {"$GMIncludedFile":"","%Name":"gmlibsmacker64.dll","CopyToMask":-1,"filePath":"datafiles","name":"gmlibsmacker64.dll","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"gmlzari64.dll","CopyToMask":-1,"filePath":"datafiles","name":"gmlzari64.dll","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
@@ -49,7 +50,7 @@
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.8.1.171",
+    "IDEVersion":"2024.14.2.213",
   },
   "name":"GMTunes",
   "resources":[
@@ -78,6 +79,7 @@
     {"id":{"name":"obj_draw_playfield","path":"objects/obj_draw_playfield/obj_draw_playfield.yy",},},
     {"id":{"name":"obj_init","path":"objects/obj_init/obj_init.yy",},},
     {"id":{"name":"obj_loading","path":"objects/obj_loading/obj_loading.yy",},},
+    {"id":{"name":"obj_menu_about","path":"objects/obj_menu_about/obj_menu_about.yy",},},
     {"id":{"name":"obj_menu_bugz_alt","path":"objects/obj_menu_bugz_alt/obj_menu_bugz_alt.yy",},},
     {"id":{"name":"obj_menu_bugz","path":"objects/obj_menu_bugz/obj_menu_bugz.yy",},},
     {"id":{"name":"obj_menu_main","path":"objects/obj_menu_main/obj_menu_main.yy",},},
@@ -119,6 +121,7 @@
     {"id":{"name":"scr_retro_pal_swapper_utilities","path":"scripts/scr_retro_pal_swapper_utilities/scr_retro_pal_swapper_utilities.yy",},},
     {"id":{"name":"scr_retro_pal_swapper","path":"scripts/scr_retro_pal_swapper/scr_retro_pal_swapper.yy",},},
     {"id":{"name":"scr_rle_encode","path":"scripts/scr_rle_encode/scr_rle_encode.yy",},},
+    {"id":{"name":"scr_strtbl_init","path":"scripts/scr_strtbl_init/scr_strtbl_init.yy",},},
     {"id":{"name":"scr_trans","path":"scripts/scr_trans/scr_trans.yy",},},
     {"id":{"name":"stamp_load","path":"scripts/stamp_load/stamp_load.yy",},},
     {"id":{"name":"stamp_save","path":"scripts/stamp_save/stamp_save.yy",},},

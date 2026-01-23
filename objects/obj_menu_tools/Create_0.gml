@@ -11,7 +11,7 @@ array_push(txta,"BACK (.BAC)");		array_push(obj,obj_decrypt_back);
 array_push(txta,"STP2 (.STP)");		array_push(obj,obj_decrypt_stp2);
 array_push(txta,"VER5 (.TUN)");		array_push(obj,obj_decrypt_tun);
 array_push(txta,"BM (.BMP)");		array_push(obj,obj_decrypt_bmp);
-array_push(txta,"TUNERES.DAT");		array_push(obj,obj_decrypt_dat);
+array_push(txta,"ABOUT");			array_push(obj,obj_menu_about);
 array_push(txta,"EXIT TO MAIN");
 
 // Create buttons

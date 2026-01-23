@@ -43,42 +43,50 @@ if use_classic_gui
 			var music_y = by+14;
 			draw_sprite(global.spr_ui.playnote[play_index],0,music_x,music_y);
 		
-			// top row
+			// colors
 			var note_x = bx;
 			var note_y = by;
-			var note_spr = (global.key_scale == KEY_SCALE.MAJOR 
-			|| global.key_scale == KEY_SCALE.MAJOR_PENTATONIC)
-			? gui.notetable : gui.notetable_adv;
+			var note_spr = show_adv_colors ? gui.notetable_adv : gui.notetable;
 			draw_sprite(note_spr,0,note_x,note_y);
-			/*for (var i=1;i<=25;i++)
+			
+			// Draw blocked notes according to note scale
+			if show_adv_colors
 				{
-				var xx = note_x + (16*(i-1));
-				if global.use_external_assets
-				draw_sprite(global.spr_note2[0][i],0,xx,note_y)
-				else draw_sprite(spr_note,i-1,xx,note_y);
-				}*/
+				for (var i=0;i<10;i++)
+					{
+					var o = 0;
+					if i >= 2 o = 1;
+					if i >= 5 o = 2;
+					if i >= 7 o = 3;
+					if notes_blocked_top[i] draw_sprite(gui.notetable_mask2,0,bx+12+(24*o)+(24*i),by);
+					}
+				}
+			var mask_spr = show_adv_colors ? gui.notetable_mask2 : gui.notetable_mask;
+			var mask_off = show_adv_colors ? 17 : 0;
+			for (var i=0;i<15;i++)
+				{
+				if notes_blocked_btm[i] draw_sprite(mask_spr,0,bx+(24*i),by+mask_off);
+				}
+				
+			// musical notation
+			if !show_menu draw_sprite(gui.notetable_abc,0,bx,by);
 			
 			// bottom row
-			var scale_x = bx+24;
+			var scale_x = bx+8;
 			var scale_y = by+38;
 			if draw_flash == 1 draw_sprite(global.spr_ui.onclick_bottom,0,scale_x,scale_y);
+			/*var scale_txt = "";
+			switch global.key_scale
+				{
+				case 0: scale_txt = "MAJOR"; break;
+				case 1: scale_txt = "CHROMATIC"; break;
+				default: scale_txt = string(global.key_scale); break;
+				}
+			draw_text(scale_x,scale_y,scale_txt);*/
 			
 			var note_dir_x = bx+123;
 			var note_dir_y = by+38;
 			if show_diag_ctrls draw_sprite(gui.notetable_diag,0,note_dir_x,note_dir_y);
-			/*for (var i=1;i<=14;i++)
-				{
-				if i == 9 then i++;
-				var xx = note_x + (16*(i-1));
-				if global.use_external_assets
-				draw_sprite(global.spr_note2[i][0],0,xx,by+16)
-				else draw_sprite(spr_note_ctrl,i-1,xx,by+16);
-				}*/
-				
-			// Rainbow option
-			/*var rainbow_x = bx+400; //463
-			var rainbow_y = by;
-			draw_sprite(spr_note_rainbow,0,rainbow_x,rainbow_y);*/
 			break;
 			}
 		

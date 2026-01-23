@@ -14,7 +14,7 @@ function stamp_struct() constructor {
 function stamp_load(file){
 // File error checking
 if !file_exists(file) or file == "" then return -2;
-trace("Loading stamp from "+string(file)+"...");
+//trace("Loading stamp from "+string(file)+"...");
 
 // Load file using given routines based on file extension
 var e = filename_ext(file);
@@ -46,7 +46,7 @@ buffer_load_ext(bu,file,0);
 var form = buffer_read_word(bu);
 if form != "STP2"
     {
-    msg("File doesn't match SimTunes STP2 format.");
+    msg("stamp_load(): File doesn't match SimTunes STP2 format.");
     return -3;
     }
 	

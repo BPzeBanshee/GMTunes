@@ -1,0 +1,1 @@
+if sprite_exists(myback) sprite_delete(myback);

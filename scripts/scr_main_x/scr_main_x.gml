@@ -157,36 +157,6 @@ if !success
 	}
 }
 
-function scr_config_load(){
-ini_open(game_save_id+"/GMTunes.ini");
-global.debug = ini_read_real("Core","debug",true);
-global.main_dir = ini_read_string("Core","simtunes_dir","");
-global.use_external_assets = ini_read_real("Core","use_external_assets",true);
-global.music_volume = ini_read_real("Core","music_volume",50);
-global.use_texfilter = ini_read_real("Core","use_texture_filtering",false);
-global.target_framerate = ini_read_real("Core","target_framerate",60);
-//if os_type == os_operagx global.use_external_assets = false;
-
-global.function_tile_clicks = ini_read_real("SimTunes","function_tile_clicks",false);
-global.key_scale = ini_read_real("SimTunes","key_scale",KEY_SCALE.MAJOR);
-ini_close();
-}
-
-function scr_config_save(){
-// Feather disable GM1041
-ini_open(game_save_id+"/GMTunes.ini");
-ini_write_real("Core","debug",global.debug);
-ini_write_string("Core","simtunes_dir",global.main_dir);
-ini_write_real("Core","use_external_assets",global.use_external_assets);
-ini_write_real("Core","music_volume",global.music_volume);
-ini_write_real("Core","use_texture_filtering",global.use_texfilter);
-ini_write_real("Core","target_framerate",global.target_framerate);
-
-ini_write_real("SimTunes","function_tile_clicks",global.function_tile_clicks);
-ini_write_real("SimTunes","key_scale",global.key_scale);
-ini_close();
-}
-
 function scr_font_init(){
 // TODO: work out the debug/small text fonts SimTunes uses
 global.fnt_default = fnt_internal_default;
@@ -386,6 +356,8 @@ if surface_exists(temp4)
 	global.spr_ui.stamp_tilemode[1] = sprite_create_from_surface(temp4,94,320,29,25,false,false,0,0);
 	global.spr_ui.stamp_up = sprite_create_from_surface(temp4,92,47,16,7,false,false,0,0);
 	global.spr_ui.stamp_down = sprite_create_from_surface(temp4,92,54,16,8,false,false,0,0);
+	
+	global.spr_ui.tickbox_setup = sprite_create_from_surface(temp4,100,215,13,13,false,false,0,0);
 	surface_free(temp4);
 	}
 

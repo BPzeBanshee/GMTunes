@@ -462,10 +462,16 @@ while (buffer_word(bu,offset) == "MIDI")
 	buffer_read(bu,buffer_u32); // skip form header
 	var size = buffer_read_be32(bu);
 	var content = [];
-	for (var i=0;i<size;i+=2)
+	for (var i=0;i<size;i++) 
+	{
+	var c2 = buffer_read(bu,buffer_u8);
+	array_push(content,c2);
+	//trace("Byte "+string(c2)+": ",c2>>7,", ",c2>>6,", ",c2>>5,", ",c2>>4,", ",c2>>3,", ",c2>>2,", ",c2>>1);
+	}
+	/*for (var i=0;i<size;i+=2)
 		{
 		array_push(content,buffer_read_be16(bu));
-		}
+		}*/
 	offset = buffer_tell(bu);
 	array_push(midi_data,content);
 	}

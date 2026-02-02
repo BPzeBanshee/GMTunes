@@ -197,6 +197,9 @@ else
 	b.parent = id;
 	}
 }
+menu_setup = function(){
+instance_create_depth(x,y,depth,obj_menu_setup);
+}
 reset_playfield = function(hard=false){
 record();
 array_clear(global.note_grid,0,0,160,104,0);

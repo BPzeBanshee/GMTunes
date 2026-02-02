@@ -52,6 +52,11 @@ if data_ctrl == 34 data_ctrl = 0;
 if !surface_exists(pixel_surf) update_surf();
 surface_set_target(pixel_surf);
 
+gpu_set_blendmode(bm_subtract);
+draw_set_alpha(1);
+draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
+gpu_set_blendmode(bm_normal);
+
 if data > 0 or data_ctrl > 0
 	{
 	if global.use_external_assets
@@ -62,13 +67,13 @@ if data > 0 or data_ctrl > 0
 		if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x,_y);
 		}
 	}
-else
+/*else
 	{
 	gpu_set_blendmode(bm_subtract);
 	draw_set_alpha(1);
 	draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
 	gpu_set_blendmode(bm_normal);
-	}
+	}*/
 surface_reset_target();
 }
 
@@ -90,6 +95,12 @@ for (var ny=0; ny<h; ny++)
 		var data_ctrl = global.ctrl_grid[cx][cy];
 		if data_ctrl == 34 data_ctrl = 0;
 		var _x = cx*px;
+		
+		gpu_set_blendmode(bm_subtract);
+		draw_set_alpha(1);
+		draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
+		gpu_set_blendmode(bm_normal);
+			
 		if data > 0 or data_ctrl > 0
 			{
 			if global.use_external_assets
@@ -100,13 +111,13 @@ for (var ny=0; ny<h; ny++)
 				if data_ctrl > 0 draw_sprite(spr_note_ctrl,data_ctrl-1,_x,_y);
 				}
 			}
-		else
+		/*else
 			{
 			gpu_set_blendmode(bm_subtract);
 			draw_set_alpha(1);
 			draw_rectangle(_x,_y,_x+px-1,_y+px-1,false);
 			gpu_set_blendmode(bm_normal);
-			}
+			}*/
 		}
 	}
 	

@@ -144,6 +144,4 @@ list_blue = [];
 list_red = [];
 bug = [[]];
 xx = 0; yy = 0;
-loading_obj = instance_create_depth(0,0,depth-1,obj_loading);
-loading_obj.txt = "Loading Bugz...";
 alarm[0] = 1;

@@ -24,6 +24,11 @@ scr_trans(rm_debug_tools);
 enabled = false;
 }
 
+start_setup = function(){
+instance_create_depth(0,0,depth-1,obj_menu_setup);
+enabled = false;
+}
+
 exit_game = function(){
 game_end();
 }
@@ -71,7 +76,7 @@ if global.use_external_assets
 	surf4 = init_surfpal(spr_shd_menu4,h4);
 
 	// Load sounds & background
-	b = -1;
+	snd_menu = -1;
 	snd_play = -1;
 	snd_gal = -1;
 	snd_tut = -1;
@@ -81,13 +86,13 @@ if global.use_external_assets
 	if file_exists(f1)
 		{
 		spr = bmp_load_sprite(TUNERES+"Startup2.bmp");
-		b = wav_load(f1,true);
+		snd_menu = wav_load(f1,true);
 		snd_play = wav_load(TUNERES+"play.wav",true);
 		snd_gal = wav_load(TUNERES+"gallery.wav",true);
 		snd_tut = wav_load(TUNERES+"tutorial.wav",true);
 		snd_exit = wav_load(TUNERES+"exit.wav",true);
 		snd_quit = wav_load(TUNERES+"quit.wav",true);
-		audio_play_sound(b,0,true);
+		audio_play_sound(snd_menu,0,true);
 		}
 	}
 else
@@ -97,8 +102,11 @@ else
 	button[1] = instance_create_depth(640*0.25,		480*0.5,	-1, obj_button);
 	button[2] = instance_create_depth(640*0.75,		480*0.5,	-1, obj_button);
 	button[3] = instance_create_depth(640*0.5,		480*0.75,	-1, obj_button);
+	
 	button[0].txt = "START GAME";
 	button[1].txt = "GALLERY";
 	button[2].txt = "UTILITIES";
 	button[3].txt = "EXIT";
 	}
+button[4] = instance_create_depth(590,			20,		-1, obj_button);
+button[4].txt = "SETUP";

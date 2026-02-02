@@ -369,6 +369,10 @@ if use_classic_gui
 			var backdrop_x = 88;
 			var backdrop_y = by+37;
 			if draw_flash == 6 draw_sprite(global.spr_ui.onclick_bottom,0,backdrop_x,backdrop_y);
+			
+			var setup_x = 89+88;
+			var setup_y = by+38;
+			if draw_flash == 7 draw_sprite(global.spr_ui.onclick_bottom,0,setup_x,setup_y);
 			break;
 			}
 		}
@@ -403,16 +407,18 @@ else
 		case 0:
 			{
 			// top row
-			for (var i=1;i<=25;i++)
+			for (var i=0;i<25;i++)
 				{
-				draw_sprite(spr_note,i-1,bx+(16*i),by);
+				draw_sprite(spr_note,i,bx+(16*i),by);
 				}
 			
 			// bottom row
-			for (var i=1;i<=14;i++)
+			var xx = bx;
+			for (var i=0;i<14;i++)
 				{
-				if i == 9 then i++;
-				draw_sprite(spr_note_ctrl,i-1,bx+(16*i),by+16);
+				if i == 8 continue;
+				draw_sprite(spr_note_ctrl,i,xx,by+16);
+				xx += 16;
 				}
 				
 			// Rainbow option

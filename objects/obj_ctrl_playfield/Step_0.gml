@@ -143,11 +143,25 @@ if use_classic_gui
 				pick_note_color(notes_btm[i]);
 				}
 				
+			// Rainbow option
+			var rainbow_x = bx+360; //400
+			var rainbow_y = by;
+			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+24,rainbow_y+32) && mb
+				{
+				button_click();
+				if !instance_exists(obj_mouse_rainbow)
+					{
+					instance_destroy(m);
+					mouse_create(obj_mouse_rainbow); 
+					}
+				}
+				
 			// Bottom row (control notes)
 			if show_menu exit;
-			var scale_x = bx+24;
+			
+			var scale_x = bx+8;
 			var scale_y = by+38;
-			if point_in_rectangle(mx,my,scale_x,scale_y,scale_x+89,scale_y+38) && mb
+			if point_in_rectangle(mx,my,scale_x,scale_y,scale_x+89,scale_y+26) && mb
 				{
 				button_click();
 				flash(1);
@@ -191,35 +205,6 @@ if use_classic_gui
 				var xx = 351 + (note_gap_h * (i));
 				if point_in_rectangle(mx,my,xx,ctrl_y,xx+note_gap_h,ctrl_y+note_gap_v) && mb
 				pick_note_ctrl(ctrl_notes[i]);
-				}
-			
-			/*for (var i=1;i<=14;i++)
-				{
-				if i == 9 then i++; // skip teleport destination note
-				var xx = note_x + (16*(i-1));
-				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
-					{
-					button_click();
-					if !instance_exists(obj_mouse_ctrl)
-						{
-						instance_destroy(m);
-						mouse_create(obj_mouse_ctrl); 
-						}
-					m.note = i;
-					}
-				}*/
-				
-			// Rainbow option
-			var rainbow_x = bx+360; //400
-			var rainbow_y = by;
-			if point_in_rectangle(mx,my,rainbow_x,rainbow_y,rainbow_x+24,rainbow_y+32) && mb
-				{
-				button_click();
-				if !instance_exists(obj_mouse_rainbow)
-					{
-					instance_destroy(m);
-					mouse_create(obj_mouse_rainbow); 
-					}
 				}
 			break;
 			}
@@ -649,6 +634,18 @@ if use_classic_gui
 					flash(6);
 					}
 				}
+				
+			var setup_x = 89+88;
+			var setup_y = by+38;
+			if point_in_rectangle(mx,my,setup_x,setup_y,setup_x+88,setup_y+26)
+				{
+				if mb
+					{
+					button_click();
+					menu_setup();
+					flash(7);
+					}
+				}
 			break;
 			}
 		}
@@ -675,7 +672,7 @@ else
 			{
 			var xx = 0;
 			// top row
-			for (var i=1;i<=25;i++)
+			for (var i=0;i<25;i++)
 				{
 				xx = bx+(16*i);
 				if point_in_rectangle(mx,my,xx,by,xx+16,by+15) && mb
@@ -685,15 +682,15 @@ else
 						instance_destroy(m);
 						mouse_create(obj_mouse_colour); 
 						}
-					m.note = i;
+					m.note = i+1;
 					}
 				}
 				
 			// bottom row
-			for (var i=1;i<=14;i++)
+			xx = bx;
+			for (var i=0;i<14;i++)
 				{
-				xx = bx+(16*i);
-				if i == 9 then i++;
+				if i == 8 continue;
 				if point_in_rectangle(mx,my,xx,by+16,xx+16,by+32) && mb
 					{
 					if !instance_exists(obj_mouse_ctrl)
@@ -701,8 +698,9 @@ else
 						instance_destroy(m);
 						mouse_create(obj_mouse_ctrl); 
 						}
-					m.note = i;
+					m.note = i+1;
 					}
+				xx += 16;
 				}
 			
 			// Rainbow option

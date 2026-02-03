@@ -106,4 +106,5 @@ if use_classic_gui
 	gui.notetable_mask = bmp_load_sprite(TUNERES+"TONEMASK.BMP",,,,,true,,0,0);
 	gui.notetable_mask2 = bmp_load_sprite(TUNERES+"HALFMASK.BMP",,,,18,true,,0,0);
 	gui.notetable_abc = bmp_load_sprite(TUNERES+"ABC.BMP",,,,,true,,0,0);
+	gui.notetable_drm = bmp_load_sprite(TUNERES+"DOREMI.BMP",,,,,true,,0,0);
 	}

@@ -642,8 +642,8 @@ if use_classic_gui
 				if mb
 					{
 					button_click();
-					menu_setup();
 					flash(7);
+					menu_setup();
 					}
 				}
 			break;

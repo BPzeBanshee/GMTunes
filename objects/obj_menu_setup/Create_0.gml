@@ -2,8 +2,10 @@
 
 // External background
 if global.use_external_assets
+{
 myback = bmp_load_sprite(TUNERES+"Setup.bmp",,,,,,,0,0);
-	
+}
+
 // Misc stuff
 draw_flash = 0;
 ready = false;

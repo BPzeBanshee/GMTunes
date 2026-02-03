@@ -24,6 +24,8 @@ if global.use_external_assets
 	
 	// Right Column (using rectangle glow)
 	// TODO: Display on Palette
+	var palette_x = 438 + (60 * global.display_on_palette);
+	draw_rectangle_inline_c(palette_x,46,palette_x+60,46+60,c_red);
 	// TODO: Display on Tiles
 	
 	// Bottom row

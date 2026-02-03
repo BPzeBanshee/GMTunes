@@ -69,7 +69,11 @@ if use_classic_gui
 				}
 				
 			// musical notation
-			if !show_menu draw_sprite(gui.notetable_abc,0,bx,by);
+			if !show_menu && global.display_on_palette > 0
+				{
+				var notespr = global.display_on_palette == 1 ? gui.notetable_abc : gui.notetable_drm;
+				draw_sprite(notespr,0,bx,by);
+				}
 			
 			// bottom row
 			var scale_x = bx+8;

@@ -6,6 +6,10 @@ audio_play_sound(global.snd_ui.button,0,false);
 return 0;
 }
 
+flash = function(value){
+draw_flash = value;
+alarm[1] = 2;
+}
 ///@desc Creates a mouse object
 ///@param {Asset.GMObject, Id.Instance} obj
 mouse_create = function(obj){
@@ -28,14 +32,15 @@ m.note = i;
 if global.use_external_assets
 	{
 	var snd = global.snd_ui.beep[i-1];
+	var bug = -1;
 	switch play_index
 		{
-		case 1: if instance_exists(bug_yellow) snd = bug_yellow.snd_struct.snd[i-1]; break;
-		case 2: if instance_exists(bug_green) snd = bug_green.snd_struct.snd[i-1]; break;
-		case 3: if instance_exists(bug_blue) snd = bug_blue.snd_struct.snd[i-1]; break;
-		case 4: if instance_exists(bug_red) snd = bug_red.snd_struct.snd[i-1]; break;
-		default: break;
+		case 1: bug = bug_yellow; break;
+		case 2: bug = bug_green; break;
+		case 3: bug = bug_blue; break;
+		case 4: bug = bug_red; break;
 		}
+	if instance_exists(bug) snd = bug.snd_struct.snd[i-1]; 
 	if audio_exists(play_handle) audio_stop_sound(play_handle);
 	play_handle = audio_play_sound(snd,0,false);
 	}
@@ -200,6 +205,9 @@ else
 menu_setup = function(){
 instance_create_depth(x,y,depth,obj_menu_setup);
 }
+menu_about = function(){
+instance_create_depth(x,y,depth,obj_menu_about);
+}
 reset_playfield = function(hard=false){
 record();
 array_clear(global.note_grid,0,0,160,104,0);
@@ -215,10 +223,6 @@ if hard
 	}
 field.update_surf();
 if global.use_external_assets audio_play_sound(global.snd_ui.zap,0,false);
-}
-flash = function(value){
-draw_flash = value;
-alarm[1] = 2;
 }
 undo = function(){
 note_grid_prev2 = variable_clone(global.note_grid);

@@ -377,6 +377,14 @@ if use_classic_gui
 			var setup_x = 89+88;
 			var setup_y = by+38;
 			if draw_flash == 7 draw_sprite(global.spr_ui.onclick_bottom,0,setup_x,setup_y);
+			
+			var about_x = 269;
+			var about_y = by+38;
+			if draw_flash == 8 draw_sprite(global.spr_ui.onclick_bottom,0,about_x,about_y);
+			
+			var reset_hard_x = 447;
+			var reset_hard_y = by+38;
+			if draw_flash == 9 draw_sprite(global.spr_ui.onclick_bottom,0,reset_hard_x,reset_hard_y);
 			break;
 			}
 		}

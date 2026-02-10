@@ -646,6 +646,30 @@ if use_classic_gui
 					menu_setup();
 					}
 				}
+				
+			var about_x = 269;
+			var about_y = by+38;
+			if point_in_rectangle(mx,my,about_x,about_y,about_x+88,about_y+26)
+				{
+				if mb
+					{
+					button_click();
+					flash(8);
+					menu_about();
+					}
+				}
+				
+			var reset_hard_x = 447;
+			var reset_hard_y = by+38;
+			if point_in_rectangle(mx,my,reset_hard_x,reset_hard_y,reset_hard_x+88,reset_hard_y+26)
+				{
+				if mb
+					{
+					button_click();
+					flash(9);
+					reset_playfield(true);
+					}
+				}
 			break;
 			}
 		}

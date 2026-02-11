@@ -494,7 +494,7 @@ else
 			// Preset Stamps
 			var preset_x = 155+90+76;
 			var preset_y = by+3;
-			for (var i=0;i<5;i++)
+			if stamps_loaded for (var i=0;i<5;i++)
 				{
 				var j = (pstamp_page * 5) + i;
 				var g = 32 * i;
@@ -533,7 +533,7 @@ else
 				flash(5);
 				}
 				
-			draw_set_font(fnt_system);
+			//draw_set_font(fnt_system);
 			draw_set_color(c_white);
 			draw_text(preset_up_x+6,preset_up_y+16,string(pstamp_page+1));
 			

@@ -3,6 +3,7 @@ function tun_save(file){
 if file == "" then return -2;
 
 // then we gather the data
+var fileext = string_lower(filename_ext(file));
 
 // Flag data
 var myflags;
@@ -33,9 +34,24 @@ for (var i=0;i<4;i++)
 		str[i].paused =		mybugz[i].paused;
 		str[i].volume =		mybugz[i].volume;
 		}
+		
+	// SimTunes ALWAYS loads all four Bugz slots, but GMTunes does not,
+	// so we need to provide placeholder filename if we're not using a Bug
+	// given that this file type is expected to be able to be opened in
+	// SimTunes.
+	else if fileext == ".tun"
+		{
+		switch i
+			{
+			case 0: str[i].filename = "YELLOW00.BUG"; break;
+			case 1: str[i].filename = "GREEN00.BUG"; break;
+			case 2: str[i].filename = "BLUE00.BUG"; break;
+			case 3: str[i].filename = "RED00.BUG"; break;
+			}
+		}
 	}
 	
-// "Pixel size": currently unused
+// "Pixel size": Determines Bug sprites to load in SimTunes
 var pixel_size = 4;
 switch global.zoom
 	{
@@ -71,8 +87,8 @@ var mystruct = {
 // then decide which format script to use
 var result = 0;
 trace("Saving playfield to "+string(file)+"...");
-if string_lower(filename_ext(file)) == ".tun" result = tun_save_tun(mystruct,file);
-if string_lower(filename_ext(file)) == ".gmtun" result = tun_save_gmtun(mystruct,file);
+if fileext == ".tun" result = tun_save_tun(mystruct,file);
+if fileext == ".gmtun" result = tun_save_gmtun(mystruct,file);
 
 // and return the result code
 return result;

@@ -32,15 +32,16 @@ m.note = i;
 if global.use_external_assets
 	{
 	var snd = global.snd_ui.beep[i-1];
-	var bug = -1;
+	var bug = noone;
 	switch play_index
 		{
 		case 1: bug = bug_yellow; break;
 		case 2: bug = bug_green; break;
 		case 3: bug = bug_blue; break;
 		case 4: bug = bug_red; break;
+		default: break;
 		}
-	if instance_exists(bug) snd = bug.snd_struct.snd[i-1]; 
+	if instance_exists(bug) snd = (bug.snd_struct).snd[i-1]; 
 	if audio_exists(play_handle) audio_stop_sound(play_handle);
 	play_handle = audio_play_sound(snd,0,false);
 	}

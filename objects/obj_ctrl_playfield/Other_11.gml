@@ -142,3 +142,18 @@ if keyboard_check(vk_control)
 	// Load Game
 	if keyboard_check_pressed(ord("L")) load_tun();
 	}
+
+// DEBUG: save folder with Bugz information
+if keyboard_check(vk_shift)
+	{
+	var bug = noone;
+	if keyboard_check_pressed(ord("Y")) bug = bug_yellow;
+	if keyboard_check_pressed(ord("G")) bug = bug_green;
+	if keyboard_check_pressed(ord("B")) bug = bug_blue;
+	if keyboard_check_pressed(ord("R")) bug = bug_red;
+	if bug != noone
+		{
+		var dir = get_save_filename("",bug.bugzname);
+		bug_save(bug,dir);
+		}
+	}

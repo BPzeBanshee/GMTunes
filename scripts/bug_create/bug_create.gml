@@ -33,7 +33,7 @@ var bugztype = buffer_read_be16(bu); // Get bugz type (0: yellow, 1: green, 2: b
 form_skip(bu);
 
 // INFO
-// var info = bug_load_info(bu);
+// var info = bug_load_desc(bu);
 form_skip(bu);
 
 // SHOW
@@ -517,4 +517,120 @@ for (var i=0;i<=num_sounds;i++)
 	}
 	
 return {buf,snd};
+}
+
+function bug_save(bug_obj,save_dir){
+if save_dir == "" or !instance_exists(bug_obj) return 1;
+
+// Create folder in sandbox first
+var myfolder = filename_name(save_dir);
+if !directory_exists(myfolder) directory_create(myfolder);
+var myzip = zip_create();
+
+// Grab numeric/array data
+var json = {};
+json.bugzname = bug_obj.bugzname;
+json.bugztype = bug_obj.bugztype;
+json.bugzid = bug_obj.bugzid;
+json.ltxy_mode = bug_obj.ltxy_mode;
+json.ltxy_data = bug_obj.ltxy_data;
+json.ltcc_data = bug_obj.ltcc_data;
+
+// Get portrait and stuff not stored in bug object
+var p = global.main_dir+"/Bugz/"+string_upper(json.bugzname);
+if file_exists(p)
+	{
+	trace(string(p)+" exists, getting DESC/SHOW from file...");
+	var bu = buffer_load(p);
+	// FORM
+	var test = "";
+	repeat 4 test += chr(buffer_read(bu,buffer_u8));
+	if test != "FORM"
+		{
+		msg("File doesn't match SimTunes BUGZ format.");
+	    return -2;
+		}
+	buffer_read(bu,buffer_u32);
+	
+	// "BUGZTYPE___x"
+	buffer_read(bu,buffer_u64);
+	buffer_read(bu,buffer_u32);
+	buffer_read_be16(bu); // Get bugz type (0: yellow, 1: green, 2: blue, 3: red)
+	//trace("BUGZTYPE: {0}",bugztype);
+	
+	// TEXT
+	json.name = bug_load_text(bu);
+	//form_skip(bu);
+	
+	// INFO
+	json.desc = bug_load_desc(bu);
+	//form_skip(bu);
+
+	// SHOW
+	var show = bug_load_show(bu);
+	sprite_save(show,0,myfolder+"/SHOW.PNG");
+	zip_add_file(myzip,"SHOW.PNG",myfolder+"/SHOW.PNG");
+	buffer_delete(bu);
+	//form_skip(bu);
+	}
+else
+	{
+	json.desc = "TBA";
+	}
+	
+// save text/numeric data as a JSON
+var f = file_text_open_write(myfolder+"/DATA.JSON");
+file_text_write_string(f,json_stringify(json,true));
+file_text_close(f);
+zip_add_file(myzip,"DATA.JSON",myfolder+"/DATA.JSON");
+	
+// Save Bug + Note play quarters as PNGs
+var ff = "";
+for (var z=0; z < 3; z++)
+for (var i=0; i < array_length(bug_obj.spr_up[z]); i++)
+	{
+	ff = "ANIM_UP/ZOOM_"+string(z)+"/"+string(i)+".png";
+	sprite_save(bug_obj.spr_up[z][i],0,myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+
+for (var i=0; i<array_length(bug_obj.spr_notehit_tl); i++)
+	{
+	ff = "LITE/TOPLEFT/"+string(i)+".png";
+	sprite_save(bug_obj.spr_notehit_tl[i],0,myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+
+for (var i=0; i<array_length(bug_obj.spr_notehit_tr); i++)
+	{
+	ff = "LITE/TOPRIGHT/"+string(i)+".png";
+	sprite_save(bug_obj.spr_notehit_tr[i],0,myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+	
+for (var i=0; i<array_length(bug_obj.spr_notehit_bl); i++)
+	{
+	ff = "LITE/BOTTOMLEFT/"+string(i)+".png";
+	sprite_save(bug_obj.spr_notehit_bl[i],0,myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+	
+for (var i=0; i<array_length(bug_obj.spr_notehit_br); i++)
+	{
+	ff = "LITE/BOTTOMRIGHT/"+string(i)+".png";
+	sprite_save(bug_obj.spr_notehit_br[i],0,myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+
+// Save .WAVs
+var snds = bug_obj.snd_struct.buf;
+for (var i=0; i<array_length(snds); i++)
+	{
+	ff = "WAVE/"+string(i)+".WAV";
+	buffer_save(snds[i],myfolder+"/"+ff);
+	zip_add_file(myzip,ff,myfolder+"/"+ff);
+	}
+trace("Directory "+string(game_save_id+myfolder)+" made and stuff saved into it");
+zip_save(myzip,save_dir);
+return 0;
 }

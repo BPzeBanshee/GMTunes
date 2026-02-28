@@ -96,7 +96,7 @@ switch bugzid
 	default: return -1;
 	}
 if filename == ""
-filename = get_open_filename_ext("Bugz File|*.BUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
+filename = get_open_filename_ext("Bugz File|*.BUG|GMBUG Archive|*.GMBUG","",global.main_dir+"/BUGZ",string("Load {0} Bug",mycolor));
 if string_length(filename)>0
 	{
 	var mybug = bug_create(room_width*0.5,room_height*0.5,filename);

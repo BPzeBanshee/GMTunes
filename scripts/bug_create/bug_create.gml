@@ -5,6 +5,41 @@ export bug info in it's entirety to easily-GM-loadable files?
 
 function bug_create(xx,yy,filehandle){
 if !file_exists(filehandle) then return -1;
+
+var mystruct;
+if string_upper(filename_ext(filehandle)) == ".BUG"
+mystruct = bug_load_bug(filehandle)
+else mystruct = bug_load_gmbug(filehandle);
+
+if !is_struct(mystruct) return -2;
+
+var bug = instance_create_layer(xx,yy,"lay_bugz",obj_bug);
+bug.bugzname = mystruct.name;
+bug.bugztype = mystruct.bugztype; // yellow:0/green:1/blue:2/red:3
+bug.bugzid = mystruct.bugzid; //instance_number(obj_bug);
+bug.spr_up = mystruct.anim;
+//bug.spr_down = anim.spr_down;
+//bug.spr_left = anim.spr_left;
+//bug.spr_right = anim.spr_right;
+bug.ltxy_mode = mystruct.ltxy_mode;
+bug.ltxy_data = mystruct.ltxy_data;
+bug.ltcc_data = mystruct.ltcc;
+bug.spr_notehit_tl = mystruct.lite.spr_notehit_tl;
+bug.spr_notehit_tr = mystruct.lite.spr_notehit_tr;
+bug.spr_notehit_bl = mystruct.lite.spr_notehit_bl;
+bug.spr_notehit_br = mystruct.lite.spr_notehit_br;
+bug.snd_struct = mystruct.snd_struct;
+
+var gx = floor(640 * (xx/room_width));
+var gy = floor(416 * (yy/room_height));
+trace("bug_create({0}): Bug successfully created at {1},{2} (GUI: {3},{4})",mystruct.name,xx,yy,gx,gy);
+return bug;
+}
+
+///@desc Loads Bugz metadata from a SimTunes .BUG file
+///@param {String} filehandle File to load
+///@returns {Struct}
+function bug_load_bug(filehandle){
 // Name for debug/metadata purposes
 var name = filename_name(filehandle);
 
@@ -26,6 +61,7 @@ buffer_read(bu,buffer_u32);
 buffer_read(bu,buffer_u64);
 buffer_read(bu,buffer_u32);
 var bugztype = buffer_read_be16(bu); // Get bugz type (0: yellow, 1: green, 2: blue, 3: red)
+var bugzid = real(string_digits(name)); // HACK: kept in file near here but do it properly later
 //trace("BUGZTYPE: {0}",bugztype);
 
 // TEXT
@@ -53,6 +89,7 @@ var anim = bug_load_anim(bu);
 // STYL + LITE (note hit sprite)
 trace("bug_create({0}): loading STYL...",name);
 var styl = bug_load_styl(bu);
+var ltxy_mode = styl[1]; // other data undetermined, second entry is draw mode
 //trace("STYL: {0}",styl);
 
 trace("bug_create({0}): loading LITE...",name);
@@ -60,7 +97,7 @@ var lite = bug_load_lite(bu);
 
 // LTXY (x/y animation data for note hit)
 trace("bug_create({0}): loading LTXY...",name);
-var ltxy = bug_load_ltxy(bu);
+var ltxy_data = bug_load_ltxy(bu);
 
 // LTCC (blend anim data for note hit)
 trace("bug_create({0}): loading LTCC...",name);
@@ -76,27 +113,8 @@ trace("bug_create({0}): loading WAVE...",name);
 var snd_struct = bug_load_wave(bu); 
 buffer_delete(bu);
 
-var bug = instance_create_layer(xx,yy,"lay_bugz",obj_bug);
-bug.bugzname = name;
-bug.bugztype = bugztype;
-bug.bugzid = real(string_digits(name)); //instance_number(obj_bug);
-bug.spr_up = anim;
-//bug.spr_down = anim.spr_down;
-//bug.spr_left = anim.spr_left;
-//bug.spr_right = anim.spr_right;
-bug.ltxy_mode = styl[1];
-bug.ltxy_data = ltxy;
-bug.ltcc_data = ltcc;
-bug.spr_notehit_tl = lite.spr_notehit_tl;
-bug.spr_notehit_tr = lite.spr_notehit_tr;
-bug.spr_notehit_bl = lite.spr_notehit_bl;
-bug.spr_notehit_br = lite.spr_notehit_br;
-bug.snd_struct = snd_struct;
-
-var gx = floor(640 * (xx/room_width));
-var gy = floor(416 * (yy/room_height));
-trace("bug_create({0}): Bug successfully created at {1},{2} (GUI: {3},{4})",name,xx,yy,gx,gy);
-return bug;
+var mystruct = {name,bugztype,bugzid,anim,ltxy_mode,ltcc,ltxy_data,lite,midi,snd_struct};
+return mystruct;
 }
 
 function bug_load_text(bu){
@@ -633,4 +651,89 @@ for (var i=0; i<array_length(snds); i++)
 trace("Directory "+string(game_save_id+myfolder)+" made and stuff saved into it");
 zip_save(myzip,save_dir);
 return 0;
+}
+
+function bug_load_gmbug(filehandle){
+// File address info
+var mydir = game_save_id+filename_name(filehandle);
+if string_upper(filename_ext(filehandle))==".GMBUG"
+	{
+	var myzip = zip_unzip(filehandle,mydir);
+	if myzip < 0 
+		{
+		trace("Extraction of "+mydir+" failed!");
+		return -1;
+		}
+	}
+	
+// JSON metadata
+var f = file_text_open_read(mydir+"/DATA.JSON");
+var str = "";
+while !file_text_eof(f) {
+str += file_text_readln(f);
+}
+file_text_close(f);
+var myjson = json_parse(str);
+var name = myjson.name;
+var bugztype = myjson.bugztype;
+var bugzid = myjson.bugzid;
+var ltxy_mode = myjson.ltxy_mode; // STYL
+var ltxy_data = myjson.ltxy_data; // LTXY
+var ltcc = myjson.ltcc_data;		// LTCC
+var midi = []; // placeholder for now
+
+
+// Sprites
+var spr_up = [];
+var spr_notehit_tl = [];
+var spr_notehit_tr = [];
+var spr_notehit_bl = [];
+var spr_notehit_br = [];
+
+// ANIM: Save Bug + Note play quarters as PNGs
+var ff = "";
+for (var z=0; z < 3; z++)
+for (var i=0; i < 8; i++)
+	{
+	ff = mydir+"/ANIM_UP/ZOOM_"+string(z)+"/"+string(i)+".png";
+	spr_up[z][i] = sprite_add(ff,0,false,false,0,0);
+	sprite_set_offset(spr_up[z][i],sprite_get_width(spr_up[z][i])/2,sprite_get_height(spr_up[z][i])/2);
+	}
+
+// LITE: get note play quartile sprites
+for (var i=0; i < 16; i++)
+	{
+	ff = mydir+"/LITE/TOPLEFT/"+string(i)+".png";
+	spr_notehit_tl[i] = sprite_add(ff,0,false,false,0,0);
+	
+	ff = mydir+"/LITE/TOPRIGHT/"+string(i)+".png";
+	spr_notehit_tr[i] = sprite_add(ff,0,false,false,0,0);
+	
+	ff = mydir+"/LITE/BOTTOMLEFT/"+string(i)+".png";
+	spr_notehit_bl[i] = sprite_add(ff,0,false,false,0,0);
+	
+	ff = mydir+"/LITE/BOTTOMRIGHT/"+string(i)+".png";
+	spr_notehit_br[i] = sprite_add(ff,0,false,false,0,0);
+	
+	sprite_set_offset(spr_notehit_tl[i],sprite_get_width(spr_notehit_tl[i]),sprite_get_height(spr_notehit_tl[i]));
+	sprite_set_offset(spr_notehit_tr[i],0,sprite_get_height(spr_notehit_tr[i]));
+	sprite_set_offset(spr_notehit_bl[i],sprite_get_width(spr_notehit_bl[i]),0);
+	sprite_set_offset(spr_notehit_br[i],0,0);
+	}
+var anim = spr_up;
+var lite = {spr_notehit_tl,spr_notehit_tr,spr_notehit_bl,spr_notehit_br};
+
+// WAVE / Sounds
+var snd = [];
+var buf = []; // not strictly needed now, possibly for resaving into .BUG format later
+for (var i=0;i<26;i++)
+	{
+	snd[i] = wav_load(mydir+"/WAVE/"+string(i)+".WAV");
+	buf[i] = -1;//buffer_load(mydir+"/WAVE/"+string(i)+".WAV");
+	}
+var snd_struct = {snd,buf};
+
+// Now formulate Bugz struct
+var mystruct = {name,bugztype,bugzid,anim,ltxy_mode,ltcc,ltxy_data,lite,midi,snd_struct};
+return mystruct;
 }

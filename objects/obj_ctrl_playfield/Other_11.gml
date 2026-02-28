@@ -157,3 +157,23 @@ if keyboard_check(vk_shift)
 		bug_save(bug,dir);
 		}
 	}
+if keyboard_check(vk_control)
+	{
+	var bugzid = -1;
+	if keyboard_check_pressed(ord("Y")) bugzid = 0;
+	if keyboard_check_pressed(ord("G")) bugzid = 1;
+	if keyboard_check_pressed(ord("B")) bugzid = 2;
+	if keyboard_check_pressed(ord("R")) bugzid = 3;
+	if bugzid > -1
+		{
+		var dir = get_open_filename_ext("Bugz File|*.BUG|GMBUG Archive|*.GMBUG","",global.main_dir+"/BUGZ","Load Bug");
+		var newbug = load_bug(bugzid,dir);
+		switch bugzid
+			{
+			case 0: instance_destroy(bug_yellow); bug_yellow = newbug; break;
+			case 1: instance_destroy(bug_green); bug_green = newbug; break;
+			case 2: instance_destroy(bug_blue); bug_blue = newbug; break;
+			case 3: instance_destroy(bug_red); bug_red = newbug; break;
+			}
+		}
+	}

@@ -1,8 +1,8 @@
 // sounds
 for (var i=0;i<array_length(snd_struct.buf);i++)
 	{
-	audio_free_buffer_sound(snd_struct.snd[i]);
-	buffer_delete(snd_struct.buf[i]);
+	if audio_exists(snd_struct.snd[i]) audio_free_buffer_sound(snd_struct.snd[i]);
+	if buffer_exists(snd_struct.buf[i]) buffer_delete(snd_struct.buf[i]);
 	}
 	
 // bug sprites
@@ -17,8 +17,8 @@ for (var i=0;i<3;i++)
 // bug hit anims
 for (var i=0;i<array_length(spr_notehit_tl);i++)
 	{
-	sprite_delete(spr_notehit_tl[i]);
-	sprite_delete(spr_notehit_tr[i]);
-	sprite_delete(spr_notehit_bl[i]);
-	sprite_delete(spr_notehit_br[i]);
+	if sprite_exists(spr_notehit_tl[i]) sprite_delete(spr_notehit_tl[i]);
+	if sprite_exists(spr_notehit_tr[i]) sprite_delete(spr_notehit_tr[i]);
+	if sprite_exists(spr_notehit_bl[i]) sprite_delete(spr_notehit_bl[i]);
+	if sprite_exists(spr_notehit_br[i]) sprite_delete(spr_notehit_br[i]);
 	}
